@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="PluginSDK:jar">
+    <output-path>$USER_HOME$/Desktop/minefraft server/plugins</output-path>
+    <root id="archive" name="PluginSDK.jar">
+      <element id="module-output" name="PluginSDK" />
+    </root>
+  </artifact>
+</component>

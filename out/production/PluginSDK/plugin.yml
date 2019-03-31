@@ -1,0 +1,12 @@
+name: TestPlugin
+description:
+version: 1.0
+main: me.apisek12.plugin.PluginMain
+commands:
+  kol:
+
+  home:
+
+  sethome:
+
+  toon:
