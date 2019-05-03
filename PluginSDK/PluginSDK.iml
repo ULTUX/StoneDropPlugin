@@ -10,11 +10,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Desktop/Minecraft Api/craftbukkit-1.13.2.jar!/" />
+          <root url="jar://$USER_HOME$/Desktop/Minecraft Api/spigot-1.14.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/Desktop/Minecraft Api/craftbukkit-1.13.2.jar!/" />
+          <root url="jar://$USER_HOME$/Desktop/Minecraft Api/spigot-1.14.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
