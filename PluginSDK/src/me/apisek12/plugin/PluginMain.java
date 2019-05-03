@@ -7,7 +7,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import java.util.Collection;
 
 public class PluginMain extends JavaPlugin {
     static Plugin plugin = null;
@@ -27,31 +26,19 @@ public class PluginMain extends JavaPlugin {
 
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (command.getName().equalsIgnoreCase("toon") && args != null){
-                Collection<Player> arrayList = (Collection<Player>) Bukkit.getOnlinePlayers();
-                Player playerSelected = null;
-                boolean jesli = false;
-                player.sendMessage(args[0]+" "+args[1]);
-                for (int i = 0; i < Bukkit.getOnlinePlayers().size(); i++){
-                    playerSelected = arrayList.iterator().next();
-                    if (playerSelected.getName().equalsIgnoreCase(args[0])){
-                        jesli = true;
-                        break;
-                    }
-                }
-//                if (jesli == true){
-//                    getServer().broadcastMessage(player.getDisplayName()+": "+args[1]);
+//            if (command.getName().equalsIgnoreCase("toon") && args != null){
+//                Collection<Player> arrayList = (Collection<Player>) Bukkit.getOnlinePlayers();
+//                Player playerSelected = null;
+//                boolean jesli = false;
+//                player.sendMessage(args[0]+" "+args[1]);
+//                for (int i = 0; i < Bukkit.getOnlinePlayers().size(); i++){
+//                    playerSelected = arrayList.iterator().next();
+//                    if (playerSelected.getName().equalsIgnoreCase(args[0])){
+//                        jesli = true;
+//                        break;
+//                    }
 //                }
-        }
-//            if (command.getName().equalsIgnoreCase("sethome")) {
-//                location = player.getLocation();
-//                player.sendTitle(ChatColor.RED + "Changed home location.", "", 10, 40, 20);
-//            }
-//            if (command.getName().equalsIgnoreCase("home")){
-//                player.teleport(location);
-//                player.sendTitle(ChatColor.GREEN + "Teleported!", "", 10, 40, 20);
-//                player.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_HUGE, location, 2);
-//            }
+//        }
         } else if (sender instanceof ConsoleCommandSender)
             sender.getServer().getConsoleSender().sendMessage("To musi byc gracz a nie konsola!");
         return false;
