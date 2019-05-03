@@ -1,6 +1,5 @@
 package me.apisek12.plugin;
 
-import net.minecraft.server.v1_14_R1.Item;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -33,10 +32,10 @@ public class MyEvents implements Listener {
                 event.getPlayer().giveExp(15);
             }
             else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 2) {
-                if (Chance.chance(0.01)) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(2, 3)));
-                if (Chance.chance(0.04)) world.dropItem(location, new ItemStack(Material.GOLD_INGOT, Chance.randBetween(2, 3)));
-                if (Chance.chance(0.06)) world.dropItem(location, new ItemStack(Material.IRON_INGOT, Chance.randBetween(2, 3)));
-                if (Chance.chance(0.1)) world.dropItem(location, new ItemStack(Material.COAL, Chance.randBetween(2, 3)));
+                if (Chance.chance(0.006)) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(2, 3)));
+                if (Chance.chance(0.03)) world.dropItem(location, new ItemStack(Material.GOLD_INGOT, Chance.randBetween(2, 3)));
+                if (Chance.chance(0.04)) world.dropItem(location, new ItemStack(Material.IRON_INGOT, Chance.randBetween(2, 3)));
+                if (Chance.chance(0.06)) world.dropItem(location, new ItemStack(Material.COAL, Chance.randBetween(2, 3)));
                 if (Chance.chance(0.02)) world.dropItem(location, new ItemStack(Material.EMERALD, Chance.randBetween(2, 3)));
                 if (Chance.chance(0.02))
                     world.dropItem(location, new ItemStack(Material.REDSTONE, Chance.randBetween(4, 7)));
@@ -45,10 +44,10 @@ public class MyEvents implements Listener {
                 event.getPlayer().giveExp(18);
             }
             else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 3) {
-                if (Chance.chance(0.015)) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(3, 4)));
-                if (Chance.chance(0.06)) world.dropItem(location, new ItemStack(Material.GOLD_INGOT, Chance.randBetween(3, 4)));
-                if (Chance.chance(0.09)) world.dropItem(location, new ItemStack(Material.IRON_INGOT, Chance.randBetween(3, 4)));
-                if (Chance.chance(0.15)) world.dropItem(location, new ItemStack(Material.COAL, Chance.randBetween(3, 4)));
+                if (Chance.chance(0.007)) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(3, 4)));
+                if (Chance.chance(0.04)) world.dropItem(location, new ItemStack(Material.GOLD_INGOT, Chance.randBetween(3, 4)));
+                if (Chance.chance(0.05)) world.dropItem(location, new ItemStack(Material.IRON_INGOT, Chance.randBetween(3, 4)));
+                if (Chance.chance(0.07)) world.dropItem(location, new ItemStack(Material.COAL, Chance.randBetween(3, 4)));
                 if (Chance.chance(0.03)) world.dropItem(location, new ItemStack(Material.EMERALD, Chance.randBetween(3, 4)));
                 if (Chance.chance(0.03))
                     world.dropItem(location, new ItemStack(Material.REDSTONE, Chance.randBetween(5, 8)));
