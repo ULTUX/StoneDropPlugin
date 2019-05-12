@@ -25,7 +25,7 @@ public class MyEvents implements Listener {
         World world = block.getWorld();
         Material tool = event.getPlayer().getInventory().getItemInMainHand().getType();
 
-        if (!PluginMain.playerSettings.get(event.getPlayer()).ifCobble) event.setDropItems(false);
+        if (!PluginMain.playerSettings.get(event.getPlayer()).ifCobble && event.getBlock().getType() == Material.STONE) event.setDropItems(false);
 
 
         if (block.getBlockData().getMaterial() == Material.STONE && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||

@@ -52,12 +52,13 @@ public class PluginMain extends JavaPlugin {
 //        }
             if (command.getName().equalsIgnoreCase("drop")){
                 Setting setting = playerSettings.get(player);
-                if (args[0].equalsIgnoreCase("cobble")){
+                if (args.length == 0 || args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
+                else if (args[0].equalsIgnoreCase("cobble")){
                     setting.ifCobble = !setting.ifCobble;
                     if (setting.ifCobble) player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.AQUA+"cobbla"+ChatColor.GOLD+" jest teraz włączony");
                     else player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.AQUA+"cobbla"+ChatColor.GOLD+" jest teraz wyłączony");
                 }
-                if (args[0].equalsIgnoreCase("zelazo")) {
+                else if (args[0].equalsIgnoreCase("zelazo")) {
                     setting.ifIron =  !setting.ifIron;
                     if (setting.ifIron) player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.GRAY+"żelaza"+ChatColor.GOLD+" jest teraz włączony");
                     else player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.GRAY+"żelaza"+ChatColor.GOLD+" jest teraz wyłączony");
@@ -96,7 +97,8 @@ public class PluginMain extends JavaPlugin {
                     player.sendMessage(ChatColor.GREEN+"Obowiązują nastepujące ustawienia: \nCobblestone: "+setting.isIfCobble()+"\nWęgiel: "+setting.isIfCoal()+"\nŻelazo: "+setting.isIfIron()+"\nZłoto: "+setting.isIfGold()+"\nLapis: "+setting.isIfLapis()+"\nSzmaragdy: "+
                             setting.isIfEmerald()+"\nRedstone: "+setting.isIfRedstone()+"\nDiamenty: "+setting.isIfDiamond());
                 }
-                else player.sendMessage("Nieznany argument!\nUżyj jednego z nastepującucj argumentów\n/drop <cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
+
+                else player.sendMessage(ChatColor.GRAY+"Nieznany argument!\nKomenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
             }
         } else if (sender instanceof ConsoleCommandSender)
             if (command.getName().equalsIgnoreCase("shutdown") && args != null){

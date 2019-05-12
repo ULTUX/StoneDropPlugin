@@ -6,3 +6,5 @@ main: me.apisek12.plugin.PluginMain
 commands:
   shutdown:
   drop:
+    description: Modyfikuj ustawienia dropu.
+    aliases: [d]
