@@ -1,12 +1,10 @@
 name: TestPlugin
 description:
+api-version: 1.13
 version: 1.0
 main: me.apisek12.plugin.PluginMain
 commands:
-  kol:
-
-  home:
-
-  sethome:
-
-  toon:
+  shutdown:
+  drop:
+    description: Modyfikuj ustawienia dropu.
+    aliases: [d]
