@@ -1,10 +1,29 @@
 package me.apisek12.plugin;
 
 public class Setting {
-    boolean ifGold, ifCoal, ifIron, ifDiamond, ifLapis, ifRedstone, ifEmerald, ifCobble;
+    boolean ifGold;
+    boolean ifCoal;
+    boolean ifIron;
+    boolean ifDiamond;
+    boolean ifLapis;
+    boolean ifRedstone;
+    boolean ifEmerald;
+    boolean ifCobble;
+    boolean ifStack;
 
-    public boolean isIfCobble() {
-        return ifCobble;
+    public String isIfStack() {
+        if (ifStack) return "tak";
+        return "nie";
+    }
+
+    public void setIfStack(boolean ifStack) {
+        this.ifStack = ifStack;
+    }
+
+
+    public String isIfCobble() {
+        if (ifCobble)return "tak";
+        return "nie";
     }
 
     public void setIfCobble(boolean ifCobble) {
@@ -20,6 +39,7 @@ public class Setting {
         ifRedstone = true;
         ifEmerald = true;
         ifCobble = true;
+        ifStack = false;
     }
 
     public void setIfGold(boolean ifGold) {
