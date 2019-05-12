@@ -1,23 +1,14 @@
 package me.apisek12.plugin;
 
 import org.bukkit.*;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarFlag;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.scheduler.BukkitTask;
-
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 public class PluginMain extends JavaPlugin {
     static Plugin plugin = null;
@@ -52,11 +43,16 @@ public class PluginMain extends JavaPlugin {
 //        }
             if (command.getName().equalsIgnoreCase("drop")){
                 Setting setting = playerSettings.get(player);
-                if (args.length == 0 || args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
+                if (args.length == 0 || args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
                 else if (args[0].equalsIgnoreCase("cobble")){
                     setting.ifCobble = !setting.ifCobble;
                     if (setting.ifCobble) player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.AQUA+"cobbla"+ChatColor.GOLD+" jest teraz włączony");
                     else player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.AQUA+"cobbla"+ChatColor.GOLD+" jest teraz wyłączony");
+                }
+                else if (args[0].equalsIgnoreCase("stack")) {
+                    setting.ifStack =  !setting.ifStack;
+                    if (setting.ifStack) player.sendMessage(ChatColor.RED+"Stackowanie"+ChatColor.GOLD+" jest teraz włączone");
+                    else player.sendMessage(ChatColor.RED+"Stackowanie"+ChatColor.GOLD+" jest teraz wyłączone");
                 }
                 else if (args[0].equalsIgnoreCase("zelazo")) {
                     setting.ifIron =  !setting.ifIron;
@@ -94,11 +90,11 @@ public class PluginMain extends JavaPlugin {
                     else player.sendMessage(ChatColor.GOLD+"Drop złota jest teraz wyłączony");
                 }
                 else if (args[0].equalsIgnoreCase("info")){
-                    player.sendMessage(ChatColor.GREEN+"Obowiązują nastepujące ustawienia: \nCobblestone: "+setting.isIfCobble()+"\nWęgiel: "+setting.isIfCoal()+"\nŻelazo: "+setting.isIfIron()+"\nZłoto: "+setting.isIfGold()+"\nLapis: "+setting.isIfLapis()+"\nSzmaragdy: "+
+                    player.sendMessage(ChatColor.GREEN+"Obowiązują nastepujące ustawienia: \nStackowanie: "+setting.isIfStack()+"\nCobblestone: "+setting.isIfCobble()+"\nWęgiel: "+setting.isIfCoal()+"\nŻelazo: "+setting.isIfIron()+"\nZłoto: "+setting.isIfGold()+"\nLapis: "+setting.isIfLapis()+"\nSzmaragdy: "+
                             setting.isIfEmerald()+"\nRedstone: "+setting.isIfRedstone()+"\nDiamenty: "+setting.isIfDiamond());
                 }
 
-                else player.sendMessage(ChatColor.GRAY+"Nieznany argument!\nKomenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
+                else player.sendMessage(ChatColor.GRAY+"Nieznany argument!\nKomenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
             }
         } else if (sender instanceof ConsoleCommandSender)
             if (command.getName().equalsIgnoreCase("shutdown") && args != null){
@@ -114,13 +110,14 @@ public class PluginMain extends JavaPlugin {
                                 timer = System.currentTimeMillis();
                                 long currentTime = System.currentTimeMillis();
                                 Object[] players = plugin.getServer().getOnlinePlayers().toArray();
-
+                                long timer2 = System.currentTimeMillis();
                                 for (int i = 0; i < players.length; i++) {
                                     Player player = (Player) players[i];
-
-                                    if ((int)((time/1000) - (currentTime-startTime)/1000) > 60)
-                                        player.sendTitle(ChatColor.RED + "Serwer wyłączony za: "+ (int)((time/60000) - (currentTime-startTime)/60000)+" minut", null, 0, 25, 0);
-                                    else player.sendTitle(ChatColor.RED + "Serwer wyłączony za: "+ (int)((time/1000) - (currentTime-startTime)/1000)+" sekund", null, 0, 25, 0);
+                                        if (System.currentTimeMillis() > timer2 + 3000) {
+                                            player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 60000) - (currentTime - startTime) / 60000) + " minut", null, 10, 80, 10);
+                                            timer = System.currentTimeMillis();
+                                    }
+                                    else player.sendTitle(ChatColor.RED + "Serwer wyłączony za: "+ (int)((time/1000) - (currentTime-startTime)/1000)+" sekund", null, 0, 40, 0);
                                 }
                             }
 
@@ -149,6 +146,79 @@ public class PluginMain extends JavaPlugin {
         Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Plugin włączony!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                if (Bukkit.getServer().getOnlinePlayers().size() > 0){
+                    for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().size(); i++){
+                        Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[0];
+                        if (playerSettings.get(player).ifStack){
+                            boolean tak = true;
+                            while (tak){
+                                if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)){
+                                    player.getInventory().removeItem(new ItemStack(Material.REDSTONE, 9));
+                                    player.getInventory().addItem(new ItemStack(Material.REDSTONE_BLOCK));
 
+                                }
+                                else tak = false;
+                            }
+                            tak = true;
+                            while (tak){
+                                if (player.getInventory().containsAtLeast(new ItemStack(Material.LAPIS_LAZULI), 9)){
+                                    player.getInventory().removeItem(new ItemStack(Material.LAPIS_LAZULI, 9));
+                                    player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
+
+                                }
+                                else tak = false;
+                            }
+                            tak = true;
+                            while (tak){
+                                if (player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9)){
+                                    player.getInventory().removeItem(new ItemStack(Material.COAL, 9));
+                                    player.getInventory().addItem(new ItemStack(Material.COAL_BLOCK));
+
+                                }
+                                else tak = false;
+                            }
+                            tak = true;
+                            while (tak){
+                                if (player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9)){
+                                    player.getInventory().removeItem(new ItemStack(Material.IRON_INGOT, 9));
+                                    player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK));
+
+                                }
+                                else tak = false;
+                            }
+                            tak = true;
+                            while (tak){
+                                if (player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9)){
+                                    player.getInventory().removeItem(new ItemStack(Material.DIAMOND, 9));
+                                    player.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK));
+
+                                }
+                                else tak = false;
+                            }
+                            tak = true;
+                            while (tak){
+                                if (player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9)){
+                                    player.getInventory().removeItem(new ItemStack(Material.GOLD_INGOT, 9));
+                                    player.getInventory().addItem(new ItemStack(Material.GOLD_BLOCK));
+
+                                }
+                                else tak = false;
+                            }
+                            tak = true;
+                            while (tak){
+                                if (player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9)){
+                                    player.getInventory().removeItem(new ItemStack(Material.EMERALD, 9));
+                                    player.getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
+
+                                }
+                                else tak = false;
+                            }
+                        }
+                    }
+                }
+        }}, 40L, 80L);
     }
 }
