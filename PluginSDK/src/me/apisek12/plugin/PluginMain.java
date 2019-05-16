@@ -22,7 +22,7 @@ public class PluginMain extends JavaPlugin {
         playerSettings.forEach((player, setting) -> { getConfig().set("users."+player, setting.toString());});
         saveConfig();
         Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Config file saved!");
-        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.BLUE + "Plugin disabled!");
+        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.DARK_RED + "Plugin disabled!");
         plugin = null;
     }
 
@@ -148,20 +148,24 @@ public class PluginMain extends JavaPlugin {
     public void onEnable() {
         getConfig().options().copyDefaults(true);
         saveConfig();
+        reloadConfig();
         try {
-            for (String key : plugin.getConfig().getConfigurationSection("users.")){
-                Bukkit.getConsoleSender().sendMessage((String) plugin.getConfig().get("users."+key));
-                String setting = (String) plugin.getConfig().get("users."+key);
+            for (String key : Objects.requireNonNull(getConfig().getConfigurationSection("users")).getKeys(false)){
+                String setting = (String) getConfig().get("users."+key);
                 String[] options = Objects.requireNonNull(setting).split(",");
                 boolean[] boolopt = new boolean[options.length];
                 for (int i = 0; i < options.length; i++) boolopt[i] = Boolean.parseBoolean(options[i]);
+
                 Setting finalSetting = new Setting(boolopt);
+                playerSettings.put(key, finalSetting);
 
             }
         }
         catch (NullPointerException e){
-            Bukkit.getConsoleSender().sendMessage("Error");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED+"Error: ");
+            e.printStackTrace();
         }
+
         Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Loaded config!\nPlugin enabled!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
