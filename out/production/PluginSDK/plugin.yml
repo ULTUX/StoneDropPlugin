@@ -1,6 +1,6 @@
 name: TestPlugin
 description:
-api-version: 1.13
+api-version: 1.14
 version: 1.0
 main: me.apisek12.plugin.PluginMain
 commands:

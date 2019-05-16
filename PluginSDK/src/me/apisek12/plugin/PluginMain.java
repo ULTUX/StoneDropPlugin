@@ -9,19 +9,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class PluginMain extends JavaPlugin {
     static Plugin plugin = null;
 
-    public static HashMap<Player, Setting> playerSettings = new HashMap<>();
+    public static HashMap<String, Setting> playerSettings = new HashMap<>();
 
     @Override
     public void onDisable() {
-        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.BLUE + "Plugin wylączony!");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Saving config file...");
+        playerSettings.forEach((player, setting) -> { getConfig().set("users."+player, setting.toString());});
+        saveConfig();
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Config file saved!");
+        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.DARK_RED + "Plugin disabled!");
         plugin = null;
     }
-
-    Location location;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -42,7 +45,7 @@ public class PluginMain extends JavaPlugin {
 //                }
 //        }
             if (command.getName().equalsIgnoreCase("drop")){
-                Setting setting = playerSettings.get(player);
+                Setting setting = playerSettings.get(player.getUniqueId().toString());
                 if (args.length == 0 || args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
                 else if (args[0].equalsIgnoreCase("cobble")){
                     setting.ifCobble = !setting.ifCobble;
@@ -143,7 +146,27 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Plugin włączony!");
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+        reloadConfig();
+        try {
+            for (String key : Objects.requireNonNull(getConfig().getConfigurationSection("users")).getKeys(false)){
+                String setting = (String) getConfig().get("users."+key);
+                String[] options = Objects.requireNonNull(setting).split(",");
+                boolean[] boolopt = new boolean[options.length];
+                for (int i = 0; i < options.length; i++) boolopt[i] = Boolean.parseBoolean(options[i]);
+
+                Setting finalSetting = new Setting(boolopt);
+                playerSettings.put(key, finalSetting);
+
+            }
+        }
+        catch (NullPointerException e){
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED+"Error: ");
+            e.printStackTrace();
+        }
+
+        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Loaded config!\nPlugin enabled!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
@@ -152,7 +175,7 @@ public class PluginMain extends JavaPlugin {
                 if (Bukkit.getServer().getOnlinePlayers().size() > 0){
                     for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().size(); i++){
                         Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[0];
-                        if (playerSettings.get(player).ifStack){
+                        if (playerSettings.get(player.getUniqueId().toString()).ifStack){
                             boolean tak = true;
                             while (tak){
                                 if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)){

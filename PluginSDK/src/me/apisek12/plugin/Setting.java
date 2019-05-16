@@ -1,6 +1,8 @@
 package me.apisek12.plugin;
 
-public class Setting {
+import java.io.Serializable;
+
+public class Setting implements Serializable {
     boolean ifGold;
     boolean ifCoal;
     boolean ifIron;
@@ -11,9 +13,62 @@ public class Setting {
     boolean ifCobble;
     boolean ifStack;
 
+
+    public Setting(boolean ifGold, boolean ifCoal, boolean ifIron, boolean ifDiamond, boolean ifLapis, boolean ifRedstone, boolean ifEmerald, boolean ifCobble, boolean ifStack) {
+        this.ifGold = ifGold;
+        this.ifCoal = ifCoal;
+        this.ifIron = ifIron;
+        this.ifDiamond = ifDiamond;
+        this.ifLapis = ifLapis;
+        this.ifRedstone = ifRedstone;
+        this.ifEmerald = ifEmerald;
+        this.ifCobble = ifCobble;
+        this.ifStack = ifStack;
+    }
+
+    public Setting (boolean[] options){
+        this.ifGold = options[0];
+        this.ifCoal = options[1];
+        this.ifIron = options[2];
+        this.ifDiamond = options[3];
+        this.ifLapis = options[4];
+        this.ifRedstone = options[5];
+        this.ifEmerald = options[6];
+        this.ifCobble = options[7];
+        this.ifStack = options[8];
+    }
+
     public String isIfStack() {
         if (ifStack) return "tak";
         return "nie";
+    }
+
+
+    @Override
+    public String toString() {
+        return        ifGold +
+                "," + ifCoal +
+                "," + ifIron +
+                "," + ifDiamond +
+                "," + ifLapis +
+                "," + ifRedstone +
+                "," + ifEmerald +
+                "," + ifCobble +
+                "," + ifStack;
+    }
+
+    public Setting fromString(String string){
+        boolean ifGold;
+        boolean ifCoal;
+        boolean ifIron;
+        boolean ifDiamond;
+        boolean ifLapis;
+        boolean ifRedstone;
+        boolean ifEmerald;
+        boolean ifCobble;
+        boolean ifStack;
+
+        return new Setting();
     }
 
     public void setIfStack(boolean ifStack) {
