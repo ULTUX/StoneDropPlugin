@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class PluginMain extends JavaPlugin {
     static Plugin plugin = null;
@@ -21,7 +22,7 @@ public class PluginMain extends JavaPlugin {
         playerSettings.forEach((player, setting) -> { getConfig().set("users."+player, setting.toString());});
         saveConfig();
         Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Config file saved!");
-        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.BLUE + "Plugin wylączony!");
+        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.BLUE + "Plugin disabled!");
         plugin = null;
     }
 
@@ -148,14 +149,20 @@ public class PluginMain extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveConfig();
         try {
-            for (String key : plugin.getConfig().getConfigurationSection("users").getKeys(false)){
-                playerSettings.put(key, (Setting) plugin.getConfig().get("users."+key));
+            for (String key : plugin.getConfig().getConfigurationSection("users.")){
+                Bukkit.getConsoleSender().sendMessage((String) plugin.getConfig().get("users."+key));
+                String setting = (String) plugin.getConfig().get("users."+key);
+                String[] options = Objects.requireNonNull(setting).split(",");
+                boolean[] boolopt = new boolean[options.length];
+                for (int i = 0; i < options.length; i++) boolopt[i] = Boolean.parseBoolean(options[i]);
+                Setting finalSetting = new Setting(boolopt);
+
             }
         }
         catch (NullPointerException e){
             Bukkit.getConsoleSender().sendMessage("Error");
         }
-        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Loaded config!\nPlugin włączony!");
+        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Loaded config!\nPlugin enabled!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
@@ -164,7 +171,7 @@ public class PluginMain extends JavaPlugin {
                 if (Bukkit.getServer().getOnlinePlayers().size() > 0){
                     for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().size(); i++){
                         Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[0];
-                        if (playerSettings.get(player).ifStack){
+                        if (playerSettings.get(player.getUniqueId().toString()).ifStack){
                             boolean tak = true;
                             while (tak){
                                 if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)){
