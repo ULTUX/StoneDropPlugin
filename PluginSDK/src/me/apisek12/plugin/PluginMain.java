@@ -13,15 +13,17 @@ import java.util.HashMap;
 public class PluginMain extends JavaPlugin {
     static Plugin plugin = null;
 
-    public static HashMap<Player, Setting> playerSettings = new HashMap<>();
+    public static HashMap<String, Setting> playerSettings = new HashMap<>();
 
     @Override
     public void onDisable() {
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Saving config file...");
+        playerSettings.forEach((player, setting) -> { getConfig().set("users."+player, setting.toString());});
+        saveConfig();
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Config file saved!");
         Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.BLUE + "Plugin wylączony!");
         plugin = null;
     }
-
-    Location location;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -42,7 +44,7 @@ public class PluginMain extends JavaPlugin {
 //                }
 //        }
             if (command.getName().equalsIgnoreCase("drop")){
-                Setting setting = playerSettings.get(player);
+                Setting setting = playerSettings.get(player.getUniqueId().toString());
                 if (args.length == 0 || args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
                 else if (args[0].equalsIgnoreCase("cobble")){
                     setting.ifCobble = !setting.ifCobble;
@@ -143,7 +145,17 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Plugin włączony!");
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+        try {
+            for (String key : plugin.getConfig().getConfigurationSection("users").getKeys(false)){
+                playerSettings.put(key, (Setting) plugin.getConfig().get("users."+key));
+            }
+        }
+        catch (NullPointerException e){
+            Bukkit.getConsoleSender().sendMessage("Error");
+        }
+        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Loaded config!\nPlugin włączony!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {

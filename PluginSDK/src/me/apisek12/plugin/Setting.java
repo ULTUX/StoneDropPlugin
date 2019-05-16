@@ -1,5 +1,7 @@
 package me.apisek12.plugin;
 
+import java.util.Objects;
+
 public class Setting {
     boolean ifGold;
     boolean ifCoal;
@@ -11,9 +13,42 @@ public class Setting {
     boolean ifCobble;
     boolean ifStack;
 
+
+
     public String isIfStack() {
         if (ifStack) return "tak";
         return "nie";
+    }
+
+
+    @Override
+    public String toString() {
+        return "Setting{" +
+                "ifGold=" + ifGold +
+                ", ifCoal=" + ifCoal +
+                ", ifIron=" + ifIron +
+                ", ifDiamond=" + ifDiamond +
+                ", ifLapis=" + ifLapis +
+                ", ifRedstone=" + ifRedstone +
+                ", ifEmerald=" + ifEmerald +
+                ", ifCobble=" + ifCobble +
+                ", ifStack=" + ifStack +
+                '}';
+    }
+
+    public Setting fromString(String string){
+        string.
+        boolean ifGold;
+        boolean ifCoal;
+        boolean ifIron;
+        boolean ifDiamond;
+        boolean ifLapis;
+        boolean ifRedstone;
+        boolean ifEmerald;
+        boolean ifCobble;
+        boolean ifStack;
+
+        return new Setting();
     }
 
     public void setIfStack(boolean ifStack) {
