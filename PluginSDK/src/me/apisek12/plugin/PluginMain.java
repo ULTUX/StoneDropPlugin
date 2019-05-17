@@ -173,8 +173,8 @@ public class PluginMain extends JavaPlugin {
             @Override
             public void run() {
                 if (Bukkit.getServer().getOnlinePlayers().size() > 0){
-                    for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().size(); i++){
-                        Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[0];
+                    for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().toArray().length; i++){
+                        Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[i];
                         if (playerSettings.get(player.getUniqueId().toString()).ifStack){
                             boolean tak = true;
                             while (tak){
