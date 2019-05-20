@@ -2,7 +2,6 @@
 This is a source code to one of the first plugins I have ever created. <br>
 This plugin supports <b>latest</b> minecraft version, avaiable to be compiled to your server.
 
-
 # Latest releases: [Releases](https://github.com/ULTUX/minecraft-stone-drop-plugin/releases/)
 
 <h2>Functions: </h2>
