@@ -16,4 +16,3 @@ This plugin supports <b>latest</b> minecraft version, avaiable to be compiled to
   <ul>
     <li>Ability to change and modify chances of drop</l1>
   </ul>
-
