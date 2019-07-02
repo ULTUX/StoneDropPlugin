@@ -8,3 +8,7 @@ commands:
   drop:
     description: Modyfikuj ustawienia dropu.
     aliases: [d]
+  codropi:
+    description: Pokazuje szansze na drop
+  emergencyDisable:
+    description: Wylacz awaryjnie plugin

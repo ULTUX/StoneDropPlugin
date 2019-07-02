@@ -2,6 +2,7 @@ package me.apisek12.plugin;
 
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.craftbukkit.v1_13_R2.command.ConsoleCommandCompleter;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,6 +19,11 @@ public class PluginMain extends JavaPlugin {
 
     public static HashMap<String, Setting> playerSettings = new HashMap<>();
     public static HashMap<String, DropChance> dropChances = new HashMap<>();
+    private static boolean isDisabled = false;
+
+    public static boolean isIsDisabled() {
+        return isDisabled;
+    }
 
     @Override
     public void onDisable() {
@@ -32,7 +38,7 @@ public class PluginMain extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (sender instanceof Player) {
+        if (sender instanceof Player && !isDisabled) {
             Player player = (Player) sender;
 //            if (command.getName().equalsIgnoreCase("toon") && args != null){
 //                Collection<Player> arrayList = (Collection<Player>) Bukkit.getOnlinePlayers();
@@ -106,6 +112,10 @@ public class PluginMain extends JavaPlugin {
                 else player.sendMessage(ChatColor.GRAY+"Nieznany argument!\nKomenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
             }
         } else if (sender instanceof ConsoleCommandSender)
+            if (command.getName().equalsIgnoreCase("emergencyDisable")) {
+                isDisabled = !isDisabled;
+                sender.sendMessage("PluginDisabled: " + isDisabled);
+            }
             if (command.getName().equalsIgnoreCase("shutdown") && args != null){
                 long time = Long.parseLong(args[0])*1000;
                 boolean wylacz = false;

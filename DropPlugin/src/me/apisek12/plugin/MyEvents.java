@@ -23,10 +23,13 @@ public class MyEvents implements Listener {
 
     @EventHandler
     public void blockBreak(BlockBreakEvent event) {
+        if (!PluginMain.isIsDisabled()){
         Block block = event.getBlock();
         Location location = block.getLocation();
         World world = block.getWorld();
         Material tool = event.getPlayer().getInventory().getItemInMainHand().getType();
+
+
 
 
         if (!PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifCobble && event.getBlock().getType() == Material.STONE) event.setDropItems(false);
@@ -36,7 +39,8 @@ public class MyEvents implements Listener {
         tool == Material.GOLDEN_PICKAXE || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == Material.WOODEN_PICKAXE)) {
             if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 1) {
                 for (int i = 0; i < set.length; i++){
-                    if (Chance.chance(drop.get(set[i]).getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(drop.get(set[i]).getMinf1(), drop.get(set[i]).getMaxf1())));
+                    if (Chance.chance(drop.get(set[i]).getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(getOre(set[i]), Chance.randBetween(drop.get(set[i]).getMinf1(), drop.get(set[i]).getMaxf1())));
+
                 }
                 //                if (Chance.chance(drop.get("diamond").getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifDiamond) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(drop.get(), 2)));
 //                if (Chance.chance(drop.get("gold").getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifGold) world.dropItem(location, new ItemStack(Material.GOLD_INGOT, Chance.randBetween(1, 2)));
@@ -51,7 +55,7 @@ public class MyEvents implements Listener {
             }
             else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 2) {
                 for (int i = 0; i < set.length; i++){
-                    if (Chance.chance(drop.get(set[i]).getF2()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(drop.get(set[i]).getMinf2(), drop.get(set[i]).getMaxf2())));
+                    if (Chance.chance(drop.get(set[i]).getF2()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(getOre(set[i]), Chance.randBetween(drop.get(set[i]).getMinf2(), drop.get(set[i]).getMaxf2())));
                 }
 //                if (Chance.chance(0.006) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifDiamond) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(2, 3)));
 //                if (Chance.chance(0.03) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifGold) world.dropItem(location, new ItemStack(Material.GOLD_INGOT, Chance.randBetween(2, 3)));
@@ -65,8 +69,10 @@ public class MyEvents implements Listener {
             }
             else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 3) {
                 for (int i = 0; i < set.length; i++){
-                    if (Chance.chance(drop.get(set[i]).getF3()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(drop.get(set[i]).getMinf3(), drop.get(set[i]).getMaxf3())));
+                    if (Chance.chance(drop.get(set[i]).getF3()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(getOre(set[i]), Chance.randBetween(drop.get(set[i]).getMinf3(), drop.get(set[i]).getMaxf3())));
+//                    Bukkit.getServer().broadcastMessage(ChatColor.GOLD + set[i]+": szansa: "+drop.get(set[i]).getF3() + ", min: " + drop.get(set[i]).getMinf3() + "max: " + drop.get(set[i]).getMaxf3());
                 }
+
 //                if (Chance.chance(0.007) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifDiamond) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(3, 4)));
 //                if (Chance.chance(0.04) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifGold) world.dropItem(location, new ItemStack(Material.GOLD_INGOT, Chance.randBetween(3, 4)));
 //                if (Chance.chance(0.05) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifIron) world.dropItem(location, new ItemStack(Material.IRON_INGOT, Chance.randBetween(3, 4)));
@@ -78,7 +84,7 @@ public class MyEvents implements Listener {
             }
             else  {
                 for (int i = 0; i < set.length; i++){
-                    if (Chance.chance(drop.get(set[i]).getNof()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(Material.DIAMOND, Chance.randBetween(drop.get(set[i]).getMinnof(), drop.get(set[i]).getMaxnof())));
+                    if (Chance.chance(drop.get(set[i]).getNof()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(getOre(set[i]), Chance.randBetween(drop.get(set[i]).getMinnof(), drop.get(set[i]).getMaxnof())));
                 }
 //                if (Chance.chance(0.005) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifDiamond) world.dropItem(location, new ItemStack(Material.DIAMOND, 1));
 //                if (Chance.chance(0.02) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifGold) world.dropItem(location, new ItemStack(Material.GOLD_INGOT, 1));
@@ -107,8 +113,27 @@ public class MyEvents implements Listener {
 //                }, 2);
 //            }
         }
-    }
+    }}
 
+    private Material getOre(String name){
+        switch (name){
+            case "diamond":
+                return Material.DIAMOND;
+            case "iron":
+                return Material.IRON_INGOT;
+            case "gold":
+                return Material.GOLD_INGOT;
+            case "coal":
+                return Material.COAL;
+            case "emerald":
+                return Material.EMERALD;
+            case "lapis":
+                return Material.LAPIS_LAZULI;
+            case "redstone":
+                return Material.REDSTONE;
+        }
+        return null;
+    }
 
     @EventHandler
     public void PlayerRespawnEvent(PlayerRespawnEvent e) {
@@ -124,10 +149,14 @@ public class MyEvents implements Listener {
     }
 
 
+
     @EventHandler
     public void PlayerJoinEvent(PlayerJoinEvent e){
         if (!PluginMain.playerSettings.containsKey(e.getPlayer().getUniqueId().toString())) PluginMain.playerSettings.put(e.getPlayer().getUniqueId().toString(), new Setting());
+        e.getPlayer().getWorld().strikeLightningEffect(e.getPlayer().getLocation());
     }
+
+
 
 
 }
