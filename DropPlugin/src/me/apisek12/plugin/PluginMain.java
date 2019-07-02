@@ -2,7 +2,6 @@ package me.apisek12.plugin;
 
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -10,10 +9,9 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Set;
 
 public class PluginMain extends JavaPlugin {
     static Plugin plugin = null;
@@ -49,6 +47,9 @@ public class PluginMain extends JavaPlugin {
 //                    }
 //                }
 //        }
+            if (command.getName().equalsIgnoreCase("codropi")){
+                player.sendMessage(ChatColor.GOLD+dropChances.toString());
+            }
             if (command.getName().equalsIgnoreCase("drop")){
                 Setting setting = playerSettings.get(player.getUniqueId().toString());
                 if (args.length == 0 || args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
@@ -155,22 +156,19 @@ public class PluginMain extends JavaPlugin {
         saveDefaultConfig();
         saveConfig();
 
-        try {
-            for (String key : Objects.requireNonNull(getConfig().getConfigurationSection("users")).getKeys(false)){
-                String setting = (String) getConfig().get("users."+key);
-                String[] options = Objects.requireNonNull(setting).split(",");
-                boolean[] boolopt = new boolean[options.length];
-                for (int i = 0; i < options.length; i++) boolopt[i] = Boolean.parseBoolean(options[i]);
+        ConfigurationSection cs =  getConfig().getConfigurationSection("users");
+            if (cs != null) {
+                Set<String> keyList = cs.getKeys(false);
+                for (String key : keyList) {
+                    String setting = (String) getConfig().get("users." + key);
+                    String[] options = Objects.requireNonNull(setting).split(",");
+                    boolean[] boolopt = new boolean[options.length];
+                    for (int i = 0; i < options.length; i++) boolopt[i] = Boolean.parseBoolean(options[i]);
 
-                Setting finalSetting = new Setting(boolopt);
-                playerSettings.put(key, finalSetting);
-
+                    Setting finalSetting = new Setting(boolopt);
+                    playerSettings.put(key, finalSetting);
+                }
             }
-        }
-        catch (NullPointerException e){
-            Bukkit.getConsoleSender().sendMessage(ChatColor.RED+"Error: ");
-            e.printStackTrace();
-        }
 
         loadChances();
 
@@ -261,27 +259,20 @@ public class PluginMain extends JavaPlugin {
     private void loadChances() {
 
         for (String key : getConfig().getConfigurationSection("chances").getKeys(false)) {
-            Bukkit.getConsoleSender().sendMessage("Line 257 here");
             ConfigurationSection oreObject = getConfig().getConfigurationSection("chances."+key);
              DropChance oreObjectOptions = new DropChance();
              oreObjectOptions.setName(key);
-             Bukkit.getConsoleSender().sendMessage(key);
             for (String fortuneLevel : Objects.requireNonNull(oreObject).getKeys(false)){
                 int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
                 double chance = (double) oreObject.getConfigurationSection(fortuneLevel).get("chance");
-                Bukkit.getConsoleSender().sendMessage(fortuneLevel);
-                Bukkit.getConsoleSender().sendMessage(String.valueOf(chance));
                 int min = (int) oreObject.getConfigurationSection(fortuneLevel).get("min-amount");
-                Bukkit.getConsoleSender().sendMessage(Integer.toString(min));
                 int max = (int) oreObject.getConfigurationSection(fortuneLevel).get("max-amount");
                 oreObjectOptions.setChance(level, chance);
                 oreObjectOptions.setMinDrop(level, min);
                 oreObjectOptions.setMaxDrop(level, max);
             }
-            Bukkit.getConsoleSender().sendMessage(oreObjectOptions.toString());
             dropChances.put(oreObjectOptions.getName(), oreObjectOptions);
         }
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN+"This is THE HashMap:\n"+dropChances.toString());
 
     }
 }
