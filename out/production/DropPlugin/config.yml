@@ -23,15 +23,15 @@ chances:
       max-amount: 1
       min-amount: 1
     fortune-1:
-      chance: 0.05
+      chance: 0.005
       max-amount: 2
       min-amount: 1
     fortune-2:
-      chance: 0.06
+      chance: 0.006
       max-amount: 3
       min-amount: 2
     fortune-3:
-      chance: 0.07
+      chance: 0.007
       max-amount: 4
       min-amount: 3
   emerald:
