@@ -1,0 +1,122 @@
+---
+chances:
+  coal:
+    fortune-0:
+      chance: 0.05
+      max-amount: 1
+      min-amount: 1
+    fortune-1:
+      chance: 0.05
+      max-amount: 2
+      min-amount: 1
+    fortune-2:
+      chance: 0.06
+      max-amount: 3
+      min-amount: 2
+    fortune-3:
+      chance: 0.07
+      max-amount: 4
+      min-amount: 3
+  diamond:
+    fortune-0:
+      chance: 0.005
+      max-amount: 1
+      min-amount: 1
+    fortune-1:
+      chance: 0.05
+      max-amount: 2
+      min-amount: 1
+    fortune-2:
+      chance: 0.06
+      max-amount: 3
+      min-amount: 2
+    fortune-3:
+      chance: 0.07
+      max-amount: 4
+      min-amount: 3
+  emerald:
+    fortune-0:
+      chance: 0.01
+      max-amount: 1
+      min-amount: 1
+    fortune-1:
+      chance: 0.01
+      max-amount: 2
+      min-amount: 1
+    fortune-2:
+      chance: 0.02
+      max-amount: 3
+      min-amount: 2
+    fortune-3:
+      chance: 0.03
+      max-amount: 4
+      min-amount: 3
+  gold:
+    fortune-0:
+      chance: 0.02
+      max-amount: 1
+      min-amount: 1
+    fortune-1:
+      chance: 0.02
+      max-amount: 2
+      min-amount: 1
+    fortune-2:
+      chance: 0.03
+      max-amount: 3
+      min-amount: 2
+    fortune-3:
+      chance: 0.04
+      max-amount: 4
+      min-amount: 3
+  iron:
+    fortune-0:
+      chance: 0.03
+      max-amount: 1
+      min-amount: 1
+    fortune-1:
+      chance: 0.03
+      max-amount: 2
+      min-amount: 1
+    fortune-2:
+      chance: 0.04
+      max-amount: 3
+      min-amount: 2
+    fortune-3:
+      chance: 0.05
+      max-amount: 4
+      min-amount: 3
+  lapis:
+    fortine-2:
+      chance: 0.02
+      max-amount: 5
+      min-amount: 4
+    fortune-0:
+      chance: 0.01
+      max-amount: 3
+      min-amount: 2
+    fortune-1:
+      chance: 0.02
+      max-amount: 4
+      min-amount: 3
+    fortune-3:
+      chance: 0.03
+      max-amount: 6
+      min-amount: 5
+  redstone:
+    fortune-0:
+      chance: 0.02
+      max-amount: 3
+      min-amount: 2
+    fortune-1:
+      chance: 0.03
+      max-amount: 4
+      min-amount: 3
+    fortune-2:
+      chance: 0.04
+      max-amount: 5
+      min-amount: 4
+    fortune-3:
+      chance: 0.05
+      max-amount: 6
+      min-amount: 5
+users: ~
