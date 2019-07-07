@@ -2,7 +2,7 @@ package me.apisek12.plugin;
 
 import java.io.Serializable;
 
-public class Setting implements Serializable {
+public class Setting  {
     boolean ifGold;
     boolean ifCoal;
     boolean ifIron;
@@ -95,6 +95,18 @@ public class Setting implements Serializable {
         ifEmerald = true;
         ifCobble = true;
         ifStack = false;
+    }
+
+
+    public boolean get (String name){
+        if (name.equals("gold")) return ifGold;
+        else if (name.equals("coal")) return ifCoal;
+        else if (name.equals("iron")) return ifIron;
+        else if (name.equals("diamond")) return ifDiamond;
+        else if (name.equals("lapis")) return ifLapis;
+        else if (name.equals("redstone")) return ifRedstone;
+        else if (name.equals("emerald")) return ifEmerald;
+        return false;
     }
 
     public void setIfGold(boolean ifGold) {

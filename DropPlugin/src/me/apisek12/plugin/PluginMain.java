@@ -1,6 +1,8 @@
 package me.apisek12.plugin;
 
 import org.bukkit.*;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.craftbukkit.v1_13_R2.command.ConsoleCommandCompleter;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -10,15 +12,22 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Set;
 
 public class PluginMain extends JavaPlugin {
     static Plugin plugin = null;
 
     public static HashMap<String, Setting> playerSettings = new HashMap<>();
+    public static HashMap<String, DropChance> dropChances = new HashMap<>();
+    private static boolean isDisabled = false;
+
+    public static boolean isIsDisabled() {
+        return isDisabled;
+    }
 
     @Override
     public void onDisable() {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Saving config file...");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Saving getConfig() file...");
         playerSettings.forEach((player, setting) -> { getConfig().set("users."+player, setting.toString());});
         saveConfig();
         Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Config file saved!");
@@ -29,7 +38,7 @@ public class PluginMain extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (sender instanceof Player) {
+        if (sender instanceof Player && !isDisabled) {
             Player player = (Player) sender;
 //            if (command.getName().equalsIgnoreCase("toon") && args != null){
 //                Collection<Player> arrayList = (Collection<Player>) Bukkit.getOnlinePlayers();
@@ -44,6 +53,9 @@ public class PluginMain extends JavaPlugin {
 //                    }
 //                }
 //        }
+            if (command.getName().equalsIgnoreCase("codropi")){
+                player.sendMessage(ChatColor.GOLD+dropChances.toString());
+            }
             if (command.getName().equalsIgnoreCase("drop")){
                 Setting setting = playerSettings.get(player.getUniqueId().toString());
                 if (args.length == 0 || args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
@@ -100,6 +112,10 @@ public class PluginMain extends JavaPlugin {
                 else player.sendMessage(ChatColor.GRAY+"Nieznany argument!\nKomenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
             }
         } else if (sender instanceof ConsoleCommandSender)
+            if (command.getName().equalsIgnoreCase("emergencyDisable")) {
+                isDisabled = !isDisabled;
+                sender.sendMessage("PluginDisabled: " + isDisabled);
+            }
             if (command.getName().equalsIgnoreCase("shutdown") && args != null){
                 long time = Long.parseLong(args[0])*1000;
                 boolean wylacz = false;
@@ -146,27 +162,27 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getConfig().options().copyDefaults(true);
+
+        saveDefaultConfig();
         saveConfig();
-        reloadConfig();
-        try {
-            for (String key : Objects.requireNonNull(getConfig().getConfigurationSection("users")).getKeys(false)){
-                String setting = (String) getConfig().get("users."+key);
-                String[] options = Objects.requireNonNull(setting).split(",");
-                boolean[] boolopt = new boolean[options.length];
-                for (int i = 0; i < options.length; i++) boolopt[i] = Boolean.parseBoolean(options[i]);
 
-                Setting finalSetting = new Setting(boolopt);
-                playerSettings.put(key, finalSetting);
+        ConfigurationSection cs =  getConfig().getConfigurationSection("users");
+            if (cs != null) {
+                Set<String> keyList = cs.getKeys(false);
+                for (String key : keyList) {
+                    String setting = (String) getConfig().get("users." + key);
+                    String[] options = Objects.requireNonNull(setting).split(",");
+                    boolean[] boolopt = new boolean[options.length];
+                    for (int i = 0; i < options.length; i++) boolopt[i] = Boolean.parseBoolean(options[i]);
 
+                    Setting finalSetting = new Setting(boolopt);
+                    playerSettings.put(key, finalSetting);
+                }
             }
-        }
-        catch (NullPointerException e){
-            Bukkit.getConsoleSender().sendMessage(ChatColor.RED+"Error: ");
-            e.printStackTrace();
-        }
 
-        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Loaded config!\nPlugin enabled!");
+        loadChances();
+
+        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Loaded getConfig()!\nPlugin enabled!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
@@ -243,5 +259,33 @@ public class PluginMain extends JavaPlugin {
                     }
                 }
         }}, 40L, 80L);
+
+        MyEvents.set = new String[dropChances.keySet().toArray().length];
+    for (int i = 0; i < dropChances.keySet().toArray().length; i++){
+        MyEvents.set[i] = (String) dropChances.keySet().toArray()[i];
+    }
+
+    }
+    private void loadChances() {
+
+        for (String key : getConfig().getConfigurationSection("chances").getKeys(false)) {
+            ConfigurationSection oreObject = getConfig().getConfigurationSection("chances."+key);
+             DropChance oreObjectOptions = new DropChance();
+             oreObjectOptions.setName(key);
+            for (String fortuneLevel : Objects.requireNonNull(oreObject).getKeys(false)){
+                int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
+                double chance = (double) oreObject.getConfigurationSection(fortuneLevel).get("chance");
+                int min = (int) oreObject.getConfigurationSection(fortuneLevel).get("min-amount");
+                int max = (int) oreObject.getConfigurationSection(fortuneLevel).get("max-amount");
+                oreObjectOptions.setChance(level, chance);
+                oreObjectOptions.setMinDrop(level, min);
+                oreObjectOptions.setMaxDrop(level, max);
+            }
+            dropChances.put(oreObjectOptions.getName(), oreObjectOptions);
+        }
+
     }
 }
+
+
+

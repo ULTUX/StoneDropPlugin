@@ -1,6 +1,6 @@
-name: TestPlugin
+name: DropPlugin
 description:
-api-version: 1.14
+api-version: 1.13
 version: 1.0
 main: me.apisek12.plugin.PluginMain
 commands:
@@ -8,3 +8,7 @@ commands:
   drop:
     description: Modyfikuj ustawienia dropu.
     aliases: [d]
+  codropi:
+    description: Pokazuje szansze na drop
+  emergencyDisable:
+    description: Wylacz awaryjnie plugin
