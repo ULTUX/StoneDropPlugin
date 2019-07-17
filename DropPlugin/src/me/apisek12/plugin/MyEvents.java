@@ -37,6 +37,7 @@ public class MyEvents implements Listener {
 
         if (block.getBlockData().getMaterial() == Material.STONE && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
         tool == Material.GOLDEN_PICKAXE || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == Material.WOODEN_PICKAXE)) {
+            if (Chance.chance())
             if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 1) {
                 for (int i = 0; i < set.length; i++){
                     if (Chance.chance(drop.get(set[i]).getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(getOre(set[i]), Chance.randBetween(drop.get(set[i]).getMinf1(), drop.get(set[i]).getMaxf1())));

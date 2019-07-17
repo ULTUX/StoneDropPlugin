@@ -1,6 +1,7 @@
 package me.apisek12.plugin;
 
 import org.bukkit.*;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_13_R2.command.ConsoleCommandCompleter;
 import org.bukkit.inventory.ItemStack;
@@ -181,7 +182,7 @@ public class PluginMain extends JavaPlugin {
             }
 
         loadChances();
-
+        loadChestChances();
         Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Loaded getConfig()!\nPlugin enabled!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
@@ -266,6 +267,17 @@ public class PluginMain extends JavaPlugin {
     }
 
     }
+
+    private void loadChestChances(){
+        Set<String> config =  getConfig().getConfigurationSection("chest").getKeys(false);
+        for (String k: config){
+            Material material = Material.getMaterial(k);
+            if (material != null){
+                getServer().getConsoleSender().sendMessage(material.toString());
+            }
+        }
+    }
+
     private void loadChances() {
 
         for (String key : getConfig().getConfigurationSection("chances").getKeys(false)) {

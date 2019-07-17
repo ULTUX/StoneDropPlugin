@@ -119,4 +119,5 @@ chances:
       chance: 0.05
       max-amount: 6
       min-amount: 5
+chest: ~
 users: ~
