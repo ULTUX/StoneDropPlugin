@@ -111,6 +111,7 @@ public class MyEvents implements Listener {
             else  {
                 for (int i = 0; i < set.length; i++){
                     if (Chance.chance(drop.get(set[i]).getNof()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(getOre(set[i]), Chance.randBetween(drop.get(set[i]).getMinnof(), drop.get(set[i]).getMaxnof())));
+                    event.getPlayer().giveExp(12);
                 }
 
         }
