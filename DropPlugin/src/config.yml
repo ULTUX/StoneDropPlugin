@@ -120,7 +120,6 @@ chances:
       max-amount: 6
       min-amount: 5
 
-
 chest-spawn-chance: 1.0
 chest:
   DIAMOND:
