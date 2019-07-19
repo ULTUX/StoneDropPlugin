@@ -2,7 +2,6 @@ package me.apisek12.plugin;
 
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.craftbukkit.v1_13_R2.command.ConsoleCommandCompleter;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -19,6 +18,8 @@ public class PluginMain extends JavaPlugin {
 
     public static HashMap<String, Setting> playerSettings = new HashMap<>();
     public static HashMap<String, DropChance> dropChances = new HashMap<>();
+    public static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
+    public static double chestSpawnRate = 0;
     private static boolean isDisabled = false;
 
     public static boolean isIsDisabled() {
@@ -181,7 +182,7 @@ public class PluginMain extends JavaPlugin {
             }
 
         loadChances();
-
+        loadChestChances();
         Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Loaded getConfig()!\nPlugin enabled!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
@@ -266,6 +267,18 @@ public class PluginMain extends JavaPlugin {
     }
 
     }
+
+    private void loadChestChances(){
+        chestSpawnRate = (Double) getConfig().get("chest-spawn-chance");
+        Set<String> config =  getConfig().getConfigurationSection("chest").getKeys(false);
+        for (String k: config){
+            Material material = Material.getMaterial(k);
+            if (material != null){
+                chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max")));
+            }
+        }
+    }
+
     private void loadChances() {
 
         for (String key : getConfig().getConfigurationSection("chances").getKeys(false)) {

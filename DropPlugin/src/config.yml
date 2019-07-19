@@ -119,4 +119,15 @@ chances:
       chance: 0.05
       max-amount: 6
       min-amount: 5
+
+chest-spawn-chance: 1.0
+chest:
+  DIAMOND:
+    chance: 0.9
+    min: 1
+    max: 2
+  COAL_ORE:
+    chance: 0.5
+    min: 10
+    max: 64
 users: ~
