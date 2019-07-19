@@ -1,7 +1,6 @@
 package me.apisek12.plugin;
 
-import javafx.scene.media.MediaException;
-import jdk.nashorn.internal.codegen.types.Type;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -16,16 +15,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import sun.plugin2.main.server.Plugin;
-
 import java.util.HashMap;
-import java.util.Set;
 
 
 public class MyEvents implements Listener {
 
-    private HashMap<String, DropChance> drop = PluginMain.dropChances;
-    public static String[] set;
+    private HashMap<String, DropChance> dropChances = PluginMain.dropChances;
+    public static String[] set; //Ore names
 
 
     @EventHandler
@@ -39,8 +35,7 @@ public class MyEvents implements Listener {
 
 
 
-
-        if (!PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).ifCobble && event.getBlock().getType() == Material.STONE) event.setDropItems(false);
+        if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("STONE").isOn()) event.setDropItems(false);
 
 
         if (block.getBlockData().getMaterial() == Material.STONE && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
@@ -88,54 +83,34 @@ public class MyEvents implements Listener {
 
             if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 1) {
                 for (int i = 0; i < set.length; i++){
-                    if (Chance.chance(drop.get(set[i]).getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(getOre(set[i]), Chance.randBetween(drop.get(set[i]).getMinf1(), drop.get(set[i]).getMaxf1())));
-
+                    if (Chance.chance(dropChances.get(set[i]).getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf1(), dropChances.get(set[i]).getMaxf1())));
                 }
 
                 event.getPlayer().giveExp(15);
             }
             else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 2) {
                 for (int i = 0; i < set.length; i++){
-                    if (Chance.chance(drop.get(set[i]).getF2()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(getOre(set[i]), Chance.randBetween(drop.get(set[i]).getMinf2(), drop.get(set[i]).getMaxf2())));
+                    if (Chance.chance(dropChances.get(set[i]).getF2()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf2(), dropChances.get(set[i]).getMaxf2())));
                 }
 
                 event.getPlayer().giveExp(18);
             }
             else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 3) {
                 for (int i = 0; i < set.length; i++){
-                    if (Chance.chance(drop.get(set[i]).getF3()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(getOre(set[i]), Chance.randBetween(drop.get(set[i]).getMinf3(), drop.get(set[i]).getMaxf3())));
+                    if (Chance.chance(dropChances.get(set[i]).getF3()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3())));
                 }
 
                 event.getPlayer().giveExp(20);
             }
             else  {
                 for (int i = 0; i < set.length; i++){
-                    if (Chance.chance(drop.get(set[i]).getNof()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i])) world.dropItem(location, new ItemStack(getOre(set[i]), Chance.randBetween(drop.get(set[i]).getMinnof(), drop.get(set[i]).getMaxnof())));
+                    if (Chance.chance(dropChances.get(set[i]).getNof()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof())));
                     event.getPlayer().giveExp(12);
                 }
 
         }
     }}}
 
-    private Material getOre(String name){
-        switch (name){
-            case "diamond":
-                return Material.DIAMOND;
-            case "iron":
-                return Material.IRON_INGOT;
-            case "gold":
-                return Material.GOLD_INGOT;
-            case "coal":
-                return Material.COAL;
-            case "emerald":
-                return Material.EMERALD;
-            case "lapis":
-                return Material.LAPIS_LAZULI;
-            case "redstone":
-                return Material.REDSTONE;
-        }
-        return null;
-    }
 
     @EventHandler
     public void PlayerRespawnEvent(PlayerRespawnEvent e) {
@@ -154,10 +129,16 @@ public class MyEvents implements Listener {
 
     @EventHandler
     public void PlayerJoinEvent(PlayerJoinEvent e){
-        if (!PluginMain.playerSettings.containsKey(e.getPlayer().getUniqueId().toString())) PluginMain.playerSettings.put(e.getPlayer().getUniqueId().toString(), new Setting());
+        if (!PluginMain.playerSettings.containsKey(e.getPlayer().getUniqueId().toString())) newPlayerJoined(e.getPlayer().getUniqueId().toString());
         e.getPlayer().getWorld().strikeLightningEffect(e.getPlayer().getLocation());
     }
 
+    private void newPlayerJoined(String uid){
+        HashMap<String, Setting> settings = new HashMap<>();
+        for (int i = 0; i < set.length; i++){
+            settings.put(set[i], new Setting(true, set[i]));
+        }
+    }
 
 
 
