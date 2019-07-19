@@ -8,6 +8,7 @@ public class Chance {
     }
 
     public static int randBetween(int a, int b){
-        return (int)(a + (Math.random()*(b-a) + 1));
+        if (a == b) return a;
+        return (int)(a + (Math.random()*(b-a)));
     }
 }
