@@ -333,11 +333,9 @@ public class PluginMain extends JavaPlugin {
             Material material = Material.getMaterial(k);
             if (material != null){
                 try {
-                    String enchantAsString = (String)getConfig().getConfigurationSection("chest."+k).get("enchant");
-                    int level = (int)getConfig().getConfigurationSection("chest."+k).get("level");
-                   if (enchantAsString != null) {
-                       Enchantment enchant = Enchantment.getByKey(NamespacedKey.minecraft(enchantAsString));
-                       chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max"), enchant, level));
+                    HashMap<Enchantment, Integer> enchants = (HashMap<Enchantment, Integer>) getConfig().getConfigurationSection("chest."+k).get("enchant");
+                   if (enchants != null) {
+                       chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max"), enchants));
                    }
                 }catch (NullPointerException e){
                     chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max")));

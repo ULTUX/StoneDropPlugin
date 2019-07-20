@@ -3,24 +3,15 @@ package me.apisek12.plugin;
 
 import org.bukkit.enchantments.Enchantment;
 
+import java.util.HashMap;
+
 public class ChestItemsInfo {
     private double chance;
     private int min;
     private int max;
-    private Enchantment enchantment = null;
-    private int level;
+    private HashMap<Enchantment, Integer> enchantment = new HashMap<>();
 
-    public int getLevel() {
-        return level;
-    }
 
-    public Enchantment getEnchantment() {
-        return enchantment;
-    }
-
-    public void setEnchantment(Enchantment enchantment) {
-        this.enchantment = enchantment;
-    }
 
 
     public ChestItemsInfo(double chance, int min, int max) {
@@ -29,12 +20,11 @@ public class ChestItemsInfo {
         this.max = max;
     }
 
-    public ChestItemsInfo(double chance, int min, int max, Enchantment enchantment, int level) {
+    public ChestItemsInfo(double chance, int min, int max, HashMap<Enchantment, Integer> enchantment) {
         this.chance = chance;
         this.min = min;
         this.max = max;
         this.enchantment = enchantment;
-        this.level = level;
     }
 
     public double getChance() {
@@ -47,5 +37,9 @@ public class ChestItemsInfo {
 
     public int getMax() {
         return max;
+    }
+
+    public HashMap<Enchantment, Integer> getEnchantment() {
+        return enchantment;
     }
 }

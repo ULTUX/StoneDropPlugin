@@ -78,7 +78,9 @@ public class MyEvents implements Listener {
                                 if (PluginMain.chestContent.get(material).getEnchantment() != null){
                                     ItemStack item = new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax()));
                                     ItemMeta meta = item.getItemMeta();
-                                    meta.addEnchant(PluginMain.chestContent.get(material).getEnchantment(), PluginMain.chestContent.get(material).getLevel(), true);
+                                    PluginMain.chestContent.get(material).getEnchantment().forEach((whatToEnchant, level)->{
+                                        meta.addEnchant(whatToEnchant, level, true);
+                                    });
                                     item.setItemMeta(meta);
                                     chest.getBlockInventory().addItem(item);
                                 }
