@@ -1,12 +1,45 @@
 package me.apisek12.plugin;
 
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
+
+import java.util.HashMap;
+
 public class DropChance {
     private String name;
     private double nof, f1, f2, f3;
     private int minnof, maxnof, minf1, maxf1, minf2, maxf2, minf3, maxf3;
+    private HashMap<Enchantment, Integer> enchant = new HashMap<>();
 
+    public HashMap<Enchantment, Integer> getEnchant() {
+        return enchant;
+    }
 
+    public DropChance(String name, double nof, double f1, double f2, double f3, int minnof, int maxnof, int minf1, int maxf1, int minf2, int maxf2, int minf3, int maxf3, HashMap<Enchantment, Integer> enchant) {
+        this.name = name;
+        this.nof = nof;
+        this.f1 = f1;
+        this.f2 = f2;
+        this.f3 = f3;
+        this.minnof = minnof;
+        this.maxnof = maxnof;
+        this.minf1 = minf1;
+        this.maxf1 = maxf1;
+        this.minf2 = minf2;
+        this.maxf2 = maxf2;
+        this.minf3 = minf3;
+        this.maxf3 = maxf3;
+        this.enchant = enchant;
+    }
+    public DropChance() {
+    }
+
+    public void setEnchant(HashMap<String, Integer> enchant) {
+        enchant.forEach((enchantName, level) ->{
+            this.enchant.put(Enchantment.getByKey(NamespacedKey.minecraft(enchantName)), level);
+        });
+    }
 
     public void setChance(int level, double val){
         if (level == 0) this.nof = val;

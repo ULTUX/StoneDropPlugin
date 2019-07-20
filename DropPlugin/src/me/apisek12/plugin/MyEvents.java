@@ -99,7 +99,19 @@ public class MyEvents implements Listener {
             if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 1) {
                 for (int i = 0; i < set.length; i++){
                     if (!set[i].equals("COBBLE") && !set[i].equals("STACK")){
-                        if (Chance.chance(dropChances.get(set[i]).getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf1(), dropChances.get(set[i]).getMaxf1())));
+                        if (Chance.chance(dropChances.get(set[i]).getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
+                            if (dropChances.get(set[i]).getEnchant().size() != 0){
+                                ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf1(), dropChances.get(set[i]).getMaxf1()));
+                                ItemMeta itemMeta = itemToDrop.getItemMeta();
+                                dropChances.get(set[i]).getEnchant().forEach(((enchantment, level) -> {
+                                    itemMeta.addEnchant(enchantment, level, false);
+                                }));
+
+                            }
+                        else {
+                                world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf1(), dropChances.get(set[i]).getMaxf1())));
+
+                            }
                     }
                 }
 
@@ -109,7 +121,19 @@ public class MyEvents implements Listener {
                 for (int i = 0; i < set.length; i++){
                     if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                         if (Chance.chance(dropChances.get(set[i]).getF2()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
-                            world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf2(), dropChances.get(set[i]).getMaxf2())));
+//                            world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf2(), dropChances.get(set[i]).getMaxf2())));
+                            if (dropChances.get(set[i]).getEnchant().size() != 0){
+                                ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf2(), dropChances.get(set[i]).getMaxf2()));
+                                ItemMeta itemMeta = itemToDrop.getItemMeta();
+                                dropChances.get(set[i]).getEnchant().forEach(((enchantment, level) -> {
+                                    itemMeta.addEnchant(enchantment, level, false);
+                                }));
+
+                            }
+                            else {
+                                world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf2(), dropChances.get(set[i]).getMaxf2())));
+
+                            }
                     }
                     }
 
@@ -119,7 +143,19 @@ public class MyEvents implements Listener {
                 for (int i = 0; i < set.length; i++){
                     if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                         if (Chance.chance(dropChances.get(set[i]).getF3()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
-                            world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3())));
+//                            world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3())));
+                            if (dropChances.get(set[i]).getEnchant().size() != 0){
+                                ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3()));
+                                ItemMeta itemMeta = itemToDrop.getItemMeta();
+                                dropChances.get(set[i]).getEnchant().forEach(((enchantment, level) -> {
+                                    itemMeta.addEnchant(enchantment, level, false);
+                                }));
+
+                            }
+                            else {
+                                world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3())));
+
+                            }
                     }
                     }
 
@@ -129,8 +165,19 @@ public class MyEvents implements Listener {
                 for (int i = 0; i < set.length; i++){
                     if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                         if (Chance.chance(dropChances.get(set[i]).getNof()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
-                            world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof())));
+//                            world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof())));
+                            if (dropChances.get(set[i]).getEnchant().size() != 0){
+                                ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof()));
+                                ItemMeta itemMeta = itemToDrop.getItemMeta();
+                                dropChances.get(set[i]).getEnchant().forEach(((enchantment, level) -> {
+                                    itemMeta.addEnchant(enchantment, level, false);
+                                }));
 
+                            }
+                            else {
+                                world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof())));
+
+                            }
                     }event.getPlayer().giveExp(12);
                 }
 

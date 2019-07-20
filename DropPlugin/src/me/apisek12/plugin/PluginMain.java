@@ -49,19 +49,6 @@ public class PluginMain extends JavaPlugin {
 
         if (sender instanceof Player && !isDisabled) {
             Player player = (Player) sender;
-//            if (command.getName().equalsIgnoreCase("toon") && args != null){
-//                Collection<Player> arrayList = (Collection<Player>) Bukkit.getOnlinePlayers();
-//                Player playerSelected = null;
-//                boolean jesli = false;
-//                player.sendMessage(args[0]+" "+args[1]);
-//                for (int i = 0; i < Bukkit.getOnlinePlayers().size(); i++){
-//                    playerSelected = arrayList.iterator().next();
-//                    if (playerSelected.getName().equalsIgnoreCase(args[0])){
-//                        jesli = true;
-//                        break;
-//                    }
-//                }
-//        }
             if (command.getName().equalsIgnoreCase("codropi")){
                 player.sendMessage(ChatColor.GOLD+dropChances.toString());
             }
@@ -104,55 +91,6 @@ public class PluginMain extends JavaPlugin {
                     player.sendMessage(ChatColor.GRAY+"Nieznany argument!\nKomenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
 
                 }
-//                else if (args[0].equalsIgnoreCase("cobble")){
-//                    setting.ifCobble = !setting.ifCobble;
-//                    if (setting.ifCobble) player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.AQUA+"cobbla"+ChatColor.GOLD+" jest teraz włączony");
-//                    else player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.AQUA+"cobbla"+ChatColor.GOLD+" jest teraz wyłączony");
-//                }
-//                else if (args[0].equalsIgnoreCase("stack")) {
-//                    setting.ifStack =  !setting.ifStack;
-//                    if (setting.ifStack) player.sendMessage(ChatColor.RED+"Stackowanie"+ChatColor.GOLD+" jest teraz włączone");
-//                    else player.sendMessage(ChatColor.RED+"Stackowanie"+ChatColor.GOLD+" jest teraz wyłączone");
-//                }
-//                else if (args[0].equalsIgnoreCase("zelazo")) {
-//                    setting.ifIron =  !setting.ifIron;
-//                    if (setting.ifIron) player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.GRAY+"żelaza"+ChatColor.GOLD+" jest teraz włączony");
-//                    else player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.GRAY+"żelaza"+ChatColor.GOLD+" jest teraz wyłączony");
-//                }
-//                else if (args[0].equalsIgnoreCase("lapis")){
-//                    setting.ifLapis =  !setting.ifLapis;
-//                    if (setting.ifLapis) player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.BLUE+"lapisu"+ChatColor.GOLD+" jest teraz włączony");
-//                    else player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.BLUE+"lapisu"+ChatColor.GOLD+" jest teraz wyłączony");
-//                }
-//                else if (args[0].equalsIgnoreCase("redstone")){
-//                    setting.ifRedstone =  !setting.ifRedstone;
-//                    if (setting.ifRedstone) player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.RED+"redstone"+ChatColor.GOLD+" jest teraz włączony");
-//                    else player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.RED+"redstone"+ChatColor.GOLD+" jest teraz wyłączony");
-//                }
-//                else if (args[0].equalsIgnoreCase("wegiel")){
-//                    setting.ifCoal =  !setting.ifCoal;
-//                    if (setting.ifCoal) player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.DARK_GRAY+"węgla"+ChatColor.GOLD+" jest teraz włączony");
-//                    else player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.DARK_GRAY+"węgla"+ChatColor.GOLD+" jest teraz wyłączony");
-//                }
-//                else if (args[0].equalsIgnoreCase("diament")){
-//                    setting.ifDiamond =  !setting.ifDiamond;
-//                    if (setting.ifDiamond) player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.DARK_AQUA+"diamentów"+ChatColor.GOLD+" jest teraz włączony");
-//                    else player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.DARK_AQUA+"diamentów"+ChatColor.GOLD+" jest teraz wyłączony");
-//                }
-//                else if (args[0].equalsIgnoreCase("emerald")){
-//                    setting.ifEmerald =  !setting.ifEmerald;
-//                    if (setting.ifEmerald) player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.GREEN+"szmaragdów"+ChatColor.GOLD+" jest teraz włączony");
-//                    else player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.GREEN+"szmaragdów"+ChatColor.GOLD+" jest teraz wyłączony");
-//                }
-//                else if (args[0].equalsIgnoreCase("gold")){
-//                    setting.ifGold =  !setting.ifGold;
-//                    if (setting.ifGold) player.sendMessage(ChatColor.GOLD+"Drop złota jest teraz włączony");
-//                    else player.sendMessage(ChatColor.GOLD+"Drop złota jest teraz wyłączony");
-//                }
-//                else if (args[0].equalsIgnoreCase("info")){
-//                    player.sendMessage(ChatColor.GREEN+"Obowiązują nastepujące ustawienia: \nStackowanie: "+setting.isIfStack()+"\nCobblestone: "+setting.isIfCobble()+"\nWęgiel: "+setting.isIfCoal()+"\nŻelazo: "+setting.isIfIron()+"\nZłoto: "+setting.isIfGold()+"\nLapis: "+setting.isIfLapis()+"\nSzmaragdy: "+
-//                            setting.isIfEmerald()+"\nRedstone: "+setting.isIfRedstone()+"\nDiamenty: "+setting.isIfDiamond());
-//                }
 
             }
         }
@@ -225,15 +163,6 @@ public class PluginMain extends JavaPlugin {
                 playerSettings.put(user, settings);
 
             });
-//                for (String key : keyList) {
-//                    String setting = (String) getConfig().get("users." + key);
-//                    String[] options = Objects.requireNonNull(setting).split(",");
-//                    boolean[] boolopt = new boolean[options.length];
-//                    for (int i = 0; i < options.length; i++) boolopt[i] = Boolean.parseBoolean(options[i]);
-//
-//                    Settings finalSetting = new Settings(boolopt);
-//                    playerSettings.put(key, finalSetting);
-//                }
         }
 
         loadChances();
@@ -361,6 +290,14 @@ public class PluginMain extends JavaPlugin {
                 oreObjectOptions.setChance(level, chance);
                 oreObjectOptions.setMinDrop(level, min);
                 oreObjectOptions.setMaxDrop(level, max);
+                try {
+                    HashMap<String, Integer> enchants = (HashMap) getConfig().getConfigurationSection("chances").getConfigurationSection(key + ".enchant").getValues(false);
+                    if (enchants != null) {
+                        oreObjectOptions.setEnchant(enchants);
+                    }
+                }
+                catch (NullPointerException){
+                }
             }
             dropChances.put(oreObjectOptions.getName(), oreObjectOptions);
         }
