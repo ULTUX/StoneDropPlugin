@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
 
@@ -79,11 +80,13 @@ public class MyEvents implements Listener {
                                     ItemStack item = new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax()));
                                     ItemMeta meta = item.getItemMeta();
                                     PluginMain.chestContent.get(material).getEnchantment().forEach((whatToEnchant, level)->{
+                                        Bukkit.getServer().getConsoleSender().sendMessage(whatToEnchant+":::::::::::"+level);
                                         meta.addEnchant(whatToEnchant, level, true);
                                     });
                                     item.setItemMeta(meta);
                                     chest.getBlockInventory().addItem(item);
                                 }
+
                                 else chest.getBlockInventory().addItem(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
                             }
                         }

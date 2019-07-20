@@ -36,6 +36,8 @@ public class PluginMain extends JavaPlugin {
             });
 
         });
+
+
         saveConfig();
         Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Config file saved!");
         Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.DARK_RED + "Plugin disabled!");
@@ -333,9 +335,10 @@ public class PluginMain extends JavaPlugin {
             Material material = Material.getMaterial(k);
             if (material != null){
                 try {
-                    HashMap<Enchantment, Integer> enchants = (HashMap<Enchantment, Integer>) getConfig().getConfigurationSection("chest."+k).get("enchant");
+                    HashMap<String, Integer> enchants = (HashMap) getConfig().getConfigurationSection("chest."+k+".enchant").getValues(false);
                    if (enchants != null) {
                        chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max"), enchants));
+                       getServer().getConsoleSender().sendMessage(enchants.toString());
                    }
                 }catch (NullPointerException e){
                     chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max")));

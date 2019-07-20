@@ -1,6 +1,7 @@
 package me.apisek12.plugin;
 
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 
 import java.util.HashMap;
@@ -20,11 +21,13 @@ public class ChestItemsInfo {
         this.max = max;
     }
 
-    public ChestItemsInfo(double chance, int min, int max, HashMap<Enchantment, Integer> enchantment) {
+    public ChestItemsInfo(double chance, int min, int max, HashMap<String, Integer> enchantment) {
         this.chance = chance;
         this.min = min;
         this.max = max;
-        this.enchantment = enchantment;
+        enchantment.forEach((name, level) ->{
+            this.enchantment.put(Enchantment.getByKey(NamespacedKey.minecraft(name)), level);
+        });
     }
 
     public double getChance() {
