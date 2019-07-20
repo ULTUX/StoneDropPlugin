@@ -15,6 +15,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+
 import java.util.HashMap;
 
 
@@ -35,11 +37,12 @@ public class MyEvents implements Listener {
 
 
 
-        if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("STONE").isOn()) event.setDropItems(false);
 
 
         if (block.getBlockData().getMaterial() == Material.STONE && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
         tool == Material.GOLDEN_PICKAXE || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == Material.WOODEN_PICKAXE)) {
+            if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("COBBLE").isOn()) event.setDropItems(false);
+
 
             if (Chance.chance(PluginMain.chestSpawnRate)){
                 Bukkit.getScheduler().runTaskLater(PluginMain.plugin, new Runnable() {
@@ -72,7 +75,14 @@ public class MyEvents implements Listener {
                         }, 200);
                         for (Material material : PluginMain.chestContent.keySet()){
                             if (Chance.chance(PluginMain.chestContent.get(material).getChance())){
-                                chest.getBlockInventory().addItem(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
+                                if (PluginMain.chestContent.get(material).getEnchantment() != null){
+                                    ItemStack item = new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax()));
+                                    ItemMeta meta = item.getItemMeta();
+                                    meta.addEnchant(PluginMain.chestContent.get(material).getEnchantment(), PluginMain.chestContent.get(material).getLevel(), true);
+                                    item.setItemMeta(meta);
+                                    chest.getBlockInventory().addItem(item);
+                                }
+                                else chest.getBlockInventory().addItem(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
                             }
                         }
                     }
@@ -145,10 +155,14 @@ public class MyEvents implements Listener {
     }
 
     private void newPlayerJoined(String uid){
+        Bukkit.getServer().getConsoleSender().sendMessage("Creating new player data");
         HashMap<String, Setting> settings = new HashMap<>();
         for (int i = 0; i < set.length; i++){
             settings.put(set[i], new Setting(true, set[i]));
         }
+        settings.put("COBBLE", new Setting(false, "COBBLE"));
+        settings.put("STACK", new Setting(false, "STACK"));
+        PluginMain.playerSettings.put(uid, settings);
     }
 
 

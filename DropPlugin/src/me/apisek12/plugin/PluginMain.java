@@ -2,6 +2,7 @@ package me.apisek12.plugin;
 
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -31,7 +32,7 @@ public class PluginMain extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Saving getConfig() file...");
         playerSettings.forEach((player, settings) -> {
             settings.forEach((material, setting)->{
-                getConfig().set("users"+player+material, setting.isOn());
+                getConfig().set("users."+player+"."+material, setting.isOn());
             });
 
         });
@@ -67,17 +68,34 @@ public class PluginMain extends JavaPlugin {
                 boolean wasOk = false;
                 if (args.length == 0 || args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
                 else {
-                    for (int i = 0; i < MyEvents.set.length; i++){
-                        if (args[0].equalsIgnoreCase(MyEvents.set[i])){
-                            setting.get(MyEvents.set[i]).setOn(!setting.get(MyEvents.set[i]).isOn());
-                            if (setting.get(MyEvents.set[i]).isOn()){
-                                player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.AQUA+MyEvents.set[i]+ChatColor.GOLD+" jest teraz włączony");
+                    if (args[0].equalsIgnoreCase("cobble")) {
+                        wasOk = true;
+                            setting.get("COBBLE").setOn(!setting.get("COBBLE").isOn());
+                        if (!setting.get("COBBLE").isOn())
+                            player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "cobbla" + ChatColor.GOLD + " jest teraz "+ChatColor.GREEN+"włączony");
+                        else
+                            player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "cobbla" + ChatColor.GOLD + " jest teraz "+ChatColor.RED+"wyłączony");
+                    } else if (args[0].equalsIgnoreCase("stack")) {
+                        wasOk = true;
+                        setting.get("STACK").setOn(!setting.get("STACK").isOn());
+                        if (setting.get("STACK").isOn())
+                            player.sendMessage(ChatColor.RED + "Stackowanie" + ChatColor.GOLD + " jest teraz "+ChatColor.GREEN+"włączone");
+                        else
+                            player.sendMessage(ChatColor.RED + "Stackowanie" + ChatColor.GOLD +" jest teraz "+ChatColor.RED+"wyłączone");
+
+                    } else {
+                        for (int i = 0; i < MyEvents.set.length; i++) {
+                            if (!MyEvents.set[i].equals("STACK") && !MyEvents.set[i].equals("COBBLE")){
+                            if (args[0].equalsIgnoreCase(MyEvents.set[i])) {
+                                setting.get(MyEvents.set[i]).setOn(!setting.get(MyEvents.set[i]).isOn());
+                                if (setting.get(MyEvents.set[i]).isOn()) {
+                                    player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " jest teraz "+ChatColor.GREEN+"włączony");
+                                } else {
+                                    player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " jest teraz "+ChatColor.RED+"wyłączony");
+                                }
+                                wasOk = true;
                             }
-                            else {
-                                player.sendMessage(ChatColor.GOLD+"Drop "+ChatColor.AQUA+MyEvents.set[i]+ChatColor.GOLD+" jest teraz włączony");
-                            }
-                            wasOk = true;
-                        }
+                        }}
                     }
                 }
                 if (!wasOk){
@@ -135,7 +153,8 @@ public class PluginMain extends JavaPlugin {
 //                }
 
             }
-        } else if (sender instanceof ConsoleCommandSender)
+        }
+        else if (sender instanceof ConsoleCommandSender)
             if (command.getName().equalsIgnoreCase("emergencyDisable")) {
                 isDisabled = !isDisabled;
                 sender.sendMessage("PluginDisabled: " + isDisabled);
@@ -179,7 +198,6 @@ public class PluginMain extends JavaPlugin {
                     }
                 }, time*20/1000);
             }
-            else sender.getServer().getConsoleSender().sendMessage("To musi byc gracz a nie konsola!");
         return false;
 
     }
@@ -190,21 +208,21 @@ public class PluginMain extends JavaPlugin {
         saveDefaultConfig();
         saveConfig();
 
-        ConfigurationSection cs =  getConfig().getConfigurationSection("users");
-            if (cs != null) {
-                Set<String> keyList = cs.getKeys(false);
-                keyList.forEach((user) -> {
-                    ConfigurationSection materialsSection = cs.getConfigurationSection(user);
-                    HashMap<String, Setting> settings = new HashMap<>();
+        ConfigurationSection cs = getConfig().getConfigurationSection("users");
+        if (cs != null) {
+            Set<String> keyList = cs.getKeys(false);
+            keyList.forEach((user) -> {
+                ConfigurationSection materialsSection = cs.getConfigurationSection(user);
+                HashMap<String, Setting> settings = new HashMap<>();
 
-                    for (int i = 0; i < materialsSection.getKeys(false).toArray().length; i++){
-                        String materialName = (String)materialsSection.getKeys(false).toArray()[i];
-                        boolean setting = Boolean.valueOf((String)materialsSection.get(materialName));
-                        settings.put(materialName, new Setting(setting, materialName));
-                    }
-                    playerSettings.put(user, settings);
+                for (int i = 0; i < materialsSection.getKeys(false).toArray().length; i++) {
+                    String materialName = (String) materialsSection.getKeys(false).toArray()[i];
+                    boolean setting = (boolean) materialsSection.get(materialName);
+                    settings.put(materialName, new Setting(setting, materialName));
+                }
+                playerSettings.put(user, settings);
 
-                });
+            });
 //                for (String key : keyList) {
 //                    String setting = (String) getConfig().get("users." + key);
 //                    String[] options = Objects.requireNonNull(setting).split(",");
@@ -214,7 +232,7 @@ public class PluginMain extends JavaPlugin {
 //                    Settings finalSetting = new Settings(boolopt);
 //                    playerSettings.put(key, finalSetting);
 //                }
-            }
+        }
 
         loadChances();
         loadChestChances();
@@ -297,10 +315,15 @@ public class PluginMain extends JavaPlugin {
         }}, 40L, 80L);
 
         MyEvents.set = new String[dropChances.keySet().toArray().length];
-    for (int i = 0; i < dropChances.keySet().toArray().length; i++){
-        MyEvents.set[i] = (String) dropChances.keySet().toArray()[i];
-    }
+        for (int i = 0; i < dropChances.keySet().toArray().length; i++) {
+            MyEvents.set[i] = (String) dropChances.keySet().toArray()[i];
+        }
 
+        playerSettings.forEach((name, settings) -> {
+            for (int i = 0; i < MyEvents.set.length; i++) {
+                if (!settings.containsKey(MyEvents.set[i])) settings.put(MyEvents.set[i], new Setting(true, MyEvents.set[i]));
+            }
+        });
     }
 
     private void loadChestChances(){
@@ -309,7 +332,16 @@ public class PluginMain extends JavaPlugin {
         for (String k: config){
             Material material = Material.getMaterial(k);
             if (material != null){
-                chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max")));
+                try {
+                    String enchantAsString = (String)getConfig().getConfigurationSection("chest."+k).get("enchant");
+                    int level = (int)getConfig().getConfigurationSection("chest."+k).get("level");
+                   if (enchantAsString != null) {
+                       Enchantment enchant = Enchantment.getByKey(NamespacedKey.minecraft(enchantAsString));
+                       chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max"), enchant, level));
+                   }
+                }catch (NullPointerException e){
+                    chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max")));
+                }
             }
         }
     }
