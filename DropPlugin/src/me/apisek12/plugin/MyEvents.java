@@ -80,7 +80,6 @@ public class MyEvents implements Listener {
                                     ItemStack item = new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax()));
                                     ItemMeta meta = item.getItemMeta();
                                     PluginMain.chestContent.get(material).getEnchantment().forEach((whatToEnchant, level)->{
-                                        Bukkit.getServer().getConsoleSender().sendMessage(whatToEnchant+":::::::::::"+level);
                                         meta.addEnchant(whatToEnchant, level, true);
                                     });
                                     item.setItemMeta(meta);
@@ -100,12 +99,14 @@ public class MyEvents implements Listener {
                 for (int i = 0; i < set.length; i++){
                     if (!set[i].equals("COBBLE") && !set[i].equals("STACK")){
                         if (Chance.chance(dropChances.get(set[i]).getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
-                            if (dropChances.get(set[i]).getEnchant().size() != 0){
+                            if (dropChances.get(set[i]).getEnchant().size() > 0){
                                 ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf1(), dropChances.get(set[i]).getMaxf1()));
                                 ItemMeta itemMeta = itemToDrop.getItemMeta();
                                 dropChances.get(set[i]).getEnchant().forEach(((enchantment, level) -> {
                                     itemMeta.addEnchant(enchantment, level, false);
                                 }));
+                                itemToDrop.setItemMeta(itemMeta);
+                                world.dropItem(location, itemToDrop);
 
                             }
                         else {
@@ -121,13 +122,14 @@ public class MyEvents implements Listener {
                 for (int i = 0; i < set.length; i++){
                     if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                         if (Chance.chance(dropChances.get(set[i]).getF2()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
-//                            world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf2(), dropChances.get(set[i]).getMaxf2())));
-                            if (dropChances.get(set[i]).getEnchant().size() != 0){
+                            if (dropChances.get(set[i]).getEnchant().size() > 0){
                                 ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf2(), dropChances.get(set[i]).getMaxf2()));
                                 ItemMeta itemMeta = itemToDrop.getItemMeta();
                                 dropChances.get(set[i]).getEnchant().forEach(((enchantment, level) -> {
                                     itemMeta.addEnchant(enchantment, level, false);
                                 }));
+                                itemToDrop.setItemMeta(itemMeta);
+                                world.dropItem(location, itemToDrop);
 
                             }
                             else {
@@ -144,12 +146,14 @@ public class MyEvents implements Listener {
                     if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                         if (Chance.chance(dropChances.get(set[i]).getF3()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
 //                            world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3())));
-                            if (dropChances.get(set[i]).getEnchant().size() != 0){
+                            if (dropChances.get(set[i]).getEnchant().size() > 0){
                                 ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3()));
                                 ItemMeta itemMeta = itemToDrop.getItemMeta();
                                 dropChances.get(set[i]).getEnchant().forEach(((enchantment, level) -> {
                                     itemMeta.addEnchant(enchantment, level, false);
                                 }));
+                                itemToDrop.setItemMeta(itemMeta);
+                                world.dropItem(location, itemToDrop);
 
                             }
                             else {
@@ -172,6 +176,8 @@ public class MyEvents implements Listener {
                                 dropChances.get(set[i]).getEnchant().forEach(((enchantment, level) -> {
                                     itemMeta.addEnchant(enchantment, level, false);
                                 }));
+                                itemToDrop.setItemMeta(itemMeta);
+                                world.dropItem(location, itemToDrop);
 
                             }
                             else {
@@ -207,7 +213,7 @@ public class MyEvents implements Listener {
     }
 
     private void newPlayerJoined(String uid){
-        Bukkit.getServer().getConsoleSender().sendMessage("Creating new player data");
+        Bukkit.getServer().getConsoleSender().sendMessage("[DropPlugin] Creating new player data");
         HashMap<String, Setting> settings = new HashMap<>();
         for (int i = 0; i < set.length; i++){
             settings.put(set[i], new Setting(true, set[i]));

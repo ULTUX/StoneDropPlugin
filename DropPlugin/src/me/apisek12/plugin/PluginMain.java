@@ -267,7 +267,6 @@ public class PluginMain extends JavaPlugin {
                     HashMap<String, Integer> enchants = (HashMap) getConfig().getConfigurationSection("chest."+k+".enchant").getValues(false);
                    if (enchants != null) {
                        chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max"), enchants));
-                       getServer().getConsoleSender().sendMessage(enchants.toString());
                    }
                 }catch (NullPointerException e){
                     chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max")));
@@ -283,6 +282,7 @@ public class PluginMain extends JavaPlugin {
              DropChance oreObjectOptions = new DropChance();
              oreObjectOptions.setName(key);
             for (String fortuneLevel : Objects.requireNonNull(oreObject).getKeys(false)){
+                if (!fortuneLevel.equals("enchant")){
                 int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
                 double chance = (double) oreObject.getConfigurationSection(fortuneLevel).get("chance");
                 int min = (int) oreObject.getConfigurationSection(fortuneLevel).get("min-amount");
@@ -296,8 +296,9 @@ public class PluginMain extends JavaPlugin {
                         oreObjectOptions.setEnchant(enchants);
                     }
                 }
-                catch (NullPointerException){
+                catch (NullPointerException eA){
                 }
+            }
             }
             dropChances.put(oreObjectOptions.getName(), oreObjectOptions);
         }
