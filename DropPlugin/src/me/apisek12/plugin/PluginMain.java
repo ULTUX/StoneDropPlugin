@@ -17,13 +17,13 @@ import java.util.Set;
 public class PluginMain extends JavaPlugin {
     static Plugin plugin = null;
 
-    public static HashMap<String, HashMap<String, Setting>> playerSettings = new HashMap<>(); //These are settings set by players
-    public static HashMap<String, DropChance> dropChances = new HashMap<>(); //These are chances set in config file String-material
-    public static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
-    public static double chestSpawnRate = 0;
+    static HashMap<String, HashMap<String, Setting>> playerSettings = new HashMap<>(); //These are settings set by players
+    static HashMap<String, DropChance> dropChances = new HashMap<>(); //These are chances set in config file String-material
+    static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
+    static double chestSpawnRate = 0;
     private static boolean isDisabled = false;
 
-    public static boolean isIsDisabled() {
+    static boolean isIsDisabled() {
         return isDisabled;
     }
 
@@ -56,11 +56,10 @@ public class PluginMain extends JavaPlugin {
                 HashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
                 boolean wasOk = false;
                 if (args.length == 0){
-                    playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)->{
-                        player.sendMessage(ChatColor.GOLD+material+": "+preferences.isOn());
-                    });
+                    playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)-> player.sendMessage(ChatColor.GOLD+material+": "+preferences.isOn()));
+                    wasOk = true;
                 }
-                if (args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
+                else if (args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
                 else {
                     if (args[0].equalsIgnoreCase("cobble")) {
                         wasOk = true;
@@ -106,33 +105,38 @@ public class PluginMain extends JavaPlugin {
             }
             if (command.getName().equalsIgnoreCase("shutdown") && args.length == 1){
                 long time = Long.parseLong(args[0])*1000;
-                boolean wylacz = false;
-                Runnable thread = new Runnable() {
-                    @Override
-                    public void run() {
-                        long startTime = System.currentTimeMillis();
-                        long timer = System.currentTimeMillis();
-                        while ((System.currentTimeMillis() - startTime) < time) {
-                            if (System.currentTimeMillis() > timer+1000){
-                                timer = System.currentTimeMillis();
-                                long currentTime = System.currentTimeMillis();
-                                Object[] players = plugin.getServer().getOnlinePlayers().toArray();
-                                for (int i = 0; i < players.length; i++) {
+                long timeToStop = System.currentTimeMillis() + time;
+                Runnable thread = () -> {
+                    long startTime = System.currentTimeMillis(); //Moment in time of starting this command
+                    long timer = System.currentTimeMillis(); //This is a timer that will count seconds untill 10 then reset
+                    long lastDisplayedTime = -60000; // Last time when remaining minutes were displayed
+
+                    while ((System.currentTimeMillis() - startTime) < time) {
+                        if (System.currentTimeMillis() > timer+1000) {
+                            timer = System.currentTimeMillis();
+                            Object[] players = plugin.getServer().getOnlinePlayers().toArray();
+                            if (timeToStop - System.currentTimeMillis() >= 60000) {
+                                if (System.currentTimeMillis() - lastDisplayedTime >= 60000) {
+
+                                    for (int i = 0; i < players.length; i++) {
                                     Player player = (Player) players[i];
-                                        if (System.currentTimeMillis() > timer + 60000) {
-                                            player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 60000) - (currentTime - startTime) / 60000) + " minut", null, 10, 80, 10);
-                                            timer = System.currentTimeMillis();
+
+                                        player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minut", null, 10, 80, 10);
+                                        timer = System.currentTimeMillis();
+                                        lastDisplayedTime = System.currentTimeMillis();
                                     }
-                                    else player.sendTitle(ChatColor.RED + "Serwer wyłączony za: "+ (int)((time/1000) - (currentTime-startTime)/1000)+" sekund", null, 0, 40, 0);
                                 }
                             }
-
+                                    else {
+                                        for (int i = 0; i < players.length; i++) {
+                                            Player player = (Player) players[i];
+                                            player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " sekund", null, 0, 40, 0);
+                                    }
+                                }
+                            }
                         }
 
-
-                    }
-
-                };
+                    };
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, thread);
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                     @Override
@@ -174,80 +178,78 @@ public class PluginMain extends JavaPlugin {
         Bukkit.getServer().getConsoleSender().sendMessage("[DropPlugin]"+ChatColor.GREEN + "Confing Loaded, Plugin enabled!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
-            @Override
-            public void run() {
-                if (Bukkit.getServer().getOnlinePlayers().size() > 0){
-                    for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().toArray().length; i++){
-                        Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[i];
-                        if (playerSettings.get(player.getUniqueId().toString()).get("STACK").isOn()){
-                            boolean tak = true;
-                            while (tak){
-                                if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)){
-                                    player.getInventory().removeItem(new ItemStack(Material.REDSTONE, 9));
-                                    player.getInventory().addItem(new ItemStack(Material.REDSTONE_BLOCK));
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            if (Bukkit.getServer().getOnlinePlayers().size() > 0){
+                for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().toArray().length; i++){
+                    Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[i];
+                    if (playerSettings.get(player.getUniqueId().toString()).get("STACK").isOn()){
+                        boolean tak = true;
+                        while (tak){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)){
+                                player.getInventory().removeItem(new ItemStack(Material.REDSTONE, 9));
+                                player.getInventory().addItem(new ItemStack(Material.REDSTONE_BLOCK));
 
-                                }
-                                else tak = false;
                             }
-                            tak = true;
-                            while (tak){
-                                if (player.getInventory().containsAtLeast(new ItemStack(Material.LAPIS_LAZULI), 9)){
-                                    player.getInventory().removeItem(new ItemStack(Material.LAPIS_LAZULI, 9));
-                                    player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
+                            else tak = false;
+                        }
+                        tak = true;
+                        while (tak){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.LAPIS_LAZULI), 9)){
+                                player.getInventory().removeItem(new ItemStack(Material.LAPIS_LAZULI, 9));
+                                player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
 
-                                }
-                                else tak = false;
                             }
-                            tak = true;
-                            while (tak){
-                                if (player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9)){
-                                    player.getInventory().removeItem(new ItemStack(Material.COAL, 9));
-                                    player.getInventory().addItem(new ItemStack(Material.COAL_BLOCK));
+                            else tak = false;
+                        }
+                        tak = true;
+                        while (tak){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9)){
+                                player.getInventory().removeItem(new ItemStack(Material.COAL, 9));
+                                player.getInventory().addItem(new ItemStack(Material.COAL_BLOCK));
 
-                                }
-                                else tak = false;
                             }
-                            tak = true;
-                            while (tak){
-                                if (player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9)){
-                                    player.getInventory().removeItem(new ItemStack(Material.IRON_INGOT, 9));
-                                    player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK));
+                            else tak = false;
+                        }
+                        tak = true;
+                        while (tak){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9)){
+                                player.getInventory().removeItem(new ItemStack(Material.IRON_INGOT, 9));
+                                player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK));
 
-                                }
-                                else tak = false;
                             }
-                            tak = true;
-                            while (tak){
-                                if (player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9)){
-                                    player.getInventory().removeItem(new ItemStack(Material.DIAMOND, 9));
-                                    player.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK));
+                            else tak = false;
+                        }
+                        tak = true;
+                        while (tak){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9)){
+                                player.getInventory().removeItem(new ItemStack(Material.DIAMOND, 9));
+                                player.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK));
 
-                                }
-                                else tak = false;
                             }
-                            tak = true;
-                            while (tak){
-                                if (player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9)){
-                                    player.getInventory().removeItem(new ItemStack(Material.GOLD_INGOT, 9));
-                                    player.getInventory().addItem(new ItemStack(Material.GOLD_BLOCK));
+                            else tak = false;
+                        }
+                        tak = true;
+                        while (tak){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9)){
+                                player.getInventory().removeItem(new ItemStack(Material.GOLD_INGOT, 9));
+                                player.getInventory().addItem(new ItemStack(Material.GOLD_BLOCK));
 
-                                }
-                                else tak = false;
                             }
-                            tak = true;
-                            while (tak){
-                                if (player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9)){
-                                    player.getInventory().removeItem(new ItemStack(Material.EMERALD, 9));
-                                    player.getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
+                            else tak = false;
+                        }
+                        tak = true;
+                        while (tak){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9)){
+                                player.getInventory().removeItem(new ItemStack(Material.EMERALD, 9));
+                                player.getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
 
-                                }
-                                else tak = false;
                             }
+                            else tak = false;
                         }
                     }
                 }
-        }}, 40L, 80L);
+            }
+    }, 40L, 80L);
 
         MyEvents.set = new String[dropChances.keySet().toArray().length];
         for (int i = 0; i < dropChances.keySet().toArray().length; i++) {
