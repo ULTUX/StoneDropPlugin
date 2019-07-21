@@ -29,7 +29,7 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Saving getConfig() file...");
+        Bukkit.getConsoleSender().sendMessage("[DropPlugin] "+ChatColor.GRAY+"Saving getConfig() file...");
         playerSettings.forEach((player, settings) -> {
             settings.forEach((material, setting)->{
                 getConfig().set("users."+player+"."+material, setting.isOn());
@@ -39,8 +39,8 @@ public class PluginMain extends JavaPlugin {
 
 
         saveConfig();
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"Config file saved!");
-        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.DARK_RED + "Plugin disabled!");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"[DropPLugin] Config file saved!");
+        Bukkit.getServer().getConsoleSender().sendMessage("[DropPlugin] "+ChatColor.DARK_RED + "Plugin disabled!");
         plugin = null;
     }
 
@@ -55,7 +55,12 @@ public class PluginMain extends JavaPlugin {
             if (command.getName().equalsIgnoreCase("drop")){
                 HashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
                 boolean wasOk = false;
-                if (args.length == 0 || args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
+                if (args.length == 0){
+                    playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)->{
+                        player.sendMessage(ChatColor.GOLD+material+": "+preferences.isOn());
+                    });
+                }
+                if (args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
                 else {
                     if (args[0].equalsIgnoreCase("cobble")) {
                         wasOk = true;
@@ -99,7 +104,7 @@ public class PluginMain extends JavaPlugin {
                 isDisabled = !isDisabled;
                 sender.sendMessage("PluginDisabled: " + isDisabled);
             }
-            if (command.getName().equalsIgnoreCase("shutdown") && args != null){
+            if (command.getName().equalsIgnoreCase("shutdown") && args.length == 1){
                 long time = Long.parseLong(args[0])*1000;
                 boolean wylacz = false;
                 Runnable thread = new Runnable() {
@@ -112,10 +117,9 @@ public class PluginMain extends JavaPlugin {
                                 timer = System.currentTimeMillis();
                                 long currentTime = System.currentTimeMillis();
                                 Object[] players = plugin.getServer().getOnlinePlayers().toArray();
-                                long timer2 = System.currentTimeMillis();
                                 for (int i = 0; i < players.length; i++) {
                                     Player player = (Player) players[i];
-                                        if (System.currentTimeMillis() > timer2 + 3000) {
+                                        if (System.currentTimeMillis() > timer + 60000) {
                                             player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 60000) - (currentTime - startTime) / 60000) + " minut", null, 10, 80, 10);
                                             timer = System.currentTimeMillis();
                                     }
@@ -167,7 +171,7 @@ public class PluginMain extends JavaPlugin {
 
         loadChances();
         loadChestChances();
-        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "Loaded getConfig()!\nPlugin enabled!");
+        Bukkit.getServer().getConsoleSender().sendMessage("[DropPlugin]"+ChatColor.GREEN + "Confing Loaded, Plugin enabled!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
