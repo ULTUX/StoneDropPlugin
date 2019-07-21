@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -83,7 +84,7 @@ public class MyEvents implements Listener {
                                         meta.addEnchant(whatToEnchant, level, true);
                                     });
                                     item.setItemMeta(meta);
-                                    chest.getBlockInventory().addItem(item);
+                                    chest.getBlockInventory().setItem(getRandomFreeSlot(chest.getBlockInventory()), item);
                                 }
 
                                 else chest.getBlockInventory().addItem(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
@@ -204,7 +205,11 @@ public class MyEvents implements Listener {
 
     }
 
-
+    private int getRandomFreeSlot(Inventory inv){
+        int random = Chance.randBetween(0, 26);
+        if (inv.getItem(random) == null) return random;
+        return getRandomFreeSlot(inv);
+    }
 
     @EventHandler
     public void PlayerJoinEvent(PlayerJoinEvent e){
