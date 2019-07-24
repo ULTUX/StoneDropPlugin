@@ -47,10 +47,8 @@ public class MyEvents implements Listener {
 
 
             if (Chance.chance(PluginMain.chestSpawnRate)){
-                Bukkit.getScheduler().runTaskLater(PluginMain.plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        block.setType(Material.CHEST);
+                Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
+                    block.setType(Material.CHEST);
 //                        Location fireworkToSpawn = event.getBlock().getLocation();
 //                        fireworkToSpawn.setY(fireworkToSpawn.getBlock().getLocation().getY()+20);
 //                        Firework firework = (Firework) block.getLocation().getWorld().spawnEntity(fireworkToSpawn, EntityType.FIREWORK);
@@ -59,36 +57,35 @@ public class MyEvents implements Listener {
 //                        fireworkMeta.addEffect(FireworkEffect.builder().withColor(Color.LIME).with(FireworkEffect.Type.BALL_LARGE).flicker(true).withColor(Color.RED).withFade(Color.BLUE).build());
 //                        firework.setFireworkMeta(fireworkMeta);
 //                        firework.detonate();
-                        event.getPlayer().sendTitle(ChatColor.GOLD+"Znalazłeś "+ ChatColor.GREEN+ "skrzynię "+ ChatColor.GOLD+"skarbów!", ChatColor.AQUA+"Ciekawe co jest w środku...", 20, 20, 15);
-                        event.getPlayer().playSound(event.getBlock().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1f);
-                        Chest chest = (Chest) block.getState();
-                        Bukkit.getScheduler().runTaskLater(PluginMain.plugin, new Runnable() {
-                            @Override
-                            public void run() {
-                                chest.getBlockInventory().clear();
-                                block.setType(Material.AIR);
-                                Firework firework = (Firework) block.getLocation().getWorld().spawnEntity(block.getLocation(), EntityType.FIREWORK);
-                                FireworkMeta fireworkMeta = firework.getFireworkMeta();
-                                fireworkMeta.setPower(3);
-                                fireworkMeta.addEffect(FireworkEffect.builder().withColor(Color.RED).flicker(true).withColor(Color.GRAY).withFade(Color.AQUA).build());
-                                firework.setFireworkMeta(fireworkMeta);
-                                firework.detonate();
+                    event.getPlayer().sendTitle(ChatColor.GOLD+"Znalazłeś "+ ChatColor.GREEN+ "skrzynię "+ ChatColor.GOLD+"skarbów!", ChatColor.AQUA+"Ciekawe co jest w środku...", 20, 20, 15);
+                    event.getPlayer().playSound(event.getBlock().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1f);
+                    Chest chest = (Chest) block.getState();
+                    Bukkit.getScheduler().runTaskLater(PluginMain.plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            chest.getBlockInventory().clear();
+                            block.setType(Material.AIR);
+                            Firework firework = (Firework) block.getLocation().getWorld().spawnEntity(block.getLocation(), EntityType.FIREWORK);
+                            FireworkMeta fireworkMeta = firework.getFireworkMeta();
+                            fireworkMeta.setPower(3);
+                            fireworkMeta.addEffect(FireworkEffect.builder().withColor(Color.RED).flicker(true).withColor(Color.GRAY).withFade(Color.AQUA).build());
+                            firework.setFireworkMeta(fireworkMeta);
+                            firework.detonate();
+                        }
+                    }, 200);
+                    for (Material material : PluginMain.chestContent.keySet()){
+                        if (Chance.chance(PluginMain.chestContent.get(material).getChance())){
+                            if (PluginMain.chestContent.get(material).getEnchantment() != null){
+                                ItemStack item = new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax()));
+                                ItemMeta meta = item.getItemMeta();
+                                PluginMain.chestContent.get(material).getEnchantment().forEach((whatToEnchant, level)->{
+                                    meta.addEnchant(whatToEnchant, level, true);
+                                });
+                                item.setItemMeta(meta);
+                                chest.getBlockInventory().setItem(getRandomFreeSlot(chest.getBlockInventory()), item);
                             }
-                        }, 200);
-                        for (Material material : PluginMain.chestContent.keySet()){
-                            if (Chance.chance(PluginMain.chestContent.get(material).getChance())){
-                                if (PluginMain.chestContent.get(material).getEnchantment() != null){
-                                    ItemStack item = new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax()));
-                                    ItemMeta meta = item.getItemMeta();
-                                    PluginMain.chestContent.get(material).getEnchantment().forEach((whatToEnchant, level)->{
-                                        meta.addEnchant(whatToEnchant, level, true);
-                                    });
-                                    item.setItemMeta(meta);
-                                    chest.getBlockInventory().setItem(getRandomFreeSlot(chest.getBlockInventory()), item);
-                                }
 
-                                else chest.getBlockInventory().addItem(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
-                            }
+                            else chest.getBlockInventory().addItem(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
                         }
                     }
                 }, 4);

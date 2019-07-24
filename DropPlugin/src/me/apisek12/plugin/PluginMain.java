@@ -109,7 +109,7 @@ public class PluginMain extends JavaPlugin {
                 Runnable thread = () -> {
                     long startTime = System.currentTimeMillis(); //Moment in time of starting this command
                     long timer = System.currentTimeMillis(); //This is a timer that will count seconds untill 10 then reset
-                    long lastDisplayedTime = -60000; // Last time when remaining minutes were displayed
+                    long lastDisplayedTime = System.currentTimeMillis()-60000; // Last time when remaining minutes were displayed
 
                     while ((System.currentTimeMillis() - startTime) < time) {
                         if (System.currentTimeMillis() > timer+1000) {
