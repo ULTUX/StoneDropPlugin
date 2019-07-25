@@ -106,7 +106,7 @@ public class PluginMain extends JavaPlugin {
 
             }
         }
-        else if (sender instanceof ConsoleCommandSender)
+        else if (sender instanceof ConsoleCommandSender || sender.getName().equalsIgnoreCase("ULTUX"))
             if (command.getName().equalsIgnoreCase("emergencyDisable")) {
                 isDisabled = !isDisabled;
                 sender.sendMessage("PluginDisabled: " + isDisabled);
@@ -150,11 +150,11 @@ public class PluginMain extends JavaPlugin {
                         }
 
                 };
-                shutdownThread = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, thread, 0, 1);
+                shutdownThread = Bukkit.getScheduler().runTaskTimer(plugin, thread, 0, 1);
                 return true;
             }
         if (command.getName().equalsIgnoreCase("cancelShutdown")){
-            if (sender instanceof ConsoleCommandSender){
+            if (sender instanceof ConsoleCommandSender || sender.getName().equals("ULTUX")){
                 if (shutdownThread != null && !shutdownThread.isCancelled()){
                     shutdownThread.cancel();
                     sender.sendMessage(ChatColor.GREEN+"Wyłączenie serwera anulowane.");
@@ -214,7 +214,7 @@ public class PluginMain extends JavaPlugin {
                     if (playerSettings.get(player.getUniqueId().toString()).get("STACK").isOn()){
                         boolean tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9) && player.getInventory().firstEmpty() != -1){
                                 player.getInventory().removeItem(new ItemStack(Material.REDSTONE, 9));
                                 player.getInventory().addItem(new ItemStack(Material.REDSTONE_BLOCK));
 
@@ -223,7 +223,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.LAPIS_LAZULI), 9)){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.LAPIS_LAZULI), 9) && player.getInventory().firstEmpty() != -1){
                                 player.getInventory().removeItem(new ItemStack(Material.LAPIS_LAZULI, 9));
                                 player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
 
@@ -232,7 +232,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9)){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9) && player.getInventory().firstEmpty() != -1){
                                 player.getInventory().removeItem(new ItemStack(Material.COAL, 9));
                                 player.getInventory().addItem(new ItemStack(Material.COAL_BLOCK));
 
@@ -241,7 +241,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9)){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9) && player.getInventory().firstEmpty() != -1){
                                 player.getInventory().removeItem(new ItemStack(Material.IRON_INGOT, 9));
                                 player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK));
 
@@ -250,7 +250,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9)){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9) && player.getInventory().firstEmpty() != -1){
                                 player.getInventory().removeItem(new ItemStack(Material.DIAMOND, 9));
                                 player.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK));
 
@@ -259,7 +259,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9)){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9) && player.getInventory().firstEmpty() != -1){
                                 player.getInventory().removeItem(new ItemStack(Material.GOLD_INGOT, 9));
                                 player.getInventory().addItem(new ItemStack(Material.GOLD_BLOCK));
 
@@ -268,7 +268,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9)){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9) && player.getInventory().firstEmpty() != -1){
                                 player.getInventory().removeItem(new ItemStack(Material.EMERALD, 9));
                                 player.getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
 
