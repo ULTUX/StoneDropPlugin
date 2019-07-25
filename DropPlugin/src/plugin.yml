@@ -12,3 +12,5 @@ commands:
     description: Pokazuje szansze na drop
   emergencyDisable:
     description: Wylacz awaryjnie plugin
+  cancelShutdown:
+    description: Anuluj komende /shutdown

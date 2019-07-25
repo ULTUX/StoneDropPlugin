@@ -49,14 +49,6 @@ public class MyEvents implements Listener {
             if (Chance.chance(PluginMain.chestSpawnRate)){
                 Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
                     block.setType(Material.CHEST);
-//                        Location fireworkToSpawn = event.getBlock().getLocation();
-//                        fireworkToSpawn.setY(fireworkToSpawn.getBlock().getLocation().getY()+20);
-//                        Firework firework = (Firework) block.getLocation().getWorld().spawnEntity(fireworkToSpawn, EntityType.FIREWORK);
-//                        FireworkMeta fireworkMeta = firework.getFireworkMeta();
-//                        fireworkMeta.setPower(10);
-//                        fireworkMeta.addEffect(FireworkEffect.builder().withColor(Color.LIME).with(FireworkEffect.Type.BALL_LARGE).flicker(true).withColor(Color.RED).withFade(Color.BLUE).build());
-//                        firework.setFireworkMeta(fireworkMeta);
-//                        firework.detonate();
                     event.getPlayer().sendTitle(ChatColor.GOLD+"Znalazłeś "+ ChatColor.GREEN+ "skrzynię "+ ChatColor.GOLD+"skarbów!", ChatColor.AQUA+"Ciekawe co jest w środku...", 20, 20, 15);
                     event.getPlayer().playSound(event.getBlock().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1f);
                     Chest chest = (Chest) block.getState();
@@ -114,7 +106,7 @@ public class MyEvents implements Listener {
                     }
                 }
 
-                event.getPlayer().giveExp(15);
+                event.getPlayer().giveExp(10);
             }
             else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 2) {
                 for (int i = 0; i < set.length; i++){
@@ -137,13 +129,12 @@ public class MyEvents implements Listener {
                     }
                     }
 
-                event.getPlayer().giveExp(18);
+                event.getPlayer().giveExp(8);
             }
             else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 3) {
                 for (int i = 0; i < set.length; i++){
                     if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                         if (Chance.chance(dropChances.get(set[i]).getF3()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
-//                            world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3())));
                             if (dropChances.get(set[i]).getEnchant().size() > 0){
                                 ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3()));
                                 ItemMeta itemMeta = itemToDrop.getItemMeta();
@@ -161,7 +152,7 @@ public class MyEvents implements Listener {
                     }
                     }
 
-                event.getPlayer().giveExp(20);
+                event.getPlayer().giveExp(6);
             }
             else  {
                 for (int i = 0; i < set.length; i++){
@@ -182,7 +173,7 @@ public class MyEvents implements Listener {
                                 world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof())));
 
                             }
-                    }event.getPlayer().giveExp(12);
+                    }event.getPlayer().giveExp(5);
                 }
 
         }

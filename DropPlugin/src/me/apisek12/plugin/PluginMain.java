@@ -10,6 +10,9 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
+
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
@@ -22,6 +25,7 @@ public class PluginMain extends JavaPlugin {
     static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
     static double chestSpawnRate = 0;
     private static boolean isDisabled = false;
+    private static BukkitTask shutdownThread = null;
 
     static boolean isIsDisabled() {
         return isDisabled;
@@ -46,12 +50,16 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!isDisabled){
+            if (command.getName().equalsIgnoreCase("codropi")){
+                dropChances.forEach((ore, oreOptions) ->{
+                    sender.sendMessage(oreOptions.toString());
+                });
+            }
+        }
 
         if (sender instanceof Player && !isDisabled) {
             Player player = (Player) sender;
-            if (command.getName().equalsIgnoreCase("codropi")){
-                player.sendMessage(ChatColor.GOLD+dropChances.toString());
-            }
             if (command.getName().equalsIgnoreCase("drop")){
                 HashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
                 boolean wasOk = false;
@@ -103,49 +111,70 @@ public class PluginMain extends JavaPlugin {
                 isDisabled = !isDisabled;
                 sender.sendMessage("PluginDisabled: " + isDisabled);
             }
-            if (command.getName().equalsIgnoreCase("shutdown") && args.length == 1){
+        if (command.getName().equalsIgnoreCase("shutdown") && args.length == 1){
                 long time = Long.parseLong(args[0])*1000;
                 long timeToStop = System.currentTimeMillis() + time;
-                Runnable thread = () -> {
-                    long startTime = System.currentTimeMillis(); //Moment in time of starting this command
-                    long timer = System.currentTimeMillis(); //This is a timer that will count seconds untill 10 then reset
-                    long lastDisplayedTime = System.currentTimeMillis()-60000; // Last time when remaining minutes were displayed
+                final long[] lastDisplayedTime = {System.currentTimeMillis() - 60000}; // Last time when remaining minutes were displayed
+                long startTime = System.currentTimeMillis(); //Moment in time of starting this command
+                final long[] timer = {System.currentTimeMillis()}; //This is a timer that will count seconds untill 10 then reset
 
-                    while ((System.currentTimeMillis() - startTime) < time) {
-                        if (System.currentTimeMillis() > timer+1000) {
-                            timer = System.currentTimeMillis();
+            Runnable thread = () -> {
+                        if (System.currentTimeMillis() > timer[0] + 1000) {
+                            timer[0] = System.currentTimeMillis();
                             Object[] players = plugin.getServer().getOnlinePlayers().toArray();
-                            if (timeToStop - System.currentTimeMillis() >= 60000) {
-                                if (System.currentTimeMillis() - lastDisplayedTime >= 60000) {
+
+                            if (System.currentTimeMillis() >= timeToStop){
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "save-all");
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop");
+                            }
+                            else if (timeToStop - System.currentTimeMillis() >= 60000) {
+                                if (System.currentTimeMillis() - lastDisplayedTime[0] >= 60000) {
 
                                     for (int i = 0; i < players.length; i++) {
-                                    Player player = (Player) players[i];
+                                        Player player = (Player) players[i];
 
-                                        player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minut", null, 10, 80, 10);
-                                        timer = System.currentTimeMillis();
-                                        lastDisplayedTime = System.currentTimeMillis();
+                                        player.sendTitle(ChatColor.RED + "Serwer wyłączony za " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minut", null, 10, 80, 10);
+                                        getServer().getConsoleSender().sendMessage(ChatColor.RED+"Serwer wyłączony za "+(int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minut");
+                                        timer[0] = System.currentTimeMillis();
+                                        lastDisplayedTime[0] = System.currentTimeMillis();
                                     }
                                 }
-                            }
-                                    else {
-                                        for (int i = 0; i < players.length; i++) {
-                                            Player player = (Player) players[i];
-                                            player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " sekund", null, 0, 40, 0);
-                                    }
+                            } else {
+                                for (int i = 0; i < players.length; i++) {
+                                    Player player = (Player) players[i];
+                                    player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " sekund", null, 0, 40, 0);
+                                    getServer().getConsoleSender().sendMessage(ChatColor.RED+"Serwer wyłączony za "+ (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000)  + " sekund");
+
                                 }
                             }
                         }
 
-                    };
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, thread);
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "save-all");
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop");
-                    }
-                }, time*20/1000);
+                };
+                shutdownThread = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, thread, 0, 1);
+                return true;
             }
+        if (command.getName().equalsIgnoreCase("cancelShutdown")){
+            if (sender instanceof ConsoleCommandSender){
+                if (shutdownThread != null && !shutdownThread.isCancelled()){
+                    shutdownThread.cancel();
+                    sender.sendMessage(ChatColor.GREEN+"Wyłączenie serwera anulowane.");
+                    getServer().getOnlinePlayers().forEach((player)->{
+                        player.sendTitle(ChatColor.GREEN+"Wyłączenie serwera anulowane.", null, 10, 80, 10);
+
+                    });
+                    return true;
+                }
+                else {
+                    sender.sendMessage(ChatColor.DARK_RED+"Wyłączenie serwera nie zostało jeszcze zainicjowane. Aby zainicjować użyj komendy /shutdown <czas_w_sekundach>");
+                    return false;
+                }
+            }
+            else {
+                sender.sendMessage(ChatColor.DARK_RED+"Tylko konsola może wysyłać tą komendę!");
+                return false;
+            }
+        }
+
         return false;
 
     }
