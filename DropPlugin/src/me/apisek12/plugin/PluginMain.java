@@ -131,20 +131,19 @@ public class PluginMain extends JavaPlugin {
 
                                 for (int i = 0; i < players.length; i++) {
                                     Player player = (Player) players[i];
-
                                     player.sendTitle(ChatColor.RED + "Serwer wyłączony za " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minut", null, 10, 80, 10);
+                                }
                                     getServer().getConsoleSender().sendMessage(ChatColor.RED + "Serwer wyłączony za " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minut");
                                     timer[0] = System.currentTimeMillis();
                                     lastDisplayedTime[0] = System.currentTimeMillis();
-                                }
+
                             }
                         } else {
                             for (int i = 0; i < players.length; i++) {
                                 Player player = (Player) players[i];
                                 player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " sekund", null, 0, 40, 0);
+                                }
                                 getServer().getConsoleSender().sendMessage(ChatColor.RED + "Serwer wyłączony za " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " sekund");
-
-                            }
                         }
                     }
 
