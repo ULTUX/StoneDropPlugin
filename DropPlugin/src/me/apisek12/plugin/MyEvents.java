@@ -158,7 +158,6 @@ public class MyEvents implements Listener {
                 for (int i = 0; i < set.length; i++){
                     if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                         if (Chance.chance(dropChances.get(set[i]).getNof()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
-//                            world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof())));
                             if (dropChances.get(set[i]).getEnchant().size() != 0){
                                 ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof()));
                                 ItemMeta itemMeta = itemToDrop.getItemMeta();
@@ -183,12 +182,9 @@ public class MyEvents implements Listener {
     @EventHandler
     public void PlayerRespawnEvent(PlayerRespawnEvent e) {
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, new Runnable() {
-            @Override
-            public void run() {
-                Player player = e.getPlayer();
-                player.setGameMode(GameMode.SURVIVAL);
-            }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, () -> {
+            Player player = e.getPlayer();
+            player.setGameMode(GameMode.SURVIVAL);
         }, 200);
 
     }
