@@ -1,18 +1,20 @@
 # Stone Drop Plugin
-This is a source code to one of the first plugins I have ever created. <br>
-This plugin supports <b>latest</b> minecraft version, avaiable to be compiled to your server.
+This is a source code to one of the first plugins I have ever created.  
+This plugin supports **latest** minecraft version, avaiable to be compiled to your server.  
 
-# Latest releases: [Releases](https://github.com/ULTUX/minecraft-stone-drop-plugin/releases/)
 
-<h2>Functions: </h2>
-<ul>
-  <li>Pre-configured drop from the stone (ability to change chances of the drop comming soon)</li>
-  <li>Plugin fully supports fortune-enchanted pickaxes</li>
-  <li>Ability to personally enable/disable specified drop using command</li>
-  <li>Preferences remembering using configuration file</li>
-</ul>
+## Overview
+This plugin gives player ability to get more items from mining stone.  
+Plugin makes it possible for player to get a mistery chest created when mining stone,  
+also stone can drop items like diamonds, emeralds or coal with specified chances,  
+all of this can be changed in configuration file that gets generated when the plugin is being enabled.  
 
-<h2>Comming soon:</h2>
-  <ul>
-    <li>Ability to change and modify chances of drop (Alfa version in dev branch)</l1>
-  </ul>
+## Latest releases: [Releases](https://github.com/ULTUX/minecraft-stone-drop-plugin/releases/)
+
+### Features
+  * The plugin makes mining stone way more fun
+  * All the items that are specified can be dropped with specified enchantment
+  * What can 
+  * The ability for player to prevent specified items from dropping using command
+  * Player settings gets saved into config file
+
