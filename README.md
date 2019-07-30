@@ -14,7 +14,8 @@ all of this can be changed in configuration file that gets generated when the pl
 ### Features
   * The plugin makes mining stone way more fun
   * All the items that are specified can be dropped with specified enchantment
-  * What can 
-  * The ability for player to prevent specified items from dropping using command
-  * Player settings gets saved into config file
+  * Player can get a treasure chest spawned while mining stone
+  * Treasure chest contents and chances of being spawned are specified in config file
+  * Player can prevent specified items from dropping using command
+  * Players settings are saved into config file
 
