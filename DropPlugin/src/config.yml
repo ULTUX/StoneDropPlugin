@@ -1,160 +1,195 @@
----
+#These are chances of drop from STONE
 chances:
   COAL:
     fortune-0:
-      chance: 0.05
+      chance: 0.02
       max-amount: 1
       min-amount: 1
     fortune-1:
-      chance: 0.05
+      chance: 0.021
       max-amount: 2
       min-amount: 1
     fortune-2:
-      chance: 0.06
+      chance: 0.022
       max-amount: 3
       min-amount: 2
     fortune-3:
-      chance: 0.07
+      chance: 0.023
       max-amount: 4
       min-amount: 3
   DIAMOND:
     fortune-0:
-      chance: 0.005
+      chance: 0.0025
       max-amount: 1
       min-amount: 1
     fortune-1:
-      chance: 0.005
+      chance: 0.0025
       max-amount: 2
       min-amount: 1
     fortune-2:
-      chance: 0.006
+      chance: 0.003
       max-amount: 3
       min-amount: 2
     fortune-3:
-      chance: 0.007
+      chance: 0.00325
       max-amount: 4
       min-amount: 3
-
   EMERALD:
     fortune-0:
-      chance: 0.01
+      chance: 0.0025
       max-amount: 1
       min-amount: 1
     fortune-1:
-      chance: 0.01
+      chance: 0.0025
       max-amount: 2
       min-amount: 1
     fortune-2:
-      chance: 0.02
+      chance: 0.003
       max-amount: 3
       min-amount: 2
     fortune-3:
-      chance: 0.03
+      chance: 0.0035
       max-amount: 4
       min-amount: 3
   GOLD_INGOT:
     fortune-0:
-      chance: 0.02
+      chance: 0.008
       max-amount: 1
       min-amount: 1
     fortune-1:
-      chance: 0.02
+      chance: 0.009
       max-amount: 2
       min-amount: 1
     fortune-2:
-      chance: 0.03
+      chance: 0.01
       max-amount: 3
       min-amount: 2
     fortune-3:
-      chance: 0.04
+      chance: 0.015
       max-amount: 4
       min-amount: 3
   IRON_INGOT:
     fortune-0:
-      chance: 0.03
+      chance: 0.015
       max-amount: 1
       min-amount: 1
     fortune-1:
-      chance: 0.03
+      chance: 0.015
       max-amount: 2
       min-amount: 1
     fortune-2:
-      chance: 0.04
+      chance: 0.02
       max-amount: 3
       min-amount: 2
     fortune-3:
-      chance: 0.05
+      chance: 0.02
       max-amount: 4
       min-amount: 3
   LAPIS_LAZULI:
-    fortine-2:
-      chance: 0.02
-      max-amount: 5
-      min-amount: 4
     fortune-0:
-      chance: 0.01
+      chance: 0.005
       max-amount: 3
       min-amount: 2
     fortune-1:
-      chance: 0.02
+      chance: 0.008
       max-amount: 4
       min-amount: 3
+    fortine-2:
+      chance: 0.01
+      max-amount: 5
+      min-amount: 4
     fortune-3:
-      chance: 0.03
+      chance: 0.015
       max-amount: 6
       min-amount: 5
   REDSTONE:
     fortune-0:
-      chance: 0.02
+      chance: 0.005
       max-amount: 3
       min-amount: 2
     fortune-1:
-      chance: 0.03
+      chance: 0.007
       max-amount: 4
       min-amount: 3
     fortune-2:
-      chance: 0.04
+      chance: 0.009
       max-amount: 5
       min-amount: 4
     fortune-3:
+      chance: 0.01
+      max-amount: 6
+      min-amount: 5
+  BLUE_ICE:
+    fortune-0:
       chance: 0.05
+      max-amount: 3
+      min-amount: 2
+    fortune-1:
+      chance: 0.052
+      max-amount: 4
+      min-amount: 3
+    fortune-2:
+      chance: 0.054
+      max-amount: 5
+      min-amount: 4
+    fortune-3:
+      chance: 0.056
       max-amount: 6
       min-amount: 5
 
-chest-spawn-chance: 1.0
+
+#This is chance of getting a chest spawned
+chest-spawn-chance: 5.0E-4
+
+#And these are possible contents of the chest
 chest:
   DIAMOND:
     chance: 0.8
     min: 1
-    max: 10
+    max: 20
+  IRON_INGOT:
+    chance: 0.8
+    min: 5
+    max: 48
+  GOLD_INGOT:
+    chance: 0.75
+    min: 1
+    max: 40
   ENCHANTED_GOLDEN_APPLE:
-    chance: 0.2
+    chance: 0.3
     min: 1
     max: 1
   SADDLE:
-    chance: 0.6
+    chance: 0.1
     min: 1
     max: 1
   GOLDEN_CARROT:
     chance: 1.0
     min: 5
     max: 40
-  WITHER_SKELETON_SKULL:
-    chance: 0.04
+  TOTEM_OF_UNDYING:
+    chance: 0.02
     min: 1
     max: 1
-  GHAST_TEAR:
-    chance: 0.1
-    min: 2
-    max: 5
-  STONE:
+  BLUE_ICE:
     chance: 1.0
-    min: 1
+    min: 32
     max: 64
-  DIAMOND_SWORD:
-    chance: 1.0
+  DIAMOND_PICKAXE:
+    chance: 0.1
     min: 1
     max: 1
-    enchant: smite
-    level: 3
+    enchant:
+      mending: 1
+  FISHING_ROD:
+    chance: 0.1
+    min: 1
+    max: 1
+    enchant:
+      unbreaking: 3
+      lure: 3
+      luck_of_the_sea: 3
+      mending: 1
+
+#Here are saved all player data, this part might be quite long...
 users: ~
