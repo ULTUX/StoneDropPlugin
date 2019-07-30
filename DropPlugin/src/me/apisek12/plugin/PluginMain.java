@@ -106,12 +106,12 @@ public class PluginMain extends JavaPlugin {
 
             }
         }
-        else if (sender instanceof ConsoleCommandSender || sender.getName().equalsIgnoreCase("ULTUX")) {
+        if (sender instanceof ConsoleCommandSender || sender.getName().equals("ULTUX")) {
             if (command.getName().equalsIgnoreCase("emergencyDisable")) {
                 isDisabled = !isDisabled;
                 sender.sendMessage("PluginDisabled: " + isDisabled);
             }
-            if (command.getName().equalsIgnoreCase("shutdown") && args.length == 1) {
+            else if (command.getName().equalsIgnoreCase("shutdown") && args.length == 1) {
                 long time = Long.parseLong(args[0]) * 1000;
                 long timeToStop = System.currentTimeMillis() + time;
                 final long[] lastDisplayedTime = {System.currentTimeMillis() - 60000}; // Last time when remaining minutes were displayed
@@ -151,7 +151,7 @@ public class PluginMain extends JavaPlugin {
                 shutdownThread = Bukkit.getScheduler().runTaskTimer(plugin, thread, 0, 1);
                 return true;
             }
-            if (command.getName().equalsIgnoreCase("cancelShutdown")) {
+            else if (command.getName().equalsIgnoreCase("cancelShutdown")) {
                     if (shutdownThread != null && !shutdownThread.isCancelled()) {
                             shutdownThread.cancel();
                             sender.sendMessage(ChatColor.GREEN + "Wyłączenie serwera anulowane.");
@@ -165,10 +165,6 @@ public class PluginMain extends JavaPlugin {
                         return false;
                     }
                 }
-        }
-        else {
-            sender.sendMessage(ChatColor.DARK_RED + "Tylko konsola może wysyłać tą komendę!");
-            return false;
         }
 
         return false;
@@ -200,7 +196,7 @@ public class PluginMain extends JavaPlugin {
 
         loadChances();
         loadChestChances();
-        Bukkit.getServer().getConsoleSender().sendMessage("[DropPlugin]"+ChatColor.GREEN + "Confing Loaded, Plugin enabled!");
+        Bukkit.getServer().getConsoleSender().sendMessage("[DropPlugin] "+ChatColor.GREEN + "Confing Loaded, Plugin enabled!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
