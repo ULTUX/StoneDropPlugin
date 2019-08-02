@@ -1,6 +1,6 @@
 # Stone Drop Plugin
 This is a source code to one of the first plugins I have ever created.  
-This plugin supports **latest** minecraft version, avaiable to be compiled to your server.  
+This plugin supports **latest** minecraft version, available to be compiled to your server.  
 
 
 ## Overview
