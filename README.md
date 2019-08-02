@@ -1,4 +1,4 @@
-(StoneDrooPlugin)[https://cdn.discordapp.com/attachments/252074890453188608/606969243585478666/logo_pluginu.png]
+![Stone Drop Plugin Logo](https://cdn.discordapp.com/attachments/252074890453188608/606969243585478666/logo_pluginu.png)
 # Stone Drop Plugin
 This is a source code to one of the first plugins I have ever created.  
 This plugin supports **latest** minecraft version, available to be compiled to your server.  
