@@ -19,4 +19,3 @@ all of this can be changed in configuration file that gets generated when the pl
   * Treasure chest contents and chances of being spawned are specified in config file
   * Player can prevent specified items from dropping using command
   * Players settings are saved into config file
-
