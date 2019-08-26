@@ -9,6 +9,6 @@ public class Chance {
 
     public static int randBetween(int a, int b){
         if (a == b) return a;
-        return (int)(a + (Math.random()*(b-a)));
+        return (int)(a + (Math.round(Math.random())*(b-a)));
     }
 }
