@@ -1,7 +1,7 @@
 ![Stone Drop Plugin Logo (Image by Ponanoix)](https://cdn.discordapp.com/attachments/252074890453188608/606969243585478666/logo_pluginu.png)
  ![](https://img.shields.io/github/v/release/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/downloads/ULTUX/StoneDropPlugin/total) ![](https://img.shields.io/github/issues/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/commit-activity/master/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/license/ULTUX/StoneDropPlugin)
  
-## What is Stone Drop?
+# What is Stone Drop?
 This plugin gives player ability to drop some additional items while mining stone.  
 What is more, it also features mystery chests, which can appear in front of player while mining.  
 Everything can be configured and changed to meet server requirements.
@@ -21,11 +21,13 @@ Everything can be configured and changed to meet server requirements.
   2. Place the file in **plugins** folder inside your server directory
   3. Start the server _(if it was already running reload it with **/reload** command)_
   4. You have successfully **downloaded and installed** the plugin!
-  
-# Stone Drop Plugin
-This is a source code to one of the first plugins I have ever created.  
-This plugin supports **latest** minecraft version, available to be compiled to your server.  
 
+## Commands
+/drop (or /d) - this is a base command  
+/drop stack - toggle (for command sender) automatic crafting of diamonds, gold, etc. into their block equivalents
+/drop cobble - toggle (for command sender) drop of cobblestone from stone
+/drop <name of material> - toggle (for command sender) drop of specific material from stone
+/whatdrops - displays list of items that can drop, their chances and ammounts
 
 ## Latest releases: [Releases](https://github.com/ULTUX/minecraft-stone-drop-plugin/releases/)
 
