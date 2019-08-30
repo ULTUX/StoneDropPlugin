@@ -1,5 +1,5 @@
 ![Stone Drop Plugin Logo (Image by Ponanoix)](https://cdn.discordapp.com/attachments/252074890453188608/606969243585478666/logo_pluginu.png)
- ![](https://img.shields.io/github/v/release/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/downloads/ULTUX/StoneDropPlugin/total) ![](https://img.shields.io/github/issues/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/commit-activity/master/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/license/ULTUX/StoneDropPlugin)
+ ![](https://img.shields.io/github/v/release/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/issues/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/commit-activity/master/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/license/ULTUX/StoneDropPlugin)
  
 # What is Stone Drop?
 This plugin gives player ability to drop some additional items while mining stone.  
@@ -28,8 +28,9 @@ Everything can be configured and changed to meet server requirements.
 /drop cobble - toggle (for command sender) drop of cobblestone from stone.  
 /drop <name of material> - toggle (for command sender) drop of specific material from stone.  
 /whatdrops - displays list of items that can drop, their chances and ammounts.  
-/shutdown <time in seconds> - this is a console-only command. It schedules a server closage and informs all players about it.  
-/cancelshutdown - cancels shutdown if it has been initialized.  
+/shutdown <time in seconds> - op/console-only command. It schedules a server closage and informs all players about it.  
+/cancelshutdown - op/console-only command. cancels shutdown if it has been initialized.  
+/emergencydisable - op/console-only command. disables most of plugins functions
  
  
 ## Latest releases: [Releases](https://github.com/ULTUX/minecraft-stone-drop-plugin/releases/)
