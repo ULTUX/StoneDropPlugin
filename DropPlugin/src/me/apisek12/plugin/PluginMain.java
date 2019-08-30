@@ -67,22 +67,22 @@ public class PluginMain extends JavaPlugin {
                     playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)-> player.sendMessage(ChatColor.GOLD+material+": "+preferences.isOn()));
                     wasOk = true;
                 }
-                else if (args.length > 1) player.sendMessage(ChatColor.GRAY+"Komenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
+                else if (args.length > 1) player.sendMessage(ChatColor.GRAY+"Command should look like that:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
                 else {
                     if (args[0].equalsIgnoreCase("cobble")) {
                         wasOk = true;
                             setting.get("COBBLE").setOn(!setting.get("COBBLE").isOn());
                         if (!setting.get("COBBLE").isOn())
-                            player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "cobbla" + ChatColor.GOLD + " jest teraz "+ChatColor.GREEN+"włączony");
+                            player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
                         else
-                            player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "cobbla" + ChatColor.GOLD + " jest teraz "+ChatColor.RED+"wyłączony");
+                            player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
                     } else if (args[0].equalsIgnoreCase("stack")) {
                         wasOk = true;
                         setting.get("STACK").setOn(!setting.get("STACK").isOn());
                         if (setting.get("STACK").isOn())
-                            player.sendMessage(ChatColor.RED + "Stackowanie" + ChatColor.GOLD + " jest teraz "+ChatColor.GREEN+"włączone");
+                            player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
                         else
-                            player.sendMessage(ChatColor.RED + "Stackowanie" + ChatColor.GOLD +" jest teraz "+ChatColor.RED+"wyłączone");
+                            player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD +" is now "+ChatColor.RED+"disabled");
 
                     } else {
                         for (int i = 0; i < MyEvents.set.length; i++) {
@@ -90,9 +90,9 @@ public class PluginMain extends JavaPlugin {
                             if (args[0].equalsIgnoreCase(MyEvents.set[i])) {
                                 setting.get(MyEvents.set[i]).setOn(!setting.get(MyEvents.set[i]).isOn());
                                 if (setting.get(MyEvents.set[i]).isOn()) {
-                                    player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " jest teraz "+ChatColor.GREEN+"włączony");
+                                    player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
                                 } else {
-                                    player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " jest teraz "+ChatColor.RED+"wyłączony");
+                                    player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
                                 }
                                 wasOk = true;
                             }
@@ -100,7 +100,7 @@ public class PluginMain extends JavaPlugin {
                     }
                 }
                 if (!wasOk){
-                    player.sendMessage(ChatColor.GRAY+"Nieznany argument!\nKomenda powinna wyglądać mniej więcej tak:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
+                    player.sendMessage(ChatColor.GRAY+"Unknown argument!\Command should look like:\n"+ChatColor.GOLD+"/drop <info, stack, DROPPABLE_NAME>");
 
                 }
 
@@ -143,7 +143,7 @@ public class PluginMain extends JavaPlugin {
                                 Player player = (Player) players[i];
                                 player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " sekund", null, 0, 40, 0);
                             }
-                                getServer().getConsoleSender().sendMessage(ChatColor.RED + "Serwer wyłączony za " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " sekund");
+                                getServer().getConsoleSender().sendMessage(ChatColor.RED + "Serwer disabled in " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds");
                         }
                     }
 
