@@ -36,9 +36,9 @@ Everything can be configured and changed to meet server requirements.
 ## Latest releases: [Releases](https://github.com/ULTUX/minecraft-stone-drop-plugin/releases/)
 
 ### Features
-  * The plugin makes mining stone way more fun
-  * All the items that are specified can be dropped with specified enchantment
-  * Player can get a treasure chest spawned while mining stone
-  * Treasure chest contents and chances of being spawned are specified in config file
-  * Player can prevent specified items from dropping using command
-  * Players settings are saved into config file
+  * The plugin makes mining stone way more fun.
+  * All the items that are specified can be dropped with specified enchantment.
+  * Player can get a treasure chest spawned while mining stone.
+  * Treasure chest contents and chances of being spawned are specified in config file.
+  * Player can prevent specified items from dropping using command.
+  * Players settings are saved into config file.
