@@ -2,7 +2,6 @@ package me.apisek12.plugin;
 
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -10,7 +9,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
@@ -33,7 +31,7 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Bukkit.getConsoleSender().sendMessage("[DropPlugin] "+ChatColor.GRAY+"Saving getConfig() file...");
+        Bukkit.getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GRAY+"Saving getConfig() file...");
         playerSettings.forEach((player, settings) -> {
             settings.forEach((material, setting)->{
                 getConfig().set("users."+player+"."+material, setting.isOn());
@@ -43,8 +41,8 @@ public class PluginMain extends JavaPlugin {
 
 
         saveConfig();
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"[DropPLugin] Config file saved!");
-        Bukkit.getServer().getConsoleSender().sendMessage("[DropPlugin] "+ChatColor.DARK_RED + "Plugin disabled!");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"[StoneDrop] Config file saved!");
+        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.DARK_RED + "Plugin disabled!");
         plugin = null;
     }
 
@@ -100,13 +98,13 @@ public class PluginMain extends JavaPlugin {
                     }
                 }
                 if (!wasOk){
-                    player.sendMessage(ChatColor.GRAY+"Unknown argument!\Command should look like:\n"+ChatColor.GOLD+"/drop <info, stack, DROPPABLE_NAME>");
+                    player.sendMessage(ChatColor.GRAY+"Unknown argument!\nCommand should look like:\n"+ChatColor.GOLD+"/drop <info, stack, DROPPABLE_NAME>");
 
                 }
 
             }
         }
-        if (sender instanceof ConsoleCommandSender || sender.getName().equals("ULTUX")) {
+        if (sender instanceof ConsoleCommandSender || sender.isOp()) {
             if (command.getName().equalsIgnoreCase("emergencyDisable")) {
                 isDisabled = !isDisabled;
                 sender.sendMessage("PluginDisabled: " + isDisabled);
@@ -141,7 +139,7 @@ public class PluginMain extends JavaPlugin {
                         } else {
                             for (int i = 0; i < players.length; i++) {
                                 Player player = (Player) players[i];
-                                player.sendTitle(ChatColor.RED + "Server disabled in: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds", null, 0, 40, 0);
+                                player.sendTitle(ChatColor.RED + "Server shut down in: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds", null, 0, 40, 0);
                             }
                                 getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds");
                         }
@@ -196,7 +194,7 @@ public class PluginMain extends JavaPlugin {
 
         loadChances();
         loadChestChances();
-        Bukkit.getServer().getConsoleSender().sendMessage("[DropPlugin] "+ChatColor.GREEN + "Confing Loaded, Plugin enabled!");
+        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GREEN + "Confing Loaded, Plugin enabled!");
         plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {

@@ -1,4 +1,4 @@
-name: DropPlugin
+name: StoneDrop
 description:
 api-version: 1.13
 version: 1.0
@@ -6,11 +6,6 @@ main: me.apisek12.plugin.PluginMain
 commands:
   shutdown:
   drop:
-    description: Modyfikuj ustawienia dropu.
-    aliases: [d]
-  codropi:
-    description: Pokazuje szansze na drop
+  whatdrops:
   emergencyDisable:
-    description: Wylacz awaryjnie plugin
   cancelShutdown:
-    description: Anuluj komende /shutdown
