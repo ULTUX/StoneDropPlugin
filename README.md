@@ -24,11 +24,14 @@ Everything can be configured and changed to meet server requirements.
 
 ## Commands
 /drop (or /d) - this is a base command  
-/drop stack - toggle (for command sender) automatic crafting of diamonds, gold, etc. into their block equivalents  
-/drop cobble - toggle (for command sender) drop of cobblestone from stone  
-/drop <name of material> - toggle (for command sender) drop of specific material from stone  
-/whatdrops - displays list of items that can drop, their chances and ammounts  
-
+/drop stack - toggle (for command sender) automatic crafting of diamonds, gold, etc. into their block equivalents.  
+/drop cobble - toggle (for command sender) drop of cobblestone from stone.  
+/drop <name of material> - toggle (for command sender) drop of specific material from stone.  
+/whatdrops - displays list of items that can drop, their chances and ammounts.  
+/shutdown <time in seconds> - this is a console-only command. It schedules a server closage and informs all players about it.  
+/cancelshutdown - cancels shutdown if it has been initialized.  
+ 
+ 
 ## Latest releases: [Releases](https://github.com/ULTUX/minecraft-stone-drop-plugin/releases/)
 
 ### Features
