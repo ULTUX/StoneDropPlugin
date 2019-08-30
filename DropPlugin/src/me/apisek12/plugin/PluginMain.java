@@ -51,7 +51,7 @@ public class PluginMain extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!isDisabled){
-            if (command.getName().equalsIgnoreCase("codropi")){
+            if (command.getName().equalsIgnoreCase("whatdrops")){
                 dropChances.forEach((ore, oreOptions) ->{
                     sender.sendMessage(oreOptions.toString());
                 });
