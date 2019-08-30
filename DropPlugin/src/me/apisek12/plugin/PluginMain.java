@@ -131,9 +131,9 @@ public class PluginMain extends JavaPlugin {
 
                                 for (int i = 0; i < players.length; i++) {
                                     Player player = (Player) players[i];
-                                    player.sendTitle(ChatColor.RED + "Serwer wyłączony za " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minut", null, 10, 80, 10);
+                                    player.sendTitle(ChatColor.RED + "Server shut down in " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minutes", null, 10, 80, 10);
                                 }
-                                    getServer().getConsoleSender().sendMessage(ChatColor.RED + "Serwer wyłączony za " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minut");
+                                    getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minutes");
                                     timer[0] = System.currentTimeMillis();
                                     lastDisplayedTime[0] = System.currentTimeMillis();
 
@@ -141,9 +141,9 @@ public class PluginMain extends JavaPlugin {
                         } else {
                             for (int i = 0; i < players.length; i++) {
                                 Player player = (Player) players[i];
-                                player.sendTitle(ChatColor.RED + "Serwer wyłączony za: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " sekund", null, 0, 40, 0);
+                                player.sendTitle(ChatColor.RED + "Server disabled in: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds", null, 0, 40, 0);
                             }
-                                getServer().getConsoleSender().sendMessage(ChatColor.RED + "Serwer disabled in " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds");
+                                getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds");
                         }
                     }
 
@@ -154,14 +154,14 @@ public class PluginMain extends JavaPlugin {
             else if (command.getName().equalsIgnoreCase("cancelShutdown")) {
                     if (shutdownThread != null && !shutdownThread.isCancelled()) {
                             shutdownThread.cancel();
-                            sender.sendMessage(ChatColor.GREEN + "Wyłączenie serwera anulowane.");
+                            sender.sendMessage(ChatColor.GREEN + "Server shut down cancelled.");
                             getServer().getOnlinePlayers().forEach((player) -> {
-                            player.sendTitle(ChatColor.GREEN + "Wyłączenie serwera anulowane.", null, 10, 80, 10);
+                            player.sendTitle(ChatColor.GREEN + "Server shut down cancelled.", null, 10, 80, 10);
 
                         });
                         return true;
                     } else {
-                        sender.sendMessage(ChatColor.DARK_RED + "Wyłączenie serwera nie zostało jeszcze zainicjowane. Aby zainicjować użyj komendy /shutdown <czas_w_sekundach>");
+                        sender.sendMessage(ChatColor.DARK_RED + "Server shut down has not been initialized yet. To initialize use command /shutdown <time_in_seconds>");
                         return false;
                     }
                 }
