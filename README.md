@@ -1,5 +1,5 @@
 ![Stone Drop Plugin Logo (Image by Ponanoix)](https://cdn.discordapp.com/attachments/252074890453188608/606969243585478666/logo_pluginu.png)
- ![](https://img.shields.io/github/v/release/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/downloads/ULTUX/StoneDropPlugin/total) ![](https://img.shields.io/github/issues/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/commit-activity/m/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/license/ULTUX/StoneDropPlugin)
+ ![](https://img.shields.io/github/v/release/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/downloads/ULTUX/StoneDropPlugin/total) ![](https://img.shields.io/github/issues/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/commit-activity/master/ULTUX/StoneDropPlugin) ![](https://img.shields.io/github/license/ULTUX/StoneDropPlugin)
  
 ## What is Stone Drop?
 This plugin gives player ability to drop some additional items while mining stone.  
