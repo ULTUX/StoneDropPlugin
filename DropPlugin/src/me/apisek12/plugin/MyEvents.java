@@ -49,7 +49,7 @@ public class MyEvents implements Listener {
             if (Chance.chance(PluginMain.chestSpawnRate)){
                 Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
                     block.setType(Material.CHEST);
-                    event.getPlayer().sendTitle(ChatColor.GOLD+"Znalazłeś "+ ChatColor.GREEN+ "skrzynię "+ ChatColor.GOLD+"skarbów!", ChatColor.AQUA+"Ciekawe co jest w środku...", 20, 20, 15);
+                    event.getPlayer().sendTitle(ChatColor.GOLD+"You have found a "+ ChatColor.GREEN+ "treasure "+ ChatColor.GOLD+"chest!", ChatColor.AQUA+"Ciekawe co jest w środku...", 20, 20, 15);
                     event.getPlayer().playSound(event.getBlock().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1f);
                     Chest chest = (Chest) block.getState();
                     Bukkit.getScheduler().runTaskLater(PluginMain.plugin, new Runnable() {
