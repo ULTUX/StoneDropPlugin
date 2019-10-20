@@ -104,7 +104,7 @@ public class MyEvents implements Listener {
                     }
                 }
 
-                event.getPlayer().giveExp(3);
+                event.getPlayer().giveExp(PluginMain.experienceToDrop);
             }
             else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 2) {
                 for (int i = 0; i < set.length; i++){
@@ -127,7 +127,7 @@ public class MyEvents implements Listener {
                     }
                     }
 
-                event.getPlayer().giveExp(4);
+                event.getPlayer().giveExp(PluginMain.experienceToDrop);
             }
             else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 3) {
                 for (int i = 0; i < set.length; i++){
@@ -150,7 +150,7 @@ public class MyEvents implements Listener {
                     }
                     }
 
-                event.getPlayer().giveExp(5);
+                event.getPlayer().giveExp(PluginMain.experienceToDrop);
             }
             else  {
                 for (int i = 0; i < set.length; i++){
@@ -170,7 +170,8 @@ public class MyEvents implements Listener {
                                 world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof())));
 
                             }
-                    }event.getPlayer().giveExp(2);
+                    }
+                    event.getPlayer().giveExp(PluginMain.experienceToDrop);
                 }
 
         }
