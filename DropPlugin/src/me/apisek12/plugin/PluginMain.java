@@ -176,7 +176,6 @@ public class PluginMain extends JavaPlugin {
         saveDefaultConfig();
         saveConfig();
         experienceToDrop = (int) getConfig().get("experience");
-        if (experienceToDrop == 0) experienceToDrop = 3;
         ConfigurationSection cs = getConfig().getConfigurationSection("users");
         if (cs != null) {
             Set<String> keyList = cs.getKeys(false);
