@@ -167,7 +167,6 @@ public class MyEvents implements Listener {
 
                         }
                     }
-                    event.getPlayer().sendMessage("SIEMA");
         }
     }
 

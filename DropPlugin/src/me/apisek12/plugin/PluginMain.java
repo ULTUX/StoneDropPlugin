@@ -172,8 +172,8 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Updater updater = new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         Metrics metrics = new Metrics(this);
-
 
         saveDefaultConfig();
         saveConfig();
