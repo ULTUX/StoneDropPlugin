@@ -172,6 +172,8 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Metrics metrics = new Metrics(this);
+
 
         saveDefaultConfig();
         saveConfig();
