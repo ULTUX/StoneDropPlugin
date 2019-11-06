@@ -29,9 +29,20 @@ jobs:
             - v1-dependencies-{{ checksum "pom.xml" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
+      - run:
+          name: Creating Dummy Artifacts
+          command: |
+            echo "my artifact file" > /tmp/artifact-1;
+            mkdir /tmp/artifacts;
+            echo "my artifact files in a dir" > /tmp/artifacts/artifact-2;
 
       - run: mvn dependency:go-offline
+      - store_artifacts:
+          path: /tmp/artifact-1
+          destination: artifact-file
 
+      - store_artifacts:
+          path: /tmp/artifacts
       - save_cache:
           paths:
             - ~/.m2
