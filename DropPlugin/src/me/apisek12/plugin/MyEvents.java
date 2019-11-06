@@ -181,14 +181,21 @@ public class MyEvents implements Listener {
 
     }
 
+    @EventHandler
+    public void PlayerJoinEvent(PlayerJoinEvent e){
+        if (!PluginMain.playerSettings.containsKey(e.getPlayer().getUniqueId().toString())) newPlayerJoined(e.getPlayer().getUniqueId().toString());
+        e.getPlayer().getWorld().strikeLightningEffect(e.getPlayer().getLocation());
+    }
+
     private int getRandomFreeSlot(Inventory inv){
         int random = Chance.randBetween(0, 26);
         if (inv.getItem(random) == null) return random;
         return getRandomFreeSlot(inv);
     }
 
+
     private void newPlayerJoined(String uid){
-        Bukkit.getServer().getConsoleSender().sendMessage("[DropPlugin] Creating new player data");
+        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data");
         HashMap<String, Setting> settings = new HashMap<>();
         for (int i = 0; i < set.length; i++){
             settings.put(set[i], new Setting(true, set[i]));
