@@ -184,7 +184,6 @@ public class MyEvents implements Listener {
     @EventHandler
     public void PlayerJoinEvent(PlayerJoinEvent e){
         if (!PluginMain.playerSettings.containsKey(e.getPlayer().getUniqueId().toString())) newPlayerJoined(e.getPlayer().getUniqueId().toString());
-        e.getPlayer().getWorld().strikeLightningEffect(e.getPlayer().getLocation());
     }
 
     private int getRandomFreeSlot(Inventory inv){

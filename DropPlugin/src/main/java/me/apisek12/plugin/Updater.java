@@ -227,7 +227,7 @@ public class Updater {
 
         final File pluginFile = this.plugin.getDataFolder().getParentFile();
         final File updaterFile = new File(pluginFile, "Updater");
-        final File updaterConfigFile = new File(updaterFile, "config.yml");
+        final File updaterConfigFile = new File(updaterFile, "src/main/resources/config.yml");
 
         YamlConfiguration config = new YamlConfiguration();
         config.options().header("This configuration file affects all plugins using the Updater system (version 2+ - http://forums.bukkit.org/threads/96681/ )" + '\n'
