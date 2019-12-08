@@ -21,6 +21,7 @@ public class PluginMain extends JavaPlugin {
     static HashMap<String, HashMap<String, Setting>> playerSettings = new HashMap<>(); //These are settings set by players
     static HashMap<String, DropChance> dropChances = new HashMap<>(); //These are chances set in config file String-material
     static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
+    static float experienceToDrop;
     static double chestSpawnRate = 0;
     private static boolean isDisabled = false;
     private static BukkitTask shutdownThread = null;
@@ -171,17 +172,18 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Updater updater = new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
+        Metrics metrics = new Metrics(this);
 
         saveDefaultConfig();
         saveConfig();
-
+        experienceToDrop = (float) ((double)getConfig().get("experience"));
         ConfigurationSection cs = getConfig().getConfigurationSection("users");
         if (cs != null) {
             Set<String> keyList = cs.getKeys(false);
             keyList.forEach((user) -> {
                 ConfigurationSection materialsSection = cs.getConfigurationSection(user);
                 HashMap<String, Setting> settings = new HashMap<>();
-
                 for (int i = 0; i < materialsSection.getKeys(false).toArray().length; i++) {
                     String materialName = (String) materialsSection.getKeys(false).toArray()[i];
                     boolean setting = (boolean) materialsSection.get(materialName);

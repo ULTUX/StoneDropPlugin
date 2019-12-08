@@ -1,0 +1,11 @@
+name: StoneDrop
+description:
+api-version: 1.13
+version: 1.4.2
+main: me.apisek12.plugin.PluginMain
+commands:
+  shutdown:
+  drop:
+  whatdrops:
+  emergencyDisable:
+  cancelShutdown:
