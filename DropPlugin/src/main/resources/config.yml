@@ -190,7 +190,7 @@ chest:
       lure: 3
       luck_of_the_sea: 3
       mending: 1
-experience: 3
+experience: 3.0
 
 #Here are saved all of player data, this part might be quite long...
 users: ~
