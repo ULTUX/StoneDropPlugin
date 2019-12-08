@@ -18,6 +18,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -82,7 +84,8 @@ public class MyEvents implements Listener {
                                                 meta.addEnchant(whatToEnchant, level, true);
                                             });
                                             item.setItemMeta(meta);
-                                            chest.getBlockInventory().setItem(getRandomFreeSlot(chest.getBlockInventory()), item);
+                                            int freeSlot = getRandomFreeSlot(chest.getBlockInventory());
+                                            if (freeSlot >= 0) chest.getBlockInventory().setItem(freeSlot, item);
                                         } else
                                             chest.getBlockInventory().addItem(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
                                     }
@@ -195,9 +198,11 @@ public class MyEvents implements Listener {
     }
 
     private int getRandomFreeSlot(Inventory inv){
-        int random = Chance.randBetween(0, 26);
-        if (inv.getItem(random) == null) return random;
-        return getRandomFreeSlot(inv);
+        ArrayList<Integer> possibleInv = new ArrayList<>();
+        for (int i = 0; i < 27; i++) if (inv.getItem(i) == null) possibleInv.add(i);
+        if (possibleInv.size() == 0) return -1;
+        int random = Chance.randBetween(0, possibleInv.size()-1);
+        return possibleInv.get(random);
     }
 
 
