@@ -21,7 +21,7 @@ public class PluginMain extends JavaPlugin {
     static HashMap<String, HashMap<String, Setting>> playerSettings = new HashMap<>(); //These are settings set by players
     static HashMap<String, DropChance> dropChances = new HashMap<>(); //These are chances set in config file String-material
     static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
-    static int experienceToDrop;
+    static float experienceToDrop;
     static double chestSpawnRate = 0;
     private static boolean isDisabled = false;
     private static BukkitTask shutdownThread = null;
@@ -177,7 +177,7 @@ public class PluginMain extends JavaPlugin {
 
         saveDefaultConfig();
         saveConfig();
-        experienceToDrop = (int) getConfig().get("experience");
+        experienceToDrop = (float) ((double)getConfig().get("experience"));
         ConfigurationSection cs = getConfig().getConfigurationSection("users");
         if (cs != null) {
             Set<String> keyList = cs.getKeys(false);

@@ -26,7 +26,18 @@ public class MyEvents implements Listener {
     private HashMap<String, DropChance> dropChances = PluginMain.dropChances;
     public static String[] set; //Ore names
 
+    private void giveExp(Player player){
+        float experienceToGive = PluginMain.experienceToDrop/((float)Math.sqrt((double)player.getLevel()+1));
+        if (player.getExp() == 1.0 || player.getExp()+experienceToGive >= 1.0){
+            player.setLevel(player.getLevel() + (int)(player.getExp()+experienceToGive));
+            player.setExp((player.getExp() + experienceToGive)-((int)player.getExp()+experienceToGive));
+        }
+        else {
+            player.setExp(player.getExp()+ experienceToGive);
+        }
 
+
+    }
     @EventHandler (priority = EventPriority.HIGHEST)
     public void blockBreak(BlockBreakEvent event) {
 
@@ -101,7 +112,6 @@ public class MyEvents implements Listener {
                                 }
                             }
 
-                            event.getPlayer().giveExp(PluginMain.experienceToDrop);
                         } else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 2) {
                             for (int i = 0; i < set.length; i++) {
                                 if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
@@ -122,7 +132,6 @@ public class MyEvents implements Listener {
                                 }
                             }
 
-                            event.getPlayer().giveExp(PluginMain.experienceToDrop);
                         } else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 3) {
                             for (int i = 0; i < set.length; i++) {
                                 if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
@@ -143,7 +152,6 @@ public class MyEvents implements Listener {
                                 }
                             }
 
-                            event.getPlayer().giveExp(PluginMain.experienceToDrop);
                         } else {
                             for (int i = 0; i < set.length; i++) {
                                 if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
@@ -162,11 +170,11 @@ public class MyEvents implements Listener {
 
                                         }
                                 }
-                                event.getPlayer().giveExp(PluginMain.experienceToDrop);
                             }
-
                         }
-                    }
+            giveExp(event.getPlayer());
+
+        }
         }
     }
 
