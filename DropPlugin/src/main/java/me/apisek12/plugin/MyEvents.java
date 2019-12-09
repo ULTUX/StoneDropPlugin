@@ -26,7 +26,7 @@ import java.util.HashMap;
 public class MyEvents implements Listener {
 
     private HashMap<String, DropChance> dropChances = PluginMain.dropChances;
-    public static String[] set; //Ore names
+    static String[] set; //Ore names
 
     private void giveExp(Player player){
         float experienceToGive = PluginMain.experienceToDrop/((float)Math.sqrt((double)player.getLevel()+1));

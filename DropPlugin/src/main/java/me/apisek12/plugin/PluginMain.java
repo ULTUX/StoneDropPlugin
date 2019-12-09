@@ -33,12 +33,9 @@ public class PluginMain extends JavaPlugin {
     @Override
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GRAY+"Saving getConfig() file...");
-        playerSettings.forEach((player, settings) -> {
-            settings.forEach((material, setting)->{
-                getConfig().set("users."+player+"."+material, setting.isOn());
-            });
-
-        });
+        playerSettings.forEach((player, settings) -> settings.forEach((material, setting)->{
+            getConfig().set("users."+player+"."+material, setting.isOn());
+        }));
 
 
         saveConfig();
@@ -51,9 +48,7 @@ public class PluginMain extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!isDisabled){
             if (command.getName().equalsIgnoreCase("whatdrops")){
-                dropChances.forEach((ore, oreOptions) ->{
-                    sender.sendMessage(oreOptions.toString());
-                });
+                dropChances.forEach((ore, oreOptions) -> sender.sendMessage(oreOptions.toString()));
             }
         }
 
@@ -128,8 +123,8 @@ public class PluginMain extends JavaPlugin {
                         } else if (timeToStop - System.currentTimeMillis() >= 60000) {
                             if (System.currentTimeMillis() - lastDisplayedTime[0] >= 60000) {
 
-                                for (int i = 0; i < players.length; i++) {
-                                    Player player = (Player) players[i];
+                                for (Object o : players) {
+                                    Player player = (Player) o;
                                     player.sendTitle(ChatColor.RED + "Server shut down in " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minutes", null, 10, 80, 10);
                                 }
                                     getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minutes");
@@ -138,8 +133,8 @@ public class PluginMain extends JavaPlugin {
 
                             }
                         } else {
-                            for (int i = 0; i < players.length; i++) {
-                                Player player = (Player) players[i];
+                            for (Object o : players) {
+                                Player player = (Player) o;
                                 player.sendTitle(ChatColor.RED + "Server shut down in: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds", null, 0, 40, 0);
                             }
                                 getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds");
@@ -154,10 +149,7 @@ public class PluginMain extends JavaPlugin {
                     if (shutdownThread != null && !shutdownThread.isCancelled()) {
                             shutdownThread.cancel();
                             sender.sendMessage(ChatColor.GREEN + "Server shut down cancelled.");
-                            getServer().getOnlinePlayers().forEach((player) -> {
-                            player.sendTitle(ChatColor.GREEN + "Server shut down cancelled.", null, 10, 80, 10);
-
-                        });
+                            getServer().getOnlinePlayers().forEach((player) -> player.sendTitle(ChatColor.GREEN + "Server shut down cancelled.", null, 10, 80, 10));
                         return true;
                     } else {
                         sender.sendMessage(ChatColor.DARK_RED + "Server shut down has not been initialized yet. To initialize use command /shutdown <time_in_seconds>");
