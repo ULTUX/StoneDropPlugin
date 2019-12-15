@@ -32,7 +32,7 @@ public class MyEvents implements Listener {
         float experienceToGive = PluginMain.experienceToDrop/((float)Math.sqrt((double)player.getLevel()+1));
         if (player.getExp() == 1.0 || player.getExp()+experienceToGive >= 1.0){
             player.setLevel(player.getLevel() + (int)(player.getExp()+experienceToGive));
-            player.setExp((player.getExp() + experienceToGive)-((int)player.getExp()+experienceToGive));
+            player.setExp((player.getExp() + experienceToGive)-((int)(player.getExp()+experienceToGive)));
         }
         else {
             player.setExp(player.getExp()+ experienceToGive);
