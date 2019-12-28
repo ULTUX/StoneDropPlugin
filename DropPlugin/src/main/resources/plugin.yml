@@ -1,11 +1,19 @@
 name: StoneDrop
 description:
-api-version: 1.13
-version: 1.15
+api-version: 1.15
+version: 1.5
 main: me.apisek12.plugin.PluginMain
 commands:
   shutdown:
-  drop:
-  whatdrops:
-  emergencyDisable:
+    description: Op/console-only command. cancels shutdown if it has been initialized.
   cancelShutdown:
+    description: Op/console-only command. cancels shutdown if it has been initialized.
+  drop:
+    aliases:
+      - d
+    description: Plugin's base command.
+
+  whatdrops:
+    description: Displays list of items that can drop, their chances and ammounts.
+  emergencyDisable:
+    description: Op/console-only command. disables most of plugins functions

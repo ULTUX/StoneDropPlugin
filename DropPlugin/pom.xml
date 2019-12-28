@@ -11,7 +11,7 @@
 
     <groupId>me.apisek12.plugin</groupId>
     <artifactId>StoneDrop</artifactId>
-    <version>1.4.3</version>
+    <version>1.5</version>
 
     <repositories>
         <repository>
@@ -19,7 +19,6 @@
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
     </repositories>
-
     <dependencies>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>

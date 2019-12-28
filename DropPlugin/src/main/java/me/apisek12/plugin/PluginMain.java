@@ -2,6 +2,7 @@ package me.apisek12.plugin;
 
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -161,7 +162,16 @@ public class PluginMain extends JavaPlugin {
         return false;
 
     }
+    boolean checkForSpace (Material material, Inventory inventory){
+        ItemStack[] contents = inventory.getContents();
+        for (int i = 0; i < contents.length; i++){
+            if (contents[i] != null) {
+                if (contents[i].getType().equals(material) && contents[i].getAmount() < material.getMaxStackSize()) return true;
 
+            }
+        }
+        return false;
+    }
     @Override
     public void onEnable() {
         Updater updater = new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
@@ -198,16 +208,15 @@ public class PluginMain extends JavaPlugin {
                     if (playerSettings.get(player.getUniqueId().toString()).get("STACK").isOn()){
                         boolean tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9) && player.getInventory().firstEmpty() != -1){
+                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9) && player.getInventory().firstEmpty() != -1) || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.REDSTONE_BLOCK, player.getInventory()))){
                                 player.getInventory().removeItem(new ItemStack(Material.REDSTONE, 9));
                                 player.getInventory().addItem(new ItemStack(Material.REDSTONE_BLOCK));
-
                             }
                             else tak = false;
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.LAPIS_LAZULI), 9) && player.getInventory().firstEmpty() != -1){
+                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.LAPIS_LAZULI), 9) && player.getInventory().firstEmpty() != -1)  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.LAPIS_BLOCK, player.getInventory()))){
                                 player.getInventory().removeItem(new ItemStack(Material.LAPIS_LAZULI, 9));
                                 player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
 
@@ -216,7 +225,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9) && player.getInventory().firstEmpty() != -1){
+                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9) && player.getInventory().firstEmpty() != -1)  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.COAL_BLOCK, player.getInventory()))){
                                 player.getInventory().removeItem(new ItemStack(Material.COAL, 9));
                                 player.getInventory().addItem(new ItemStack(Material.COAL_BLOCK));
 
@@ -225,7 +234,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9) && player.getInventory().firstEmpty() != -1){
+                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9) && player.getInventory().firstEmpty() != -1)  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.IRON_BLOCK, player.getInventory()))){
                                 player.getInventory().removeItem(new ItemStack(Material.IRON_INGOT, 9));
                                 player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK));
 
@@ -234,7 +243,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9) && player.getInventory().firstEmpty() != -1){
+                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9) && player.getInventory().firstEmpty() != -1) || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.DIAMOND_BLOCK, player.getInventory()))){
                                 player.getInventory().removeItem(new ItemStack(Material.DIAMOND, 9));
                                 player.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK));
 
@@ -243,7 +252,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9) && player.getInventory().firstEmpty() != -1){
+                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9) && player.getInventory().firstEmpty() != -1)  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.GOLD_BLOCK, player.getInventory()))){
                                 player.getInventory().removeItem(new ItemStack(Material.GOLD_INGOT, 9));
                                 player.getInventory().addItem(new ItemStack(Material.GOLD_BLOCK));
 
@@ -252,7 +261,7 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9) && player.getInventory().firstEmpty() != -1){
+                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9) && player.getInventory().firstEmpty() != -1) || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.EMERALD_BLOCK, player.getInventory()))){
                                 player.getInventory().removeItem(new ItemStack(Material.EMERALD, 9));
                                 player.getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
 
