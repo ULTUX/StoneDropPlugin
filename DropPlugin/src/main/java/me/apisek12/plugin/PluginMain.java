@@ -131,7 +131,6 @@ public class PluginMain extends JavaPlugin {
                                     getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minutes");
                                     timer[0] = System.currentTimeMillis();
                                     lastDisplayedTime[0] = System.currentTimeMillis();
-
                             }
                         } else {
                             for (Object o : players) {
