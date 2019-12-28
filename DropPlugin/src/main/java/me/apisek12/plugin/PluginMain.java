@@ -167,7 +167,6 @@ public class PluginMain extends JavaPlugin {
         for (int i = 0; i < contents.length; i++){
             if (contents[i] != null) {
                 if (contents[i].getType().equals(material) && contents[i].getAmount() < material.getMaxStackSize()) return true;
-
             }
         }
         return false;
