@@ -191,6 +191,7 @@ chest:
       luck_of_the_sea: 3
       mending: 1
 experience: 3.0
-
+disabled-worlds: #put here all world that you would like to have disabled
+  - world_nether
 #Here are saved all of player data, this part might be quite long...
 users: ~

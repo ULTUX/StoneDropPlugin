@@ -1,6 +1,6 @@
 name: StoneDrop
 description:
-api-version: 1.15
+api-version: 1.14
 version: 1.5
 main: me.apisek12.plugin.PluginMain
 commands:
