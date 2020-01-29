@@ -203,7 +203,7 @@ public class PluginMain extends JavaPlugin {
             keyList.forEach((user) -> {
                 ConfigurationSection materialsSection = cs.getConfigurationSection(user);
                 HashMap<String, Setting> settings = new HashMap<>();
-                for (int i = 0; i < materialsSection.getKeys(false).toArray().length; i++) {
+                for (int i = 0; i < Objects.requireNonNull(materialsSection).getKeys(false).toArray().length; i++) {
                     String materialName = (String) materialsSection.getKeys(false).toArray()[i];
                     boolean setting = (boolean) materialsSection.get(materialName);
                     settings.put(materialName, new Setting(setting, materialName));
