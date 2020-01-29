@@ -2,6 +2,8 @@ package me.apisek12.plugin;
 
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
@@ -12,6 +14,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
@@ -26,6 +31,8 @@ public class PluginMain extends JavaPlugin {
     static double chestSpawnRate = 0;
     private static boolean isDisabled = false;
     private static BukkitTask shutdownThread = null;
+    static ArrayList<String> disabledWorlds = null;
+    private static FileConfiguration playerData = null;
 
     static boolean isIsDisabled() {
         return isDisabled;
@@ -35,12 +42,22 @@ public class PluginMain extends JavaPlugin {
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GRAY+"Saving getConfig() file...");
         playerSettings.forEach((player, settings) -> settings.forEach((material, setting)->{
-            getConfig().set("users."+player+"."+material, setting.isOn());
+            playerData.set("users."+player+"."+material, setting.isOn());
         }));
+        try {
+            playerData.save(new File(getDataFolder(), "playerData.yml"));
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"[StoneDrop] Config file saved!");
 
+        } catch (IOException e) {
+            getServer().getConsoleSender().sendMessage("[StoneDrop] Player data file not found, creating a new one...");
+            try {
+                playerData.save(new File(getDataFolder(), "playerData.yml"));
+                Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"[StoneDrop] Config file saved!");
+            } catch (IOException ex) {
+                getServer().getConsoleSender().sendMessage("[StoneDrop] Could not create player data file!");
 
-        saveConfig();
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"[StoneDrop] Config file saved!");
+            }
+        }
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.DARK_RED + "Plugin disabled!");
         plugin = null;
     }
@@ -172,19 +189,21 @@ public class PluginMain extends JavaPlugin {
     }
     @Override
     public void onEnable() {
+        playerData = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "playerData.yml"));
         Updater updater = new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         Metrics metrics = new Metrics(this);
 
         saveDefaultConfig();
         saveConfig();
         experienceToDrop = (float) ((double)getConfig().get("experience"));
-        ConfigurationSection cs = getConfig().getConfigurationSection("users");
+        disabledWorlds = new ArrayList<>(getConfig().getStringList("disabled-worlds"));
+        ConfigurationSection cs = playerData.getConfigurationSection("users");
         if (cs != null) {
             Set<String> keyList = cs.getKeys(false);
             keyList.forEach((user) -> {
                 ConfigurationSection materialsSection = cs.getConfigurationSection(user);
                 HashMap<String, Setting> settings = new HashMap<>();
-                for (int i = 0; i < materialsSection.getKeys(false).toArray().length; i++) {
+                for (int i = 0; i < Objects.requireNonNull(materialsSection).getKeys(false).toArray().length; i++) {
                     String materialName = (String) materialsSection.getKeys(false).toArray()[i];
                     boolean setting = (boolean) materialsSection.get(materialName);
                     settings.put(materialName, new Setting(setting, materialName));
