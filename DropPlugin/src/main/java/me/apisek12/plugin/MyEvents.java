@@ -16,9 +16,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -40,6 +42,23 @@ public class MyEvents implements Listener {
 
 
     }
+    ItemStack getItemInHand(Player player){
+        ItemStack tool = null;
+        if (PluginMain.isVersionNew()){
+            try {
+                tool = ((ItemStack) PlayerInventory.class.getMethod("getItemInMainHand").invoke(player.getInventory()));
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                tool = ((ItemStack) PlayerInventory.class.getMethod("getItemInHand").invoke(player.getInventory()));
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        }
+        return tool;
+    }
     @EventHandler (priority = EventPriority.HIGHEST)
     public void blockBreak(BlockBreakEvent event) {
         if (!PluginMain.disabledWorlds.contains(event.getPlayer().getWorld().getName())){
@@ -48,14 +67,25 @@ public class MyEvents implements Listener {
                 Block block = event.getBlock();
                 Location location = block.getLocation();
                 World world = block.getWorld();
-                Material tool = event.getPlayer().getInventory().getItemInMainHand().getType();
+                Material tool = event.getPlayer().getInventory().getItemInHand().getType();;
 
 
 
+                Material wooden = null, golden = null;
+                try {
+                    if (PluginMain.isVersionNew()) {
+                        golden = Material.getMaterial(Material.class.getField("GOLDEN_PICKAXE").getName());
+                        wooden = Material.getMaterial(Material.class.getField("WOODEN_PICKAXE").getName());
+                    } else {
+                        golden = Material.getMaterial(Material.class.getField("GOLD_PICKAXE").getName());
+                        wooden = Material.getMaterial(Material.class.getField("WOOD_PICKAXE").getName());
+                    }
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                }
 
-
-                if (block.getBlockData().getMaterial() == Material.STONE && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
-                        tool == Material.GOLDEN_PICKAXE || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == Material.WOODEN_PICKAXE)) {
+                if (block.getType() == Material.STONE && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
+                        tool == golden || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == wooden)) {
                     if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("COBBLE").isOn()) event.setDropItems(false);
                     if (Chance.chance(PluginMain.chestSpawnRate)) {
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
@@ -96,7 +126,7 @@ public class MyEvents implements Listener {
 
                     }
 
-                    if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 1) {
+                    if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 1) {
                         for (int i = 0; i < set.length; i++) {
                             if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                                 if (Chance.chance(dropChances.get(set[i]).getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
@@ -116,7 +146,7 @@ public class MyEvents implements Listener {
                             }
                         }
 
-                    } else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 2) {
+                    } else if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 2) {
                         for (int i = 0; i < set.length; i++) {
                             if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                                 if (Chance.chance(dropChances.get(set[i]).getF2()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())
@@ -136,7 +166,7 @@ public class MyEvents implements Listener {
                             }
                         }
 
-                    } else if (event.getPlayer().getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 3) {
+                    } else if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 3) {
                         for (int i = 0; i < set.length; i++) {
                             if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                                 if (Chance.chance(dropChances.get(set[i]).getF3()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn())

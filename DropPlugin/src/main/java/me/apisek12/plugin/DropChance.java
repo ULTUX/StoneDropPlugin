@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 public class DropChance {
@@ -38,7 +39,20 @@ public class DropChance {
 
     public void setEnchant(HashMap<String, Integer> enchant) {
         enchant.forEach((enchantName, level) ->{
-            this.enchant.put(Enchantment.getByKey(NamespacedKey.minecraft(enchantName)), level);
+            if (PluginMain.isVersionNew()) {
+                try {
+                    this.enchant.put((Enchantment) Enchantment.class.getMethod("getByKey", NamespacedKey.class).invoke(Enchantment.class, NamespacedKey.minecraft(enchantName)), level);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                try {
+                    this.enchant.put((Enchantment) Enchantment.class.getMethod("getByName" , String.class).invoke(Enchantment.class, enchantName), level);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+            }
         });
     }
 

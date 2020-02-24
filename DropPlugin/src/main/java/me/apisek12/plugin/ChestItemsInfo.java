@@ -4,6 +4,7 @@ package me.apisek12.plugin;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 public class ChestItemsInfo {
@@ -26,7 +27,20 @@ public class ChestItemsInfo {
         this.min = min;
         this.max = max;
         enchantment.forEach((name, level) ->{
-            this.enchantment.put(Enchantment.getByKey(NamespacedKey.minecraft(name)), level);
+            if (PluginMain.isVersionNew()){
+                try {
+                    this.enchantment.put((Enchantment) Enchantment.class.getMethod("getByKey", NamespacedKey.class).invoke(Enchantment.class, NamespacedKey.minecraft(name)), level);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                try {
+                    this.enchantment.put((Enchantment) Enchantment.class.getMethod("getByName", String.class).invoke(Enchantment.class, name), level);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+            }
         });
     }
 

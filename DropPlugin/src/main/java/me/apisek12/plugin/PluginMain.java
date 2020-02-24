@@ -34,6 +34,13 @@ public class PluginMain extends JavaPlugin {
     static ArrayList<String> disabledWorlds = null;
     private static FileConfiguration playerData = null;
 
+    static boolean isVersionNew(){
+        String[] version = Bukkit.getVersion().replace(".", ",").split(",");
+        if (Integer.parseInt(version[1]) > 12) return true;
+        return false;
+    }
+
+
     static boolean isIsDisabled() {
         return isDisabled;
     }
@@ -231,14 +238,20 @@ public class PluginMain extends JavaPlugin {
                             }
                             else tak = false;
                         }
-                        tak = true;
-                        while (tak){
-                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.LAPIS_LAZULI), 9) && player.getInventory().firstEmpty() != -1)  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.LAPIS_BLOCK, player.getInventory()))){
-                                player.getInventory().removeItem(new ItemStack(Material.LAPIS_LAZULI, 9));
-                                player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
+                        if (isVersionNew()){
+                            tak = true;
+                            while (tak){
+                                try {
+                                    if ((player.getInventory().containsAtLeast(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName()))), 9) && player.getInventory().firstEmpty() != -1)  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.LAPIS_BLOCK, player.getInventory()))){
+                                        player.getInventory().removeItem(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName())), 9));
+                                        player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
 
+                                    }
+                                    else tak = false;
+                                } catch (NoSuchFieldException e) {
+                                    e.printStackTrace();
+                                }
                             }
-                            else tak = false;
                         }
                         tak = true;
                         while (tak){
