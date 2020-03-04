@@ -14,8 +14,6 @@ public class ChestItemsInfo {
     private HashMap<Enchantment, Integer> enchantment = new HashMap<>();
 
 
-
-
     public ChestItemsInfo(double chance, int min, int max) {
         this.chance = chance;
         this.min = min;
