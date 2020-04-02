@@ -84,7 +84,7 @@ public class MyEvents implements Listener {
                     e.printStackTrace();
                 }
 
-                if (block.getType() == Material.STONE && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
+                if (PluginMain.dropBlocks.contains(block.getType()) && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
                         tool == golden || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == wooden)) {
                     if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("COBBLE").isOn()) event.setDropItems(false);
                     if (Chance.chance(PluginMain.chestSpawnRate)) {
@@ -213,16 +213,6 @@ public class MyEvents implements Listener {
         }
     }
 
-
-    @EventHandler
-    public void PlayerRespawnEvent(PlayerRespawnEvent e) {
-
-        Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, () -> {
-            Player player = e.getPlayer();
-            player.setGameMode(GameMode.SURVIVAL);
-        }, 200);
-
-    }
 
     @EventHandler
     public void PlayerJoinEvent(PlayerJoinEvent e){

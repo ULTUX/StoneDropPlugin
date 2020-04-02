@@ -33,9 +33,10 @@ public class PluginMain extends JavaPlugin {
     private static BukkitTask shutdownThread = null;
     static ArrayList<String> disabledWorlds = null;
     private static FileConfiguration playerData = null;
+    static ArrayList<Material> dropBlocks = null;
 
     static boolean isVersionNew(){
-        String[] version = Bukkit.getVersion().replace(".", ",").split(",");
+        String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
         if (Integer.parseInt(version[1]) > 12) return true;
         return false;
     }
@@ -204,6 +205,10 @@ public class PluginMain extends JavaPlugin {
         saveConfig();
         experienceToDrop = (float) ((double)getConfig().get("experience"));
         disabledWorlds = new ArrayList<>(getConfig().getStringList("disabled-worlds"));
+        dropBlocks = new ArrayList<>();
+        getConfig().getStringList("dropBlocks").forEach(material -> {
+            dropBlocks.add(Material.getMaterial(material));
+        });
         ConfigurationSection cs = playerData.getConfigurationSection("users");
         if (cs != null) {
             Set<String> keyList = cs.getKeys(false);
