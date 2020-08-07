@@ -23,6 +23,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class MyEvents implements Listener {
@@ -59,33 +60,38 @@ public class MyEvents implements Listener {
         }
         return tool;
     }
+
+    private static void dropItems(ItemStack itemStack, Player player,  Location location){
+        if (PluginMain.dropIntoInventory){
+            HashMap<Integer, ItemStack> remainingItems = player.getInventory().addItem(itemStack);
+            for (Map.Entry<Integer, ItemStack> entry: remainingItems.entrySet()){
+                location.getWorld().dropItem(location, entry.getValue());
+            }
+        }
+        else {
+            location.getWorld().dropItem(location, itemStack);
+        }
+    }
     @EventHandler (priority = EventPriority.HIGHEST)
     public void blockBreak(BlockBreakEvent event) {
         if (!PluginMain.disabledWorlds.contains(event.getPlayer().getWorld().getName())){
 
-            if (!PluginMain.isIsDisabled() && !event.isCancelled()){
+            if (!PluginMain.isIsDisabled() && !event.isCancelled()) {
                 Block block = event.getBlock();
                 Location location = block.getLocation();
                 World world = block.getWorld();
-                Material tool = event.getPlayer().getInventory().getItemInHand().getType();;
+                Material tool = getItemInHand(event.getPlayer()).getType();
 
-
-
-                Material wooden = null, golden = null;
-                try {
-                    if (PluginMain.isVersionNew()) {
-                        golden = Material.getMaterial(Material.class.getField("GOLDEN_PICKAXE").getName());
-                        wooden = Material.getMaterial(Material.class.getField("WOODEN_PICKAXE").getName());
-                    } else {
-                        golden = Material.getMaterial(Material.class.getField("GOLD_PICKAXE").getName());
-                        wooden = Material.getMaterial(Material.class.getField("WOOD_PICKAXE").getName());
-                    }
-                } catch (NoSuchFieldException e) {
-                    e.printStackTrace();
+                if (!PluginMain.dropFromOres && event.getBlock().getType().toString().contains("ORE"))
+                {
+                    event.setCancelled(true);
+                    event.getBlock().setType(Material.AIR);
+                    event.getPlayer().sendMessage(ChatColor.RED+"Drop from ores was disabled by server admin.");
+                    return;
                 }
 
                 if (PluginMain.dropBlocks.contains(block.getType()) && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
-                        tool == golden || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == wooden)) {
+                        tool == PluginMain.golden || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == PluginMain.wooden || (PluginMain.isNetherite && tool == Material.NETHERITE_PICKAXE))) {
                     if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("COBBLE").isOn()) event.setDropItems(false);
                     if (Chance.chance(PluginMain.chestSpawnRate)) {
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
@@ -137,10 +143,10 @@ public class MyEvents implements Listener {
                                             itemMeta.addEnchant(enchantment, level, false);
                                         }));
                                         itemToDrop.setItemMeta(itemMeta);
-                                        world.dropItem(location, itemToDrop);
+                                        dropItems(itemToDrop, event.getPlayer(), location);
 
                                     } else {
-                                        world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf1(), dropChances.get(set[i]).getMaxf1())));
+                                        dropItems(new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf1(), dropChances.get(set[i]).getMaxf1())), event.getPlayer(), location);
 
                                     }
                             }
@@ -157,10 +163,10 @@ public class MyEvents implements Listener {
                                             itemMeta.addEnchant(enchantment, level, false);
                                         }));
                                         itemToDrop.setItemMeta(itemMeta);
-                                        world.dropItem(location, itemToDrop);
+                                        dropItems(itemToDrop, event.getPlayer(), location);
 
                                     } else {
-                                        world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf2(), dropChances.get(set[i]).getMaxf2())));
+                                        dropItems(new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf2(), dropChances.get(set[i]).getMaxf2())), event.getPlayer(), location);
 
                                     }
                             }
@@ -177,10 +183,10 @@ public class MyEvents implements Listener {
                                             itemMeta.addEnchant(enchantment, level, false);
                                         }));
                                         itemToDrop.setItemMeta(itemMeta);
-                                        world.dropItem(location, itemToDrop);
+                                        dropItems(itemToDrop, event.getPlayer(), location);
 
                                     } else {
-                                        world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3())));
+                                        dropItems(new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3())), event.getPlayer(), location);
 
                                     }
                             }
@@ -197,10 +203,10 @@ public class MyEvents implements Listener {
                                             itemMeta.addEnchant(enchantment, level, false);
                                         }));
                                         itemToDrop.setItemMeta(itemMeta);
-                                        world.dropItem(location, itemToDrop);
+                                        dropItems(itemToDrop, event.getPlayer(), location);
 
                                     } else {
-                                        world.dropItem(location, new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof())));
+                                        dropItems(new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof())), event.getPlayer(), location);
 
                                     }
                             }

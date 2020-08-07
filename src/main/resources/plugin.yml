@@ -1,7 +1,7 @@
 name: StoneDrop
 description: This plugin makes mining stone way more fun and addictive. What it does is it enables players to have additional loot dropped from stone, not just this boring cobblestone.
-api-version: 1.14
-version: 1.7.1
+api-version: 1.16
+version: 1.8.0
 main: me.apisek12.plugin.PluginMain
 commands:
   shutdown:

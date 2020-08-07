@@ -14,8 +14,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -34,6 +35,11 @@ public class PluginMain extends JavaPlugin {
     static ArrayList<String> disabledWorlds = null;
     private static FileConfiguration playerData = null;
     static ArrayList<Material> dropBlocks = null;
+    static public boolean dropFromOres = true;
+    public static boolean dropIntoInventory = false;
+
+    public static Material wooden = null, golden = null;
+    public static boolean isNetherite = false;
 
     static boolean isVersionNew(){
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
@@ -197,12 +203,48 @@ public class PluginMain extends JavaPlugin {
     }
     @Override
     public void onEnable() {
+        plugin = this;
+
+        File file = new File(plugin.getDataFolder()+File.separator+"config.yml");
+        if (!file.exists()) {
+            try (OutputStream outputStream = new FileOutputStream(file.toPath().toString());) {
+                InputStream is = getResource("config.yml");
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = is.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+                is.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //Check if plugin should drop items into inventory
+        dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
+        //Check if plugin should block item dropping from ores
+        dropFromOres = getConfig().getBoolean("ore-drop");
+        if (!dropFromOres) getServer().getConsoleSender().sendMessage("["+this.getName()+"] Drop from ores is now disabled");
+
+        //Check if version is < 1.8.9
+        try {
+            if (PluginMain.isVersionNew()) {
+                golden = Material.getMaterial(Material.class.getField("GOLDEN_PICKAXE").getName());
+                wooden = Material.getMaterial(Material.class.getField("WOODEN_PICKAXE").getName());
+                isNetherite = true;
+            } else {
+                golden = Material.getMaterial(Material.class.getField("GOLD_PICKAXE").getName());
+                wooden = Material.getMaterial(Material.class.getField("WOOD_PICKAXE").getName());
+            }
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
         playerData = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "playerData.yml"));
         Updater updater = new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         Metrics metrics = new Metrics(this);
 
-        saveDefaultConfig();
-        saveConfig();
         experienceToDrop = (float) ((double)getConfig().get("experience"));
         disabledWorlds = new ArrayList<>(getConfig().getStringList("disabled-worlds"));
         dropBlocks = new ArrayList<>();
@@ -228,7 +270,6 @@ public class PluginMain extends JavaPlugin {
         loadChances();
         loadChestChances();
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GREEN + "Confing Loaded, Plugin enabled!");
-        plugin = this;
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             if (Bukkit.getServer().getOnlinePlayers().size() > 0){

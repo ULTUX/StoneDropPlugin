@@ -212,3 +212,11 @@ experience: 3.0
 #put here all world that you would like to have disabled:
 disabled-worlds:
   - world_nether
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Should ores drop items
+ore-drop: true
+
+#Should the items ne dropped directly into the inventory
+drop-to-inventory: false
