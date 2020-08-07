@@ -10,6 +10,7 @@
 .mtj.tmp/
 .idea/
 .DS_Store/
+target/
 Dependencies/
 out/
 *.iml
