@@ -80,56 +80,72 @@ public class PluginMain extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!isDisabled){
             if (command.getName().equalsIgnoreCase("whatdrops")){
-                dropChances.forEach((ore, oreOptions) -> sender.sendMessage(oreOptions.toString()));
+                if (sender instanceof ConsoleCommandSender || (sender instanceof Player && sender.hasPermission("stonedrop.whatdrops"))){
+                    dropChances.forEach((ore, oreOptions) -> sender.sendMessage(oreOptions.toString()));
+                }
+                else {
+                    sender.sendMessage(ChatColor.RED+"You don't have permission to use that command!");
+                }
             }
         }
 
         if (sender instanceof Player && !isDisabled) {
             Player player = (Player) sender;
             if (command.getName().equalsIgnoreCase("drop")){
-                HashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
-                boolean wasOk = false;
-                if (args.length == 0){
-                    playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)-> player.sendMessage(ChatColor.GOLD+material+": "+preferences.isOn()));
-                    wasOk = true;
-                }
-                else if (args.length > 1) player.sendMessage(ChatColor.GRAY+"Command should look like that:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
-                else {
-                    if (args[0].equalsIgnoreCase("cobble")) {
+                if (player.hasPermission("stonedrop.drop")){
+                    HashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
+                    boolean wasOk = false;
+                    if (args.length == 0 || (args.length == 1 && args[0] == "info")){
+                        playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)-> {
+                            String stringMaterial = material;
+                            stringMaterial = stringMaterial.replace("_", " ");
+                            stringMaterial = stringMaterial.toLowerCase();
+                            String toSend = ChatColor.GREEN+stringMaterial+": "+ChatColor.BLUE+preferences.isOn();
+                            toSend = toSend.replace("true", "on").replace("false", "off");
+                            player.sendMessage(toSend);
+                        });
                         wasOk = true;
-                            setting.get("COBBLE").setOn(!setting.get("COBBLE").isOn());
-                        if (!setting.get("COBBLE").isOn())
-                            player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
-                        else
-                            player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
-                    } else if (args[0].equalsIgnoreCase("stack")) {
-                        wasOk = true;
-                        setting.get("STACK").setOn(!setting.get("STACK").isOn());
-                        if (setting.get("STACK").isOn())
-                            player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
-                        else
-                            player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD +" is now "+ChatColor.RED+"disabled");
-
-                    } else {
-                        for (int i = 0; i < MyEvents.set.length; i++) {
-                            if (!MyEvents.set[i].equals("STACK") && !MyEvents.set[i].equals("COBBLE")){
-                            if (args[0].equalsIgnoreCase(MyEvents.set[i])) {
-                                setting.get(MyEvents.set[i]).setOn(!setting.get(MyEvents.set[i]).isOn());
-                                if (setting.get(MyEvents.set[i]).isOn()) {
-                                    player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
-                                } else {
-                                    player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
-                                }
-                                wasOk = true;
-                            }
-                        }}
                     }
-                }
+                    else if (args.length > 1) player.sendMessage(ChatColor.GRAY+"Command should look like that:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
+                    else {
+                        if (args[0].equalsIgnoreCase("cobble")) {
+                            wasOk = true;
+                            setting.get("COBBLE").setOn(!setting.get("COBBLE").isOn());
+                            if (!setting.get("COBBLE").isOn())
+                                player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
+                            else
+                                player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
+                        } else if (args[0].equalsIgnoreCase("stack")) {
+                            wasOk = true;
+                            setting.get("STACK").setOn(!setting.get("STACK").isOn());
+                            if (setting.get("STACK").isOn())
+                                player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
+                            else
+                                player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD +" is now "+ChatColor.RED+"disabled");
+
+                        } else {
+                            for (int i = 0; i < MyEvents.set.length; i++) {
+                                if (!MyEvents.set[i].equals("STACK") && !MyEvents.set[i].equals("COBBLE")){
+                                    if (args[0].equalsIgnoreCase(MyEvents.set[i])) {
+                                        setting.get(MyEvents.set[i]).setOn(!setting.get(MyEvents.set[i]).isOn());
+                                        if (setting.get(MyEvents.set[i]).isOn()) {
+                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
+                                        } else {
+                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
+                                        }
+                                        wasOk = true;
+                                    }
+                                }}
+                        }
+                    }
                 if (!wasOk){
                     player.sendMessage(ChatColor.GRAY+"Unknown argument!\nCommand should look like:\n"+ChatColor.GOLD+"/drop <info, stack, DROPPABLE_NAME>");
 
                 }
 
+            } else {
+                    player.sendMessage(ChatColor.RED+"You don't have permission to use that command!");
+                }
             }
         }
         if (sender instanceof ConsoleCommandSender || sender.isOp()) {
@@ -197,6 +213,7 @@ public class PluginMain extends JavaPlugin {
         for (int i = 0; i < contents.length; i++){
             if (contents[i] != null) {
                 if (contents[i].getType().equals(material) && contents[i].getAmount() < material.getMaxStackSize()) return true;
+
             }
         }
         return false;
@@ -278,7 +295,8 @@ public class PluginMain extends JavaPlugin {
                     if (playerSettings.get(player.getUniqueId().toString()).get("STACK").isOn()){
                         boolean tak = true;
                         while (tak){
-                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9) && player.getInventory().firstEmpty() != -1) || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.REDSTONE_BLOCK, player.getInventory()))){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)
+                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.REDSTONE_BLOCK, player.getInventory())))){
                                 player.getInventory().removeItem(new ItemStack(Material.REDSTONE, 9));
                                 player.getInventory().addItem(new ItemStack(Material.REDSTONE_BLOCK));
                             }
@@ -288,7 +306,8 @@ public class PluginMain extends JavaPlugin {
                             tak = true;
                             while (tak){
                                 try {
-                                    if ((player.getInventory().containsAtLeast(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName()))), 9) && player.getInventory().firstEmpty() != -1)  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.LAPIS_BLOCK, player.getInventory()))){
+                                    if (player.getInventory().containsAtLeast(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName()))), 9)
+                                            && (player.getInventory().firstEmpty() != -1  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.LAPIS_BLOCK, player.getInventory())))){
                                         player.getInventory().removeItem(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName())), 9));
                                         player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
 
@@ -301,7 +320,8 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9) && player.getInventory().firstEmpty() != -1)  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.COAL_BLOCK, player.getInventory()))){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9)
+                                    && (player.getInventory().firstEmpty() != -1  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.COAL_BLOCK, player.getInventory())))){
                                 player.getInventory().removeItem(new ItemStack(Material.COAL, 9));
                                 player.getInventory().addItem(new ItemStack(Material.COAL_BLOCK));
 
@@ -310,7 +330,8 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9) && player.getInventory().firstEmpty() != -1)  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.IRON_BLOCK, player.getInventory()))){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9)
+                                    && (player.getInventory().firstEmpty() != -1  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.IRON_BLOCK, player.getInventory())))){
                                 player.getInventory().removeItem(new ItemStack(Material.IRON_INGOT, 9));
                                 player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK));
 
@@ -319,7 +340,8 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9) && player.getInventory().firstEmpty() != -1) || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.DIAMOND_BLOCK, player.getInventory()))){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9)
+                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.DIAMOND_BLOCK, player.getInventory())))){
                                 player.getInventory().removeItem(new ItemStack(Material.DIAMOND, 9));
                                 player.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK));
 
@@ -328,7 +350,8 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9) && player.getInventory().firstEmpty() != -1)  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.GOLD_BLOCK, player.getInventory()))){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9)
+                                    && (player.getInventory().firstEmpty() != -1  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.GOLD_BLOCK, player.getInventory())))){
                                 player.getInventory().removeItem(new ItemStack(Material.GOLD_INGOT, 9));
                                 player.getInventory().addItem(new ItemStack(Material.GOLD_BLOCK));
 
@@ -337,7 +360,8 @@ public class PluginMain extends JavaPlugin {
                         }
                         tak = true;
                         while (tak){
-                            if ((player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9) && player.getInventory().firstEmpty() != -1) || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.EMERALD_BLOCK, player.getInventory()))){
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9)
+                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.EMERALD_BLOCK, player.getInventory())))){
                                 player.getInventory().removeItem(new ItemStack(Material.EMERALD, 9));
                                 player.getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
 
@@ -362,7 +386,7 @@ public class PluginMain extends JavaPlugin {
     }
 
     private void loadChestChances(){
-        chestSpawnRate = (Double) getConfig().get("chest-spawn-chance");
+        chestSpawnRate = Double.parseDouble(getConfig().get("chest-spawn-chance").toString());
         Set<String> config =  getConfig().getConfigurationSection("chest").getKeys(false);
         for (String k: config){
             Material material = Material.getMaterial(k);

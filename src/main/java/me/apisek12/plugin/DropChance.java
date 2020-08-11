@@ -6,6 +6,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 
 public class DropChance {
@@ -13,7 +14,6 @@ public class DropChance {
     private double nof, f1, f2, f3;
     private int minnof, maxnof, minf1, maxf1, minf2, maxf2, minf3, maxf3;
     private HashMap<Enchantment, Integer> enchant = new HashMap<>();
-
     public HashMap<Enchantment, Integer> getEnchant() {
         return enchant;
     }
@@ -70,11 +70,12 @@ public class DropChance {
 
     @Override
     public String toString() {
+        DecimalFormat format = new DecimalFormat("##0.0##");
         String toReturn = ChatColor.GOLD+name
-                +": \n   "+ChatColor.DARK_RED+"no fortune: "+ChatColor.GREEN+" chance: "+nof*100+"%, drop amount: "+minnof+"-"+maxnof
-                +"\n   "+ChatColor.DARK_RED+"fortune 1: "+ChatColor.GREEN+" chance: "+f1*100+"%, drop amount: "+minf1+"-"+maxf1
-                +"\n   "+ChatColor.DARK_RED+"fortune 2: "+ChatColor.GREEN+"chance: "+f2*100+"%, drop amount: "+minf2+"-"+maxf2
-                +"\n   "+ChatColor.DARK_RED+"fortune 3: "+ChatColor.GREEN+"chance: "+f3*100+"%, drop amount: "+minf3+"-"+maxf3;
+                +": \n   "+ChatColor.GREEN+"no fortune: "+ChatColor.GRAY+" chance: "+format.format(nof*100)+"%, drop amount: "+minnof+"-"+maxnof
+                +"\n   "+ChatColor.GREEN+"fortune 1: "+ChatColor.GRAY+" chance: "+format.format(f1*100)+"%, drop amount: "+minf1+"-"+maxf1
+                +"\n   "+ChatColor.GREEN+"fortune 2: "+ChatColor.GRAY+"chance: "+format.format(f2*100)+"%, drop amount: "+minf2+"-"+maxf2
+                +"\n   "+ChatColor.GREEN+"fortune 3: "+ChatColor.GRAY+"chance: "+format.format(f3*100)+"%, drop amount: "+minf3+"-"+maxf3;
         return toReturn;
     }
 

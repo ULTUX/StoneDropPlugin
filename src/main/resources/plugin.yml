@@ -1,7 +1,7 @@
 name: StoneDrop
 description: This plugin makes mining stone way more fun and addictive. What it does is it enables players to have additional loot dropped from stone, not just this boring cobblestone.
 api-version: 1.15
-version: 1.8.1
+version: 1.8.2
 main: me.apisek12.plugin.PluginMain
 commands:
   shutdown:
@@ -17,3 +17,11 @@ commands:
     description: Displays list of items that can drop, their chances and ammounts.
   emergencyDisable:
     description: Op/console-only command. disables most of plugins functions
+
+permissions:
+  stonedrop.drop:
+    description: Allow players to use /drop command.
+    default: op
+  stonedrop.whatdrops:
+    description: Allow players to use /whatdrops command.
+    default: op
