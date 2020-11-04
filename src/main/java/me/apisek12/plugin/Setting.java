@@ -1,5 +1,7 @@
 package me.apisek12.plugin;
 
+import org.bukkit.Material;
+
 public class Setting {
     private boolean on;
     private String name;
@@ -32,4 +34,9 @@ public class Setting {
         this.on = on;
         this.name = name;
     }
+
+    Material toMaterial(){
+        return Material.getMaterial(name);
+    }
+
 }
