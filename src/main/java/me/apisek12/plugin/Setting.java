@@ -34,6 +34,10 @@ public class Setting {
         this.on = on;
         this.name = name;
     }
+    public boolean toggle(){
+        this.on = !this.on;
+        return on;
+    }
 
     Material toMaterial(){
         return Material.getMaterial(name);

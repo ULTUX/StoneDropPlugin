@@ -15,12 +15,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
+
+import static org.bukkit.Bukkit.getPluginManager;
 
 public class PluginMain extends JavaPlugin {
     static Plugin plugin = null;
@@ -96,14 +96,15 @@ public class PluginMain extends JavaPlugin {
                     HashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
                     boolean wasOk = false;
                     if (args.length == 0 || (args.length == 1 && args[0] == "info")){
-                        playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)-> {
-                            String stringMaterial = material;
-                            stringMaterial = stringMaterial.replace("_", " ");
-                            stringMaterial = stringMaterial.toLowerCase();
-                            String toSend = ChatColor.GREEN+stringMaterial+": "+ChatColor.BLUE+preferences.isOn();
-                            toSend = toSend.replace("true", "on").replace("false", "off");
-                            player.sendMessage(toSend);
-                        });
+//                        playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)-> {
+//                            String stringMaterial = material;
+//                            stringMaterial = stringMaterial.replace("_", " ");
+//                            stringMaterial = stringMaterial.toLowerCase();
+//                            String toSend = ChatColor.GREEN+stringMaterial+": "+ChatColor.BLUE+preferences.isOn();
+//                            toSend = toSend.replace("true", "on").replace("false", "off");
+//                            player.sendMessage(toSend);
+//                        });
+                        new InventorySelector(player, setting);
                         wasOk = true;
                     }
                     else if (args.length > 1) player.sendMessage(ChatColor.GRAY+"Command should look like that:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
@@ -288,6 +289,7 @@ public class PluginMain extends JavaPlugin {
         loadChestChances();
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GREEN + "Confing Loaded, Plugin enabled!");
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
+        getPluginManager().registerEvents(new InventorySelector(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             if (Bukkit.getServer().getOnlinePlayers().size() > 0){
                 for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().toArray().length; i++){
