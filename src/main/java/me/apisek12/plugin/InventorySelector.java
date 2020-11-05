@@ -179,7 +179,6 @@ public class InventorySelector implements Listener {
 
         if (objects.containsKey(event.getPlayer()) && event.getInventory().equals(objects.get(event.getPlayer()).selector)) {
             objects.remove(event.getPlayer());
-            Bukkit.getServer().getConsoleSender().sendMessage(objects.size() + "");
         }
     }
 }
