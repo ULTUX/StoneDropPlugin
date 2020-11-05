@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InventorySelector implements Listener {
@@ -24,7 +25,7 @@ public class InventorySelector implements Listener {
     private HashMap<String, Setting> settings;
     private static String title = ChatColor.DARK_AQUA + "Item Drop Chances";
     private Inventory selector;
-    private HashMap<ItemStack, ArrayList<ItemStack>> items = new HashMap<>();
+    private LinkedHashMap<ItemStack, ArrayList<ItemStack>> items = new LinkedHashMap<>();
     private static HashMap<Player, InventorySelector> objects = new HashMap<>();
     private boolean willBeUsed = false;
     private static Inventory secondaryWindow;
@@ -64,25 +65,29 @@ public class InventorySelector implements Listener {
             Material material;
             if ((material = Material.getMaterial(materialName)) != null) {
                 DropChance dropData = PluginMain.dropChances.get(materialName);
-                ItemStack item = new ItemStack(material);
-                ItemMeta itemMeta = item.getItemMeta();
-                dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
-                ArrayList<String> lore = new ArrayList<>();
-                String onOff = "";
-                if (setting.isOn()) onOff = ChatColor.GREEN + "enabled";
-                else onOff = ChatColor.RED + "disabled";
-                lore.add("");
-                lore.add(ChatColor.DARK_GRAY + "--------------------");
-                lore.add(ChatColor.GRAY + "This item drop is " + onOff + ".");
-                lore.add(ChatColor.AQUA + "Right click to toggle.");
-                lore.add(ChatColor.AQUA + "Left click to see details.");
-                lore.add(ChatColor.DARK_GRAY + "--------------------");
+                if (dropData != null) {
+                    ItemStack item = new ItemStack(material);
+                    ItemMeta itemMeta = item.getItemMeta();
+                    if (dropData != null && dropData.getEnchant() != null)
+                        dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
+                    ArrayList<String> lore = new ArrayList<>();
+                    String onOff;
+                    if (setting.isOn()) onOff = ChatColor.GREEN + "enabled";
+                    else onOff = ChatColor.RED + "disabled";
+                    lore.add("");
+                    lore.add(ChatColor.DARK_GRAY + "--------------------");
+                    lore.add(ChatColor.GRAY + "This item drop is " + onOff + ".");
+                    lore.add(ChatColor.AQUA + "Right click to toggle.");
+                    lore.add(ChatColor.AQUA + "Left click to see details.");
+                    lore.add(ChatColor.DARK_GRAY + "--------------------");
 
-                itemMeta.setLore(lore);
-                item.setItemMeta(itemMeta);
-                ArrayList<ItemStack> dropChances = getItemDetailedData(dropData, material);
+                    itemMeta.setLore(lore);
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                    item.setItemMeta(itemMeta);
+                    ArrayList<ItemStack> dropChances = getItemDetailedData(dropData, material);
 
-                items.put(item, dropChances);
+                    items.put(item, dropChances);
+                }
             }
         });
     }
@@ -101,10 +106,12 @@ public class InventorySelector implements Listener {
         items.add(f2);
         items.add(f3);
 
-        f0.addEnchantments(dropData.getEnchant());
-        f1.addEnchantments(dropData.getEnchant());
-        f2.addEnchantments(dropData.getEnchant());
-        f3.addEnchantments(dropData.getEnchant());
+        if (dropData != null && dropData.getEnchant() != null) {
+            f0.addEnchantments(dropData.getEnchant());
+            f1.addEnchantments(dropData.getEnchant());
+            f2.addEnchantments(dropData.getEnchant());
+            f3.addEnchantments(dropData.getEnchant());
+        }
 
         ItemMeta f0Meta = f0.getItemMeta();
         ItemMeta f1Meta = f2.getItemMeta();
@@ -120,6 +127,11 @@ public class InventorySelector implements Listener {
         f1Meta.setLore(generateItemLore(dropData, 1));
         f2Meta.setLore(generateItemLore(dropData, 2));
         f3Meta.setLore(generateItemLore(dropData, 3));
+
+        f0Meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        f1Meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        f2Meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        f3Meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         f0.setItemMeta(f0Meta);
         f1.setItemMeta(f1Meta);
@@ -167,6 +179,7 @@ public class InventorySelector implements Listener {
 
     private void reloadInventory() {
         refreshSettings();
+        selector.clear();
         AtomicInteger index = new AtomicInteger(selector.getSize() - 10 - PluginMain.dropChances.size());
         items.forEach((itemStack, itemStacks) -> selector.setItem(index.getAndIncrement(), itemStack));
         selector.setItem(selector.getSize()-5, exit);
@@ -184,6 +197,7 @@ public class InventorySelector implements Listener {
     @EventHandler
     public void InventoryClickEvent(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;
+        if (event.getCurrentItem() == null) return;
         if (objects.containsKey(event.getWhoClicked()) && event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector)) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) return;

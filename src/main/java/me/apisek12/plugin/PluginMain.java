@@ -294,7 +294,7 @@ public class PluginMain extends JavaPlugin {
             if (Bukkit.getServer().getOnlinePlayers().size() > 0){
                 for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().toArray().length; i++){
                     Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[i];
-                    if (playerSettings.get(player.getUniqueId().toString()).get("STACK").isOn()){
+                    if (playerSettings.get(player.getUniqueId().toString()) != null && playerSettings.get(player.getUniqueId().toString()).get("STACK").isOn()){
                         boolean tak = true;
                         while (tak){
                             if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)
