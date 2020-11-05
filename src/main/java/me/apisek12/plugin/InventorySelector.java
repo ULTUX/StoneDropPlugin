@@ -3,12 +3,14 @@ package me.apisek12.plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -24,9 +26,27 @@ public class InventorySelector implements Listener {
     private Inventory selector;
     private HashMap<ItemStack, ArrayList<ItemStack>> items = new HashMap<>();
     private static HashMap<Player, InventorySelector> objects = new HashMap<>();
+    private boolean willBeUsed = false;
+    private static Inventory secondaryWindow;
+    private static ItemStack exit, back;
 
-    public InventorySelector() {
+    static {
+        exit = new ItemStack(Material.BARRIER);
+        back = new ItemStack(Material.ARROW);
+        ItemMeta exitMeta = exit.getItemMeta();
+        ItemMeta backMeta = back.getItemMeta();
+
+        exitMeta.setDisplayName(ChatColor.RED+"Exit");
+        backMeta.setDisplayName(ChatColor.GREEN+"Back");
+        exitMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        backMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+
+        exit.setItemMeta(exitMeta);
+        back.setItemMeta(backMeta);
+
     }
+
+    public InventorySelector() {}
 
     public InventorySelector(Player player, HashMap<String, Setting> settings) {
         this.player = player;
@@ -34,6 +54,7 @@ public class InventorySelector implements Listener {
         objects.put(player, this);
         selector = Bukkit.createInventory(null, PluginMain.dropChances.size() + (9 - PluginMain.dropChances.size() % 9) + 2 * 9, title);
         reloadInventory();
+        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 255, 0);
         player.openInventory(selector);
     }
 
@@ -90,7 +111,7 @@ public class InventorySelector implements Listener {
         ItemMeta f2Meta = f2.getItemMeta();
         ItemMeta f3Meta = f3.getItemMeta();
 
-        f0Meta.setDisplayName(ChatColor.GREEN + "Fortune 0");
+        f0Meta.setDisplayName(ChatColor.GREEN + "No fortune");
         f1Meta.setDisplayName(ChatColor.GREEN + "Fortune 1");
         f2Meta.setDisplayName(ChatColor.GREEN + "Fortune 2");
         f3Meta.setDisplayName(ChatColor.GREEN + "Fortune 3");
@@ -148,37 +169,76 @@ public class InventorySelector implements Listener {
         refreshSettings();
         AtomicInteger index = new AtomicInteger(selector.getSize() - 10 - PluginMain.dropChances.size());
         items.forEach((itemStack, itemStacks) -> selector.setItem(index.getAndIncrement(), itemStack));
+        selector.setItem(selector.getSize()-5, exit);
     }
     private void openSecondaryWindow(ArrayList<ItemStack> items){
-        Inventory inventory = Bukkit.createInventory(null, 27, ChatColor.DARK_AQUA+"Drop information");
+        willBeUsed = false;
+        player.playSound(player.getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
+        secondaryWindow = Bukkit.createInventory(null, 27, ChatColor.DARK_AQUA+"Drop information");
         AtomicInteger i = new AtomicInteger(10);
-        items.forEach(item -> {
-            inventory.setItem(i.getAndAdd(2), item);
-        });
-        player.openInventory(inventory);
+        items.forEach(item -> secondaryWindow.setItem(i.getAndAdd(2), item));
+        secondaryWindow.setItem(secondaryWindow.getSize()-5, exit);
+        secondaryWindow.setItem(secondaryWindow.getSize()-6, back);
+        player.openInventory(secondaryWindow);
     }
     @EventHandler
     public void InventoryClickEvent(InventoryClickEvent event) {
+        if (event.getClickedInventory() == null) return;
         if (objects.containsKey(event.getWhoClicked()) && event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector)) {
             event.setCancelled(true);
+            if (checkForFuncButtonsPressed(event)) return;
             InventorySelector inventorySelector = objects.get(event.getWhoClicked());
             Player player = inventorySelector.player;
             ItemStack clickedItem = event.getCurrentItem();
             if (event.isRightClick()) {
                 inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
+                player.playSound(player.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, 255, 1);
                 inventorySelector.reloadInventory();
             } else if (event.isLeftClick()) {
-                player.closeInventory();
-                inventorySelector.openSecondaryWindow(inventorySelector.items.get(clickedItem));
+               if (event.getCurrentItem() != null){
+                   inventorySelector.willBeUsed = true;
+                   player.closeInventory();
+                   inventorySelector.openSecondaryWindow(inventorySelector.items.get(clickedItem));
+               }
             }
+        }
+        if (objects.containsKey(event.getWhoClicked()) && event.getClickedInventory().equals(objects.get(event.getWhoClicked()).secondaryWindow)) {
+            event.setCancelled(true);
+            if (checkForFuncButtonsPressed(event)) return;
+            ((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Sound.ENTITY_CHICKEN_EGG, 255, 1);
+            checkForFuncButtonsPressed(event);
         }
     }
 
     @EventHandler
     public void InventoryCloseEvent(InventoryCloseEvent event) {
-
-        if (objects.containsKey(event.getPlayer()) && event.getInventory().equals(objects.get(event.getPlayer()).selector)) {
-            objects.remove(event.getPlayer());
+        if (objects.containsKey(event.getPlayer())) {
+            if (event.getInventory().equals(objects.get(event.getPlayer()).selector)){
+                ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
+            }
+            else if (event.getInventory().equals(objects.get(event.getPlayer()).secondaryWindow)){
+                ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
+            }
+            if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
         }
     }
+
+    private boolean checkForFuncButtonsPressed(InventoryClickEvent event){
+        if (event.getCurrentItem() != null){
+            if (event.getCurrentItem().equals(exit)) {
+                event.getWhoClicked().closeInventory();
+                return true;
+            }
+            else if (event.getCurrentItem().equals(back)) {
+                objects.get(event.getWhoClicked()).willBeUsed = true;
+                event.getWhoClicked().closeInventory();
+                objects.get(event.getWhoClicked()).player.openInventory(objects.get(event.getWhoClicked()).selector);
+                objects.get(event.getWhoClicked()).reloadInventory();
+                return true;
+            }
+
+        }
+        return false;
+    }
+
 }
