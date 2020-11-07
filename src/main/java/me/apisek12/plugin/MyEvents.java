@@ -20,10 +20,15 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 
 public class MyEvents implements Listener {
@@ -222,8 +227,36 @@ public class MyEvents implements Listener {
 
     @EventHandler
     public void PlayerJoinEvent(PlayerJoinEvent e){
-        if (!PluginMain.playerSettings.containsKey(e.getPlayer().getUniqueId().toString())) newPlayerJoined(e.getPlayer().getUniqueId().toString());
+        if (!PluginMain.playerSettings.containsKey(e.getPlayer().getUniqueId().toString())
+                || !PluginMain.playerLastVersionPluginVersion.containsKey(e.getPlayer().getUniqueId().toString())) {
+            newPlayerJoined(e.getPlayer());
+
+        }
+        if (isNewToUpdate(e.getPlayer().getUniqueId().toString())){
+            displayUpdateMessage(e.getPlayer());
+            PluginMain.playerLastVersionPluginVersion.remove(e.getPlayer().getUniqueId().toString());
+            PluginMain.playerLastVersionPluginVersion.put(e.getPlayer().getUniqueId().toString(), PluginMain.currentPluginVersion);
+        }
+
     }
+
+    private boolean isNewToUpdate(String uid){
+        if (PluginMain.playerLastVersionPluginVersion.get(uid) == null) {
+            return true;
+        }
+        String playerVersion = PluginMain.playerLastVersionPluginVersion.get(uid);
+        String serverVersion = PluginMain.currentPluginVersion;
+        String[] playerVersionArray = playerVersion.replace(".", ",").split(",");
+        String[] serverVersionArray = serverVersion.replace(".", ",").split(",");
+        int min = Math.min(playerVersionArray.length, serverVersionArray.length);
+        for (int i = 0; i < min; i++){
+            int serverVersionPart = Integer.parseInt(serverVersionArray[i]);
+            int playerVersionPart = Integer.parseInt(playerVersionArray[i]);
+            if (serverVersionPart > playerVersionPart) return true;
+        }
+        return false;
+    }
+
 
     private int getRandomFreeSlot(Inventory inv){
         ArrayList<Integer> possibleInv = new ArrayList<>();
@@ -234,17 +267,39 @@ public class MyEvents implements Listener {
     }
 
 
-    private void newPlayerJoined(String uid){
+    private void newPlayerJoined(Player player){
+        String uid = player.getUniqueId().toString();
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data");
-        HashMap<String, Setting> settings = new HashMap<>();
-        for (int i = 0; i < set.length; i++){
-            settings.put(set[i], new Setting(true, set[i]));
+        if (!PluginMain.playerSettings.containsKey(uid)) {
+            HashMap<String, Setting> settings = new HashMap<>();
+            for (int i = 0; i < set.length; i++) {
+                settings.put(set[i], new Setting(true, set[i]));
+            }
+            settings.put("COBBLE", new Setting(false, "COBBLE"));
+            settings.put("STACK", new Setting(false, "STACK"));
+            PluginMain.playerSettings.put(uid, settings);
         }
-        settings.put("COBBLE", new Setting(false, "COBBLE"));
-        settings.put("STACK", new Setting(false, "STACK"));
-        PluginMain.playerSettings.put(uid, settings);
+        if (!PluginMain.playerLastVersionPluginVersion.containsKey(uid)) {
+            PluginMain.playerLastVersionPluginVersion.put(uid, PluginMain.currentPluginVersion);
+            if (PluginMain.displayUpdateMessage){
+                displayUpdateMessage(player);
+            }
+        }
+
     }
 
+    private void displayUpdateMessage(Player player) {
+        Scanner reader = null;
+        InputStream inputStream= PluginMain.plugin.getResource("update.txt");
+        reader = new Scanner(inputStream, "utf-8");
+        while (reader.hasNextLine()){
+            String message = ChatColor.translateAlternateColorCodes('&', reader.nextLine());
+            player.sendMessage(message);
+
+        }
+
+
+    }
 
 
 }

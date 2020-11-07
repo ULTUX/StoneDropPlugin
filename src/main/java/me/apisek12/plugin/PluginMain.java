@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import sun.security.krb5.Config;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
 
+import static org.bukkit.Bukkit.getConsoleSender;
 import static org.bukkit.Bukkit.getPluginManager;
 
 public class PluginMain extends JavaPlugin {
@@ -37,9 +39,11 @@ public class PluginMain extends JavaPlugin {
     static ArrayList<Material> dropBlocks = null;
     static public boolean dropFromOres = true;
     public static boolean dropIntoInventory = false;
-
+    public static boolean displayUpdateMessage = true;
     public static Material wooden = null, golden = null;
     public static boolean isNetherite = false;
+    static HashMap<String, String> playerLastVersionPluginVersion = new HashMap<>();
+    public static String currentPluginVersion;
 
     static boolean isVersionNew(){
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
@@ -58,6 +62,11 @@ public class PluginMain extends JavaPlugin {
         playerSettings.forEach((player, settings) -> settings.forEach((material, setting)->{
             playerData.set("users."+player+"."+material, setting.isOn());
         }));
+
+        playerLastVersionPluginVersion.forEach((user, version) -> {
+            playerData.set("userVersion."+user, version);
+        });
+
         try {
             playerData.save(new File(getDataFolder(), "playerData.yml"));
             Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"[StoneDrop] Config file saved!");
@@ -221,11 +230,12 @@ public class PluginMain extends JavaPlugin {
     }
     @Override
     public void onEnable() {
+        currentPluginVersion = getDescription().getVersion();
         plugin = this;
 
         File file = new File(plugin.getDataFolder()+File.separator+"config.yml");
         if (!file.exists()) {
-            try (OutputStream outputStream = new FileOutputStream(file.toPath().toString());) {
+            try (OutputStream outputStream = new FileOutputStream(file.toPath().toString())) {
                 InputStream is = getResource("config.yml");
                 byte[] buffer = new byte[1024];
                 int length;
@@ -244,6 +254,7 @@ public class PluginMain extends JavaPlugin {
         dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
         //Check if plugin should block item dropping from ores
         dropFromOres = getConfig().getBoolean("ore-drop");
+        displayUpdateMessage = getConfig().getBoolean("display-update-message");
         if (!dropFromOres) getServer().getConsoleSender().sendMessage("["+this.getName()+"] Drop from ores is now disabled");
 
         //Check if version is < 1.8.9
@@ -269,7 +280,7 @@ public class PluginMain extends JavaPlugin {
         getConfig().getStringList("dropBlocks").forEach(material -> {
             dropBlocks.add(Material.getMaterial(material));
         });
-        ConfigurationSection cs = playerData.getConfigurationSection("users");
+        final ConfigurationSection cs = playerData.getConfigurationSection("users");
         if (cs != null) {
             Set<String> keyList = cs.getKeys(false);
             keyList.forEach((user) -> {
@@ -281,6 +292,15 @@ public class PluginMain extends JavaPlugin {
                     settings.put(materialName, new Setting(setting, materialName));
                 }
                 playerSettings.put(user, settings);
+
+            });
+        }
+        final ConfigurationSection cs2 = playerData.getConfigurationSection("userVersion");
+        if (cs2 != null){
+            Set<String> keyList = cs2.getKeys(false);
+            keyList.forEach((user) -> {
+                String version = (String) cs2.get(user);
+                if (version != null) playerLastVersionPluginVersion.put(user, version);
 
             });
         }

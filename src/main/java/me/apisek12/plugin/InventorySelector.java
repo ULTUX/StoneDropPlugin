@@ -30,6 +30,7 @@ public class InventorySelector implements Listener {
     private boolean willBeUsed = false;
     private static Inventory secondaryWindow;
     private static ItemStack exit, back;
+    private ItemStack cobble;
 
     static {
         exit = new ItemStack(Material.BARRIER);
@@ -54,12 +55,17 @@ public class InventorySelector implements Listener {
         this.settings = settings;
         objects.put(player, this);
         selector = Bukkit.createInventory(null, PluginMain.dropChances.size() + (9 - PluginMain.dropChances.size() % 9) + 2 * 9, title);
+
+        this.cobble = new ItemStack(Material.COBBLESTONE);
+
+        refreshCobbleObject();
         reloadInventory();
         player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 255, 0);
         player.openInventory(selector);
     }
 
     private void refreshSettings(){
+        refreshCobbleObject();
         items.clear();
         settings.forEach((materialName, setting) -> {
             Material material;
@@ -90,6 +96,22 @@ public class InventorySelector implements Listener {
                 }
             }
         });
+    }
+    private void refreshCobbleObject(){
+        ItemMeta cobbleMeta = cobble.getItemMeta();
+        ArrayList<String> lore = new ArrayList<>();
+        String onOff;
+        if (!settings.get("COBBLE").isOn()) onOff = ChatColor.GREEN + "enabled";
+        else onOff = ChatColor.RED + "disabled";
+        lore.add("");
+        lore.add(ChatColor.DARK_GRAY + "--------------------");
+        lore.add(ChatColor.GRAY + "This item drop is " + onOff + ".");
+        lore.add(ChatColor.AQUA + "Right click to toggle.");
+        lore.add(ChatColor.DARK_GRAY + "--------------------");
+        cobbleMeta.setLore(lore);
+        cobbleMeta.setDisplayName(ChatColor.RESET.toString()+ChatColor.AQUA.toString()+"Drop of cobble from stone");
+        cobbleMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        cobble.setItemMeta(cobbleMeta);
     }
 
     private ArrayList<ItemStack> getItemDetailedData(DropChance dropData, Material dropMaterial) {
@@ -180,7 +202,9 @@ public class InventorySelector implements Listener {
     private void reloadInventory() {
         refreshSettings();
         selector.clear();
-        AtomicInteger index = new AtomicInteger(selector.getSize() - 10 - PluginMain.dropChances.size());
+        AtomicInteger index = new AtomicInteger(9);
+
+        selector.setItem(index.getAndIncrement(), cobble);
         items.forEach((itemStack, itemStacks) -> selector.setItem(index.getAndIncrement(), itemStack));
         selector.setItem(selector.getSize()-5, exit);
     }
@@ -205,11 +229,14 @@ public class InventorySelector implements Listener {
             Player player = inventorySelector.player;
             ItemStack clickedItem = event.getCurrentItem();
             if (event.isRightClick()) {
-                inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
-                player.playSound(player.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, 255, 1);
+                if (event.getCurrentItem().equals(inventorySelector.cobble)) inventorySelector.settings.get("COBBLE").toggle();
+                else {
+                    inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
+                }
                 inventorySelector.reloadInventory();
+                player.playSound(player.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, 255, 1);
             } else if (event.isLeftClick()) {
-               if (event.getCurrentItem() != null){
+               if (event.getCurrentItem() != null && inventorySelector.items.containsKey(clickedItem)){
                    inventorySelector.willBeUsed = true;
                    player.closeInventory();
                    inventorySelector.openSecondaryWindow(inventorySelector.items.get(clickedItem));
