@@ -71,6 +71,3 @@ Permissions
 
 [](https://github.com/ULTUX/StoneDropPlugin#latest-releases-releases)Latest releases: [Releases](https://github.com/ULTUX/minecraft-stone-drop-plugin/releases/)
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-Visit this project on [GitHub](https://github.com/ULTUX/StoneDropPlugin "StoneDrop source code")
-------------------------------------------------------------------------------------------------
