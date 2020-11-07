@@ -220,3 +220,5 @@ ore-drop: true
 
 #Should the items ne dropped directly into the inventory
 drop-to-inventory: false
+
+display-update-message: true
