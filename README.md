@@ -4,7 +4,7 @@
 ![](https://img.shields.io/github/issues/ULTUX/StoneDropPlugin)
 ![](https://img.shields.io/github/license/ULTUX/StoneDropPlugin)
 ![](https://img.shields.io/github/release-date/ULTUX/StoneDropPlugin)
-![Build](https://github.com/ULTUX/StoneDropPlugin/workflows/Java%20CI%20with%20Maven/badge.svg)
+![Build](https://github.com/ULTUX/StoneDropPlugin/workflows/Java%20CI%20with%20Maven/badge.svg?branch=master)
 
 ## What is Stone Drop?
 
