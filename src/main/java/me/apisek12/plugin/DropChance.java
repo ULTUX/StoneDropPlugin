@@ -2,7 +2,6 @@ package me.apisek12.plugin;
 
 
 import org.bukkit.ChatColor;
-halo kto tam??
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 
