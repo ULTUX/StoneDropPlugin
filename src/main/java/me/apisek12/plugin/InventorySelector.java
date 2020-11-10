@@ -218,11 +218,12 @@ public class InventorySelector implements Listener {
         secondaryWindow.setItem(secondaryWindow.getSize()-6, back);
         player.openInventory(secondaryWindow);
     }
+
     @EventHandler
     public void InventoryClickEvent(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;
         if (event.getCurrentItem() == null) return;
-        if (objects.containsKey(event.getWhoClicked()) && event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector)) {
+        if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) return;
             InventorySelector inventorySelector = objects.get(event.getWhoClicked());
@@ -243,7 +244,7 @@ public class InventorySelector implements Listener {
                }
             }
         }
-        if (objects.containsKey(event.getWhoClicked()) && event.getClickedInventory().equals(objects.get(event.getWhoClicked()).secondaryWindow)) {
+        if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).secondaryWindow) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) return;
             ((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Sound.ENTITY_CHICKEN_EGG, 255, 1);
@@ -256,17 +257,19 @@ public class InventorySelector implements Listener {
         if (objects.containsKey(event.getPlayer())) {
             if (event.getInventory().equals(objects.get(event.getPlayer()).selector)){
                 ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
+                if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
             }
             else if (event.getInventory().equals(objects.get(event.getPlayer()).secondaryWindow)){
                 ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
+                if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
             }
-            if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
         }
     }
 
     private boolean checkForFuncButtonsPressed(InventoryClickEvent event){
         if (event.getCurrentItem() != null){
             if (event.getCurrentItem().equals(exit)) {
+                objects.get(event.getWhoClicked()).willBeUsed = false;
                 event.getWhoClicked().closeInventory();
                 return true;
             }
@@ -274,6 +277,7 @@ public class InventorySelector implements Listener {
                 objects.get(event.getWhoClicked()).willBeUsed = true;
                 event.getWhoClicked().closeInventory();
                 objects.get(event.getWhoClicked()).player.openInventory(objects.get(event.getWhoClicked()).selector);
+                objects.get(event.getWhoClicked()).willBeUsed = false;
                 objects.get(event.getWhoClicked()).reloadInventory();
                 return true;
             }
