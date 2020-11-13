@@ -14,7 +14,7 @@ What is more, it also features mystery chests, which can appear in front of play
 Everything can be configured and changed to meet server requirements.
 
 ## Need help? Visit our Discord Server
-[ ![](https://i.imgur.com/lUUtxLdl.jpg) ](https://discord.gg/v7Qfx7VE).
+[ ![](https://i.imgur.com/lUUtxLdl.jpg) ](https://discord.gg/v7Qfx7VE)
 
 ## Requirements
 
