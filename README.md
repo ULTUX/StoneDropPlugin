@@ -13,8 +13,8 @@ This plugin gives player ability to drop some additional items while mining ston
 What is more, it also features mystery chests, which can appear in front of player while mining.\
 Everything can be configured and changed to meet server requirements.
 
-## Need help? Visit our Discord Server
-[ ![](https://i.imgur.com/lUUtxLdl.jpg) ](https://discord.gg/v7Qfx7VE)
+## Need help, have some ideas or have found a bug? Visit our Discord Server.
+[ ![](https://i.imgur.com/lUUtxLdl.jpg) ](https://discord.gg/4gsa9wCCST)
 
 ## Requirements
 
