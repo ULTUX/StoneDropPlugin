@@ -1,4 +1,4 @@
-&7A StoneDrop plugin has been updated bringing new features (&3v1.9):
+&7A StoneDrop plugin has been updated bringing new features (&3v1.9.2):
     &7- &6/d &7or &6/drop &7 command displays menu.
     &7- This menu enables players to quickly change their drop preferences
     &7and look up drop chances.

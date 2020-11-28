@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import sun.security.krb5.Config;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -36,6 +35,7 @@ public class PluginMain extends JavaPlugin {
     private static BukkitTask shutdownThread = null;
     static ArrayList<String> disabledWorlds = null;
     private static FileConfiguration playerData = null;
+    private static FileConfiguration langData = null;
     static ArrayList<Material> dropBlocks = null;
     static public boolean dropFromOres = true;
     public static boolean dropIntoInventory = false;
@@ -47,8 +47,7 @@ public class PluginMain extends JavaPlugin {
 
     static boolean isVersionNew(){
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
-        if (Integer.parseInt(version[1]) > 12) return true;
-        return false;
+        return Integer.parseInt(version[1]) > 12;
     }
 
 
@@ -149,12 +148,12 @@ public class PluginMain extends JavaPlugin {
                         }
                     }
                 if (!wasOk){
-                    player.sendMessage(ChatColor.GRAY+"Unknown argument!\nCommand should look like:\n"+ChatColor.GOLD+"/drop <info, stack, DROPPABLE_NAME>");
+                    player.sendMessage(ChatColor.GRAY+Message.COMMAND_ARGUMENT_UNKNOWN.toString());
 
                 }
 
             } else {
-                    player.sendMessage(ChatColor.RED+"You don't have permission to use that command!");
+                    player.sendMessage(ChatColor.RED+Message.PERMISSION_MISSING.toString());
                 }
             }
         }
@@ -228,15 +227,12 @@ public class PluginMain extends JavaPlugin {
         }
         return false;
     }
-    @Override
-    public void onEnable() {
-        currentPluginVersion = getDescription().getVersion();
-        plugin = this;
 
+    static private void generateConfig(){
         File file = new File(plugin.getDataFolder()+File.separator+"config.yml");
         if (!file.exists()) {
             try (OutputStream outputStream = new FileOutputStream(file.toPath().toString())) {
-                InputStream is = getResource("config.yml");
+                InputStream is = plugin.getResource("config.yml");
                 byte[] buffer = new byte[1024];
                 int length;
                 while ((length = is.read(buffer)) > 0) {
@@ -249,7 +245,27 @@ public class PluginMain extends JavaPlugin {
                 e.printStackTrace();
             }
         }
+    }
+    static private void generateLang(){
+        File file = new File(plugin.getDataFolder()+File.separator+"lang.yml");
+        if (!file.exists()) {
+            getConsoleSender().sendMessage("lang.yml file has not been found, generating a new one...");
+            try (BufferedWriter outputStream = new BufferedWriter(new FileWriter(file))) {
+                for (Message message: Message.values()){
+                    outputStream.write(message.name()+": "+message+"\n");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
+    @Override
+    public void onEnable() {
+        currentPluginVersion = getDescription().getVersion();
+        plugin = this;
+        generateConfig();
+        generateLang();
         //Check if plugin should drop items into inventory
         dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
         //Check if plugin should block item dropping from ores
@@ -271,6 +287,10 @@ public class PluginMain extends JavaPlugin {
             e.printStackTrace();
         }
         playerData = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "playerData.yml"));
+        langData = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "lang.yml"));
+        langData.getKeys(false).forEach(key -> {
+            Message.valueOf(key).setDefaultMessage((String) langData.get(key));
+        });
         Updater updater = new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         Metrics metrics = new Metrics(this);
 
@@ -307,7 +327,7 @@ public class PluginMain extends JavaPlugin {
 
         loadChances();
         loadChestChances();
-        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GREEN + "Confing Loaded, Plugin enabled!");
+        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GREEN + "Configuration Loaded, Plugin enabled!");
         this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
         getPluginManager().registerEvents(new InventorySelector(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
