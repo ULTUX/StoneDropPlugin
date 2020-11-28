@@ -133,14 +133,14 @@ public class PluginMain extends JavaPlugin {
                                 player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD +" is now "+ChatColor.RED+"disabled");
 
                         } else {
-                            for (int i = 0; i < MyEvents.set.length; i++) {
-                                if (!MyEvents.set[i].equals("STACK") && !MyEvents.set[i].equals("COBBLE")){
-                                    if (args[0].equalsIgnoreCase(MyEvents.set[i])) {
-                                        setting.get(MyEvents.set[i]).setOn(!setting.get(MyEvents.set[i]).isOn());
-                                        if (setting.get(MyEvents.set[i]).isOn()) {
-                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
+                            for (int i = 0; i < MainEventListener.set.length; i++) {
+                                if (!MainEventListener.set[i].equals("STACK") && !MainEventListener.set[i].equals("COBBLE")){
+                                    if (args[0].equalsIgnoreCase(MainEventListener.set[i])) {
+                                        setting.get(MainEventListener.set[i]).setOn(!setting.get(MainEventListener.set[i]).isOn());
+                                        if (setting.get(MainEventListener.set[i]).isOn()) {
+                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MainEventListener.set[i] + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
                                         } else {
-                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MyEvents.set[i] + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
+                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MainEventListener.set[i] + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
                                         }
                                         wasOk = true;
                                     }
@@ -328,7 +328,7 @@ public class PluginMain extends JavaPlugin {
         loadChances();
         loadChestChances();
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GREEN + "Configuration Loaded, Plugin enabled!");
-        this.getServer().getPluginManager().registerEvents(new MyEvents(), this);
+        this.getServer().getPluginManager().registerEvents(new MainEventListener(), this);
         getPluginManager().registerEvents(new InventorySelector(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             if (Bukkit.getServer().getOnlinePlayers().size() > 0){
@@ -415,14 +415,14 @@ public class PluginMain extends JavaPlugin {
             }
     }, 40L, 80L);
 
-        MyEvents.set = new String[dropChances.keySet().toArray().length];
+        MainEventListener.set = new String[dropChances.keySet().toArray().length];
         for (int i = 0; i < dropChances.keySet().toArray().length; i++) {
-            MyEvents.set[i] = (String) dropChances.keySet().toArray()[i];
+            MainEventListener.set[i] = (String) dropChances.keySet().toArray()[i];
         }
 
         playerSettings.forEach((name, settings) -> {
-            for (int i = 0; i < MyEvents.set.length; i++) {
-                if (!settings.containsKey(MyEvents.set[i])) settings.put(MyEvents.set[i], new Setting(true, MyEvents.set[i]));
+            for (int i = 0; i < MainEventListener.set.length; i++) {
+                if (!settings.containsKey(MainEventListener.set[i])) settings.put(MainEventListener.set[i], new Setting(true, MainEventListener.set[i]));
             }
         });
     }

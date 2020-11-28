@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 
-public class MyEvents implements Listener {
+public class MainEventListener implements Listener {
 
     private final HashMap<String, DropChance> dropChances = PluginMain.dropChances;
     static String[] set; //Ore names
@@ -86,7 +86,7 @@ public class MyEvents implements Listener {
                 {
                     event.setCancelled(true);
                     event.getBlock().setType(Material.AIR);
-                    event.getPlayer().sendMessage(ChatColor.RED+"Drop from ores was disabled by server administrator.");
+                    event.getPlayer().sendMessage(ChatColor.RED+Message.INFO_DROP_DISABLED.toString());
                     return;
                 }
 
@@ -96,7 +96,7 @@ public class MyEvents implements Listener {
                     if (Chance.chance(PluginMain.chestSpawnRate)) {
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
                             block.setType(Material.CHEST);
-                            event.getPlayer().sendTitle(ChatColor.GOLD + "You have found a " + ChatColor.GREEN + "treasure " + ChatColor.GOLD + "chest!", ChatColor.AQUA + "I wonder what's inside...", 20, 20, 15);
+                            event.getPlayer().sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
                             event.getPlayer().playSound(event.getBlock().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1f);
                             Chest chest = (Chest) block.getState();
                             Bukkit.getScheduler().runTaskLater(PluginMain.plugin, new Runnable() {
