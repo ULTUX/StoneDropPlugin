@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class InventorySelector implements Listener {
     private Player player;
     private HashMap<String, Setting> settings;
-    private static String title = ChatColor.DARK_AQUA + "Item Drop Chances";
+    private static String title = ChatColor.DARK_AQUA + Message.GUI_TITLE.toString();
     private Inventory selector;
     private LinkedHashMap<ItemStack, ArrayList<ItemStack>> items = new LinkedHashMap<>();
     private static HashMap<Player, InventorySelector> objects = new HashMap<>();
@@ -38,8 +38,8 @@ public class InventorySelector implements Listener {
         ItemMeta exitMeta = exit.getItemMeta();
         ItemMeta backMeta = back.getItemMeta();
 
-        exitMeta.setDisplayName(ChatColor.RED+"Exit");
-        backMeta.setDisplayName(ChatColor.GREEN+"Back");
+        exitMeta.setDisplayName(ChatColor.RED+Message.GUI_EXIT_BUTTON.toString());
+        backMeta.setDisplayName(ChatColor.GREEN+Message.GUI_BACK_BUTTON.toString());
         exitMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         backMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
@@ -78,13 +78,13 @@ public class InventorySelector implements Listener {
                         dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
                     ArrayList<String> lore = new ArrayList<>();
                     String onOff;
-                    if (setting.isOn()) onOff = ChatColor.GREEN + "enabled";
-                    else onOff = ChatColor.RED + "disabled";
+                    if (setting.isOn()) onOff = ChatColor.GREEN + Message.INFO_ENABLED.toString();
+                    else onOff = ChatColor.RED + Message.INFO_DISABLED.toString();
                     lore.add("");
                     lore.add(ChatColor.DARK_GRAY + "--------------------");
-                    lore.add(ChatColor.GRAY + "This item drop is " + onOff + ".");
-                    lore.add(ChatColor.AQUA + "Right click to toggle.");
-                    lore.add(ChatColor.AQUA + "Left click to see details.");
+                    lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
+                    lore.add(ChatColor.AQUA + Message.GUI_ITEM_DESCRIPTION_RIGHT_CLICK_TO_TOGGLE.toString());
+                    lore.add(ChatColor.AQUA + Message.GUI_ITEM_DESCRIPTION_LEFT_CLICK_TO_SEE_DETAILS.toString());
                     lore.add(ChatColor.DARK_GRAY + "--------------------");
 
                     itemMeta.setLore(lore);
@@ -101,15 +101,15 @@ public class InventorySelector implements Listener {
         ItemMeta cobbleMeta = cobble.getItemMeta();
         ArrayList<String> lore = new ArrayList<>();
         String onOff;
-        if (!settings.get("COBBLE").isOn()) onOff = ChatColor.GREEN + "enabled";
-        else onOff = ChatColor.RED + "disabled";
+        if (!settings.get("COBBLE").isOn()) onOff = ChatColor.GREEN + Message.INFO_ENABLED.toString();
+        else onOff = ChatColor.RED + Message.INFO_DISABLED.toString();
         lore.add("");
         lore.add(ChatColor.DARK_GRAY + "--------------------");
-        lore.add(ChatColor.GRAY + "This item drop is " + onOff + ".");
-        lore.add(ChatColor.AQUA + "Right click to toggle.");
+        lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
+        lore.add(ChatColor.AQUA + Message.GUI_ITEM_DESCRIPTION_RIGHT_CLICK_TO_TOGGLE.toString());
         lore.add(ChatColor.DARK_GRAY + "--------------------");
         cobbleMeta.setLore(lore);
-        cobbleMeta.setDisplayName(ChatColor.RESET.toString()+ChatColor.AQUA.toString()+"Drop of cobble from stone");
+        cobbleMeta.setDisplayName(ChatColor.RESET.toString()+ChatColor.AQUA.toString()+Message.COBBLE_TOGGLE_BUTTON_NAME);
         cobbleMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         cobble.setItemMeta(cobbleMeta);
     }
@@ -140,10 +140,10 @@ public class InventorySelector implements Listener {
         ItemMeta f2Meta = f2.getItemMeta();
         ItemMeta f3Meta = f3.getItemMeta();
 
-        f0Meta.setDisplayName(ChatColor.GREEN + "No fortune");
-        f1Meta.setDisplayName(ChatColor.GREEN + "Fortune 1");
-        f2Meta.setDisplayName(ChatColor.GREEN + "Fortune 2");
-        f3Meta.setDisplayName(ChatColor.GREEN + "Fortune 3");
+        f0Meta.setDisplayName(ChatColor.GREEN + Message.INFO_FORTUNE_0.toString());
+        f1Meta.setDisplayName(ChatColor.GREEN + Message.INFO_FORTUNE_1.toString());
+        f2Meta.setDisplayName(ChatColor.GREEN + Message.INFO_FORTUNE_2.toString());
+        f3Meta.setDisplayName(ChatColor.GREEN + Message.INFO_FORTUNE_3.toString());
 
         f0Meta.setLore(generateItemLore(dropData, 0));
         f1Meta.setLore(generateItemLore(dropData, 1));
@@ -193,8 +193,8 @@ public class InventorySelector implements Listener {
                 break;
         }
         chance *= 100;
-        lore.add(ChatColor.GRAY + "Drop chance: " + ChatColor.GOLD + format.format(chance)+"%");
-        lore.add(ChatColor.GRAY + "Drop amount: " + ChatColor.GOLD + min + "-" + max);
+        lore.add(ChatColor.GRAY + Message.INFO_DROP_CHANCE.toString() + " " + ChatColor.GOLD + format.format(chance)+"%");
+        lore.add(ChatColor.GRAY + Message.INFO_DROP_AMOUNT.toString() + " " + ChatColor.GOLD + min + "-" + max);
 
         return lore;
     }
@@ -211,7 +211,7 @@ public class InventorySelector implements Listener {
     private void openSecondaryWindow(ArrayList<ItemStack> items){
         willBeUsed = false;
         player.playSound(player.getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
-        secondaryWindow = Bukkit.createInventory(null, 27, ChatColor.DARK_AQUA+"Drop information");
+        secondaryWindow = Bukkit.createInventory(null, 27, ChatColor.DARK_AQUA+Message.GUI_SECOND_TITLE.toString());
         AtomicInteger i = new AtomicInteger(10);
         items.forEach(item -> secondaryWindow.setItem(i.getAndAdd(2), item));
         secondaryWindow.setItem(secondaryWindow.getSize()-5, exit);

@@ -13,28 +13,41 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 
-public class MyEvents implements Listener {
+public class MainEventListener implements Listener {
 
-    private HashMap<String, DropChance> dropChances = PluginMain.dropChances;
+    private final HashMap<String, DropChance> dropChances = PluginMain.dropChances;
     static String[] set; //Ore names
+    static final Map<Player, Long> messageTimestamp = new HashMap<>();
+    private static final long ORE_MESSAGE_DELAY = 10000;
+    public static void initialize(){
+        Bukkit.getServer().getConsoleSender().sendMessage("["+PluginMain.plugin.getName()+"] Starting internal scheduler...");
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(PluginMain.plugin, new Runnable() {
+            @Override
+            public void run() {
+                synchronized (messageTimestamp){
+                    Iterator iterator = messageTimestamp.entrySet().iterator();
+                    while (iterator.hasNext()){
+                        Map.Entry entry = (Map.Entry) iterator.next();
+                        Player player = (Player) entry.getKey();
+                        Long timeStamp = (Long) entry.getValue();
+                        if (System.currentTimeMillis() > timeStamp+10000){
+                            iterator.remove();
+                        }
+                    }
+                }
+            }
+        }, 20, 20*ORE_MESSAGE_DELAY/1000-1);
+    }
 
     private void giveExp(Player player){
         float experienceToGive = PluginMain.experienceToDrop/((float)Math.sqrt((double)player.getLevel()+1));
@@ -87,11 +100,14 @@ public class MyEvents implements Listener {
                 World world = block.getWorld();
                 Material tool = getItemInHand(event.getPlayer()).getType();
 
-                if (!PluginMain.dropFromOres && event.getBlock().getType().toString().contains("ORE"))
+                if (!PluginMain.dropFromOres && !messageTimestamp.containsKey(event.getPlayer()) && event.getBlock().getType().toString().contains("ORE"))
                 {
                     event.setCancelled(true);
                     event.getBlock().setType(Material.AIR);
-                    event.getPlayer().sendMessage(ChatColor.RED+"Drop from ores was disabled by server admin.");
+                    event.getPlayer().sendMessage(ChatColor.RED+Message.INFO_DROP_DISABLED.toString());
+                   synchronized (messageTimestamp){
+                       messageTimestamp.put(event.getPlayer(), System.currentTimeMillis());
+                   }
                     return;
                 }
 
@@ -101,7 +117,7 @@ public class MyEvents implements Listener {
                     if (Chance.chance(PluginMain.chestSpawnRate)) {
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
                             block.setType(Material.CHEST);
-                            event.getPlayer().sendTitle(ChatColor.GOLD + "You have found a " + ChatColor.GREEN + "treasure " + ChatColor.GOLD + "chest!", ChatColor.AQUA + "Ciekawe co jest w środku...", 20, 20, 15);
+                            event.getPlayer().sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
                             event.getPlayer().playSound(event.getBlock().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1f);
                             Chest chest = (Chest) block.getState();
                             Bukkit.getScheduler().runTaskLater(PluginMain.plugin, new Runnable() {
