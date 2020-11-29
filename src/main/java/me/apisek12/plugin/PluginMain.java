@@ -262,10 +262,11 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        currentPluginVersion = getDescription().getVersion();
         plugin = this;
+        currentPluginVersion = getDescription().getVersion();
         generateConfig();
         generateLang();
+        MainEventListener.initialize();
         //Check if plugin should drop items into inventory
         dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
         //Check if plugin should block item dropping from ores

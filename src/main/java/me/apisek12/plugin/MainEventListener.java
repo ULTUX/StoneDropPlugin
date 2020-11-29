@@ -20,16 +20,34 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class MainEventListener implements Listener {
 
     private final HashMap<String, DropChance> dropChances = PluginMain.dropChances;
     static String[] set; //Ore names
+    static final Map<Player, Long> messageTimestamp = new HashMap<>();
+    private static final long ORE_MESSAGE_DELAY = 10000;
+    public static void initialize(){
+        Bukkit.getServer().getConsoleSender().sendMessage("["+PluginMain.plugin.getName()+"] Starting internal scheduler...");
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(PluginMain.plugin, new Runnable() {
+            @Override
+            public void run() {
+                synchronized (messageTimestamp){
+                    Iterator iterator = messageTimestamp.entrySet().iterator();
+                    while (iterator.hasNext()){
+                        Map.Entry entry = (Map.Entry) iterator.next();
+                        Player player = (Player) entry.getKey();
+                        Long timeStamp = (Long) entry.getValue();
+                        if (System.currentTimeMillis() > timeStamp+10000){
+                            iterator.remove();
+                        }
+                    }
+                }
+            }
+        }, 20, 20*ORE_MESSAGE_DELAY/1000-1);
+    }
 
     private void giveExp(Player player){
         float experienceToGive = PluginMain.experienceToDrop/((float)Math.sqrt((double)player.getLevel()+1));
@@ -82,11 +100,14 @@ public class MainEventListener implements Listener {
                 World world = block.getWorld();
                 Material tool = getItemInHand(event.getPlayer()).getType();
 
-                if (!PluginMain.dropFromOres && event.getBlock().getType().toString().contains("ORE"))
+                if (!PluginMain.dropFromOres && !messageTimestamp.containsKey(event.getPlayer()) && event.getBlock().getType().toString().contains("ORE"))
                 {
                     event.setCancelled(true);
                     event.getBlock().setType(Material.AIR);
                     event.getPlayer().sendMessage(ChatColor.RED+Message.INFO_DROP_DISABLED.toString());
+                   synchronized (messageTimestamp){
+                       messageTimestamp.put(event.getPlayer(), System.currentTimeMillis());
+                   }
                     return;
                 }
 
