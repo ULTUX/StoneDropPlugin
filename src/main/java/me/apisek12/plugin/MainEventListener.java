@@ -270,7 +270,7 @@ public class MainEventListener implements Listener {
             int playerVersionPart = Integer.parseInt(playerVersionArray[i]);
             if (serverVersionPart > playerVersionPart) return true;
         }
-        return false;
+        return playerVersionArray.length < serverVersionArray.length;
     }
 
 

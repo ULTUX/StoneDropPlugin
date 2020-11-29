@@ -1,7 +1,3 @@
 &7A StoneDrop plugin has been updated bringing new features (&3v1.9.2):
-    &7- &6/d &7or &6/drop &7 command displays menu.
-    &7- This menu enables players to quickly change their drop preferences
-    &7and look up drop chances.
-    &7- More bug fixes.
-    &7- This message will be displayed every time this plugin is updated
-    &7to disable this message just change it in configuration.
+    - &7 Added custom messages support - now the plugin can speak your language!
+    - &7 Added delay for "ore drop disabled" message

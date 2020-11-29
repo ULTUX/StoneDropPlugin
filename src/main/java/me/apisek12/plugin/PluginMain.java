@@ -320,7 +320,7 @@ public class PluginMain extends JavaPlugin {
         if (cs2 != null){
             Set<String> keyList = cs2.getKeys(false);
             keyList.forEach((user) -> {
-                String version = (String) cs2.get(user);
+                String version = cs2.get(user).toString();
                 if (version != null) playerLastVersionPluginVersion.put(user, version);
 
             });
