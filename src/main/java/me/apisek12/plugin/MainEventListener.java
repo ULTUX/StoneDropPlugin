@@ -100,14 +100,16 @@ public class MainEventListener implements Listener {
                 World world = block.getWorld();
                 Material tool = getItemInHand(event.getPlayer()).getType();
 
-                if (!PluginMain.dropFromOres && !messageTimestamp.containsKey(event.getPlayer()) && event.getBlock().getType().toString().contains("ORE"))
+                if (!PluginMain.dropFromOres && event.getBlock().getType().toString().contains("ORE"))
                 {
                     event.setCancelled(true);
                     event.getBlock().setType(Material.AIR);
-                    event.getPlayer().sendMessage(ChatColor.RED+Message.INFO_DROP_DISABLED.toString());
-                   synchronized (messageTimestamp){
-                       messageTimestamp.put(event.getPlayer(), System.currentTimeMillis());
-                   }
+                    if (!messageTimestamp.containsKey(event.getPlayer())) {
+                        event.getPlayer().sendMessage(ChatColor.RED + Message.INFO_DROP_DISABLED.toString());
+                        synchronized (messageTimestamp) {
+                            messageTimestamp.put(event.getPlayer(), System.currentTimeMillis());
+                        }
+                    }
                     return;
                 }
 
