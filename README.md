@@ -9,7 +9,7 @@
 ## What is Stone Drop?
 
 
-This plugin gives player ability to drop some additional items while mining stone.\
+This plugin gives a player the ability to drop some additional items while mining stone.\
 What is more, it also features mystery chests, which can appear in front of player while mining.\
 Everything can be configured and changed to meet server requirements.
 
@@ -20,8 +20,8 @@ Everything can be configured and changed to meet server requirements.
 
 
 -   **Stone Drop** requires Java version 8 or higher, most likely already installed.
--   **Stone Drop** has been tested on Minecraft version **1.16.4** although it may work with previous verisons (such as **1.12**)
--   And you probably know that because this is a plugin, **Stone Drop** requires *Bukkit, Spigot or Paper* as server engine
+-   **Stone Drop** has been tested on Minecraft version **1.16.4** although it may work with previous versions (such as **1.12**)
+-   And you probably know that because this is a plugin, **Stone Drop** requires *Bukkit, Spigot or Paper* as a server engine
 
 ## Features
 
@@ -29,12 +29,12 @@ Everything can be configured and changed to meet server requirements.
 -   The plugin makes mining stone way more fun.
 -   All the items that are specified can be dropped with specified enchantment.
 -   Player can get a treasure chest spawned while mining stone.
--   Treasure chest contents and chances of being spawned are specified in config file.
--   Player can prevent specified items from dropping using command.
--   Players settings are saved into config file.
--   Every player manage their drop preferences quickly and easily by right clicking on item in the menu
--   Left clicking on the items shows drop chances for every fortune level
-## Recomendations
+-   Treasure chest contents and chances of being spawned are specified in the config file.
+-   Player can prevent specified items from dropping using the command.
+-   Players settings are saved into the config file.
+-   Every player manage their drop preferences quickly and easily by right-clicking on an item in the menu
+-   Left-clicking on the items shows drop chances for every fortune level
+## Recommendations
 
 -   Server running **PaperMC**
 -   *Java* version *8*
@@ -55,9 +55,9 @@ Everything can be configured and changed to meet server requirements.
 /drop stack - toggle (for command sender) automatic crafting of diamonds, gold, etc. into their block equivalents.\
 /drop cobble - toggle (for command sender) drop of cobblestone from stone.\
 /drop - toggle (for command sender) drop of specific material from stone.\
-/whatdrops - displays list of items that can drop, their chances and ammounts.\
-/shutdown - op/console-only command. It schedules a server closage and informs all players about it.\
-/cancelshutdown - op/console-only command. cancels shutdown if it has been initialized.
+/whatdrops - displays a list of items that can drop, their chances and amounts.\
+/shutdown - op/console-only command. It schedules a server shut down and informs all players about it.\
+/cancelshutdown - op/console-only command. Cancels shut down if it's been initialized.
 
 ## How to edit config.yml file?
 
