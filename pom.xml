@@ -10,9 +10,9 @@
     </properties>
 
 
-    <groupId>me.apisek12.plugin</groupId>
+    <groupId>codes.ultux.stonedrop</groupId>
     <artifactId>StoneDrop</artifactId>
-    <version>1.9.2.1</version>
+    <version>1.9.3</version>
 
     <repositories>
         <repository>
