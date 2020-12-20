@@ -14,6 +14,7 @@ public enum Message {
     GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS("This item drop is"),
     GUI_ITEM_DESCRIPTION_RIGHT_CLICK_TO_TOGGLE("Right click to toggle."),
     GUI_ITEM_DESCRIPTION_LEFT_CLICK_TO_SEE_DETAILS("Left click to see details."),
+    GUI_ITEM_LEVEL_IN_RANGE("Can only be found on Y"),
     COBBLE_TOGGLE_BUTTON_NAME("Drop of cobble from stone"),
     INFO_FORTUNE_0("No fortune"),
     INFO_FORTUNE_1("Fortune 1"),
@@ -24,7 +25,7 @@ public enum Message {
     GUI_SECOND_TITLE("Drop information"),
     INFO_DROP_DISABLED("Drop from ores was disabled by server administrator."),
     TREASURE_CHEST_PRIMARY("&6You have found a &2treasure &6chest!"),
-    TREASURE_CHEST_SECONDARY("&bI wonder what's inside...");
+    TREASURE_CHEST_SECONDARY("&bI wonder what's inside..."),;
     
 
 

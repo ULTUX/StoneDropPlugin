@@ -453,24 +453,38 @@ public class PluginMain extends JavaPlugin {
              DropChance oreObjectOptions = new DropChance();
              oreObjectOptions.setName(key);
             for (String fortuneLevel : Objects.requireNonNull(oreObject).getKeys(false)){
-                if (!fortuneLevel.equals("enchant")){
-                int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
-                double chance = (double) oreObject.getConfigurationSection(fortuneLevel).get("chance");
-                int min = (int) oreObject.getConfigurationSection(fortuneLevel).get("min-amount");
-                int max = (int) oreObject.getConfigurationSection(fortuneLevel).get("max-amount");
-                oreObjectOptions.setChance(level, chance);
-                oreObjectOptions.setMinDrop(level, min);
-                oreObjectOptions.setMaxDrop(level, max);
-                try {
-                    HashMap<String, Integer> enchants = (HashMap) getConfig().getConfigurationSection("chances").getConfigurationSection(key + ".enchant").getValues(false);
-                    if (enchants != null) {
-                        oreObjectOptions.setEnchant(enchants);
-                    }
-                }
-                catch (NullPointerException eA){
+                if (fortuneLevel.split("-")[0].equals("fortune")) {
+                    int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
+                    double chance = (double) oreObject.getConfigurationSection(fortuneLevel).get("chance");
+                    int min = (int) oreObject.getConfigurationSection(fortuneLevel).get("min-amount");
+                    int max = (int) oreObject.getConfigurationSection(fortuneLevel).get("max-amount");
+                    oreObjectOptions.setChance(level, chance);
+                    oreObjectOptions.setMinDrop(level, min);
+                    oreObjectOptions.setMaxDrop(level, max);
                 }
             }
+            try {
+                HashMap<String, Integer> enchants = (HashMap) getConfig().getConfigurationSection("chances").getConfigurationSection(key + ".enchant").getValues(false);
+                if (enchants.size() != 0) {
+                    oreObjectOptions.setEnchant(enchants);
+                }
+                System.out.println("TEST");
             }
+            catch (NullPointerException ignored){
+            }
+            try {
+                int minLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("minLevel");
+                int maxLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("maxLevel");
+                if (minLevel == maxLevel && minLevel == 0) throw new NullPointerException();
+                oreObjectOptions.setMinLevel(minLevel);
+                oreObjectOptions.setMaxLevel(maxLevel);
+            } catch (NullPointerException ignored){}
+            try {
+                String text = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getString("customName");
+                if (text == null) throw new NullPointerException();
+                String customName = ChatColor.translateAlternateColorCodes('&', text);
+                oreObjectOptions.setCustomName(customName);
+            } catch (NullPointerException ignored){}
             dropChances.put(oreObjectOptions.getName(), oreObjectOptions);
         }
 

@@ -73,6 +73,7 @@ public class InventorySelector implements Listener {
                 DropChance dropData = PluginMain.dropChances.get(materialName);
                 if (dropData != null) {
                     ItemStack item = new ItemStack(material);
+                    MainEventListener.applyCustomName(dropData, item);
                     ItemMeta itemMeta = item.getItemMeta();
                     if (dropData != null && dropData.getEnchant() != null)
                         dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
@@ -80,9 +81,10 @@ public class InventorySelector implements Listener {
                     String onOff;
                     if (setting.isOn()) onOff = ChatColor.GREEN + Message.INFO_ENABLED.toString();
                     else onOff = ChatColor.RED + Message.INFO_DISABLED.toString();
+                    lore.add(ChatColor.GRAY+ Message.GUI_ITEM_LEVEL_IN_RANGE.toString()+": "+ChatColor.GOLD+dropData.getMinLevel()+"-"+dropData.getMaxLevel());
+                    lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
                     lore.add("");
                     lore.add(ChatColor.DARK_GRAY + "--------------------");
-                    lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
                     lore.add(ChatColor.AQUA + Message.GUI_ITEM_DESCRIPTION_RIGHT_CLICK_TO_TOGGLE.toString());
                     lore.add(ChatColor.AQUA + Message.GUI_ITEM_DESCRIPTION_LEFT_CLICK_TO_SEE_DETAILS.toString());
                     lore.add(ChatColor.DARK_GRAY + "--------------------");

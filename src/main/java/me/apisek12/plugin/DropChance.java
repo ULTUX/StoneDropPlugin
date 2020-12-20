@@ -13,6 +13,8 @@ public class DropChance {
     private String name;
     private double nof, f1, f2, f3;
     private int minnof, maxnof, minf1, maxf1, minf2, maxf2, minf3, maxf3;
+    private int minLevel = 0, maxLevel = 256;
+    private String customName;
     private HashMap<Enchantment, Integer> enchant = new HashMap<>();
     public HashMap<Enchantment, Integer> getEnchant() {
         return enchant;
@@ -34,6 +36,31 @@ public class DropChance {
         this.maxf3 = maxf3;
         this.enchant = enchant;
     }
+
+    public int getMinLevel() {
+        return minLevel;
+    }
+
+    public void setMinLevel(int minLevel) {
+        this.minLevel = minLevel;
+    }
+
+    public int getMaxLevel() {
+        return maxLevel;
+    }
+
+    public void setMaxLevel(int maxLevel) {
+        this.maxLevel = maxLevel;
+    }
+
+    public String getCustomName() {
+        return customName;
+    }
+
+    public void setCustomName(String customName) {
+        this.customName = customName;
+    }
+
     public DropChance() {
     }
 
