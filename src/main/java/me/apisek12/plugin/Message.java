@@ -25,7 +25,7 @@ public enum Message {
     GUI_SECOND_TITLE("Drop information"),
     INFO_DROP_DISABLED("Drop from ores was disabled by server administrator."),
     TREASURE_CHEST_PRIMARY("&6You have found a &2treasure &6chest!"),
-    TREASURE_CHEST_SECONDARY("&bI wonder what's inside..."),;
+    TREASURE_CHEST_SECONDARY("&bI wonder what's inside...");
     
 
 
