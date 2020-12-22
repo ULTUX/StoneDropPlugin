@@ -18,12 +18,15 @@ chances:
       max-amount: 4
       min-amount: 3
   DIAMOND:
+    minLevel: 0
+    maxLevel: 25
+    customName: "&bCustom named diamond that is found on Y=<0, 25>!"
     fortune-0:
       chance: 0.0025
       max-amount: 1
       min-amount: 1
     fortune-1:
-      chance: 0.0025
+      chance: 0.0027
       max-amount: 2
       min-amount: 1
     fortune-2:

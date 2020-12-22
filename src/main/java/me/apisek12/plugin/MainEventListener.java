@@ -223,7 +223,7 @@ public class MainEventListener implements Listener {
             newPlayerJoined(e.getPlayer());
 
         }
-        if (isNewToUpdate(e.getPlayer().getUniqueId().toString())){
+        if (e.getPlayer().isOp() && isNewToUpdate(e.getPlayer().getUniqueId().toString())){
             displayUpdateMessage(e.getPlayer());
             PluginMain.playerLastVersionPluginVersion.remove(e.getPlayer().getUniqueId().toString());
             PluginMain.playerLastVersionPluginVersion.put(e.getPlayer().getUniqueId().toString(), PluginMain.currentPluginVersion);
@@ -328,7 +328,7 @@ public class MainEventListener implements Listener {
 
 
     private void displayUpdateMessage(Player player) {
-        Scanner reader = null;
+        Scanner reader;
         InputStream inputStream= PluginMain.plugin.getResource("update.txt");
         reader = new Scanner(inputStream, "utf-8");
         while (reader.hasNextLine()){
