@@ -242,7 +242,7 @@ public class MainEventListener implements Listener {
         block.setType(Material.CHEST);
         chestLocations.add(block.getLocation());
         player.sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
-        player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1f);
+        if (PluginMain.isVersionNew()) player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1f);
         Chest chest = (Chest) block.getState();
 
         Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
@@ -268,7 +268,7 @@ public class MainEventListener implements Listener {
     public void InventoryCloseEvent(InventoryCloseEvent event){
         if (openedChests.contains(event.getInventory())){
             Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, () -> {
-                ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, 0.8f, 0.1f);
+                if (PluginMain.isVersionNew()) ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, 0.8f, 0.1f);
                 event.getInventory().clear();
                 event.getInventory().getLocation().getBlock().setType(Material.AIR);
                 chestLocations.remove(event.getInventory().getLocation());

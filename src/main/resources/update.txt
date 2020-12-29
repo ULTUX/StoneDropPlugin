@@ -1,4 +1,1 @@
-&7A StoneDrop plugin has been updated bringing new features (&3v1.9.3):
-    - &7 default plugin command is still &6&l/drop &r&7or &6&l/d
-    - &7 Now server administrator can configure the plugin to drop custom named items.
-    - &7 It is also possible to set item drop on specific Y level range.
+&7A StoneDrop plugin has been updated (&3v1.9.3.1) fixing some bugs.
