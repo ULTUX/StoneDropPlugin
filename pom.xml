@@ -12,7 +12,7 @@
 
     <groupId>codes.ultux.stonedrop</groupId>
     <artifactId>StoneDrop</artifactId>
-    <version>1.9.3.1</version>
+    <version>1.9.4</version>
 
     <repositories>
         <repository>
