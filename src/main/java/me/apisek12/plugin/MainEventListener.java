@@ -233,7 +233,7 @@ public class MainEventListener implements Listener {
 
     @EventHandler
     public void InventoryOpenEvent(InventoryOpenEvent event){
-        if (chestLocations.contains(event.getInventory().getLocation())){
+        if (event.getInventory().getHolder() instanceof Chest && chestLocations.contains(((Chest)(event.getInventory().getHolder())).getLocation())) {
             openedChests.add(event.getInventory());
         }
     }
@@ -241,11 +241,11 @@ public class MainEventListener implements Listener {
         Block block = location.getBlock();
         block.setType(Material.CHEST);
         chestLocations.add(block.getLocation());
-        player.sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
+        if (PluginMain.isVersionNew()) player.sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
         if (PluginMain.isVersionNew()) player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1f);
         Chest chest = (Chest) block.getState();
 
-        Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
+        if (PluginMain.isVersionNew()) Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
 
         for (Material material : PluginMain.chestContent.keySet()) {
             if (Chance.chance(PluginMain.chestContent.get(material).getChance())) {
@@ -253,7 +253,7 @@ public class MainEventListener implements Listener {
                     ItemStack item = new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax()));
                     ItemMeta meta = item.getItemMeta();
                     PluginMain.chestContent.get(material).getEnchantment().forEach((whatToEnchant, level) -> {
-                        meta.addEnchant(whatToEnchant, level, true);
+                        if (whatToEnchant != null) meta.addEnchant(whatToEnchant, level, true);
                     });
                     item.setItemMeta(meta);
                     int freeSlot = getRandomFreeSlot(chest.getBlockInventory());
@@ -270,10 +270,10 @@ public class MainEventListener implements Listener {
             Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, () -> {
                 if (PluginMain.isVersionNew()) ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, 0.8f, 0.1f);
                 event.getInventory().clear();
-                event.getInventory().getLocation().getBlock().setType(Material.AIR);
-                chestLocations.remove(event.getInventory().getLocation());
+                chestLocations.remove(((Chest)event.getInventory().getHolder()).getLocation());
                 openedChests.remove(event.getInventory());
-                event.getInventory().getLocation().getWorld().spawnParticle(Particle.CLOUD, event.getInventory().getLocation(), 500, 0, 0, 0);
+                if (event.getInventory().getHolder() instanceof Chest) ((Chest)event.getInventory().getHolder()).getLocation().getBlock().setType(Material.AIR);
+                if (PluginMain.isVersionNew()) event.getInventory().getLocation().getWorld().spawnParticle(Particle.CLOUD, event.getInventory().getLocation(), 500, 0, 0, 0);
             }, 20);
         }
     }

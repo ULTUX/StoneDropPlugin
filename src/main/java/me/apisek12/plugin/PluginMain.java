@@ -1,6 +1,7 @@
 package me.apisek12.plugin;
 
 import org.bukkit.*;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -468,22 +469,25 @@ public class PluginMain extends JavaPlugin {
                 if (enchants.size() != 0) {
                     oreObjectOptions.setEnchant(enchants);
                 }
-                System.out.println("TEST");
             }
             catch (NullPointerException ignored){
             }
             try {
-                int minLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("minLevel");
-                int maxLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("maxLevel");
-                if (minLevel == maxLevel && minLevel == 0) throw new NullPointerException();
+                int minLevel = -1, maxLevel = -1;
+                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).contains("minLevel", true)) minLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("minLevel");
+                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).contains("maxLevel", true)) maxLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("maxLevel");
+                if (minLevel == maxLevel && minLevel == -1) throw new NullPointerException();
                 oreObjectOptions.setMinLevel(minLevel);
                 oreObjectOptions.setMaxLevel(maxLevel);
             } catch (NullPointerException ignored){}
             try {
-                String text = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getString("customName");
-                if (text == null) throw new NullPointerException();
-                String customName = ChatColor.translateAlternateColorCodes('&', text);
-                oreObjectOptions.setCustomName(customName);
+                String text;
+                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).contains("customName", true)) {
+                    text = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getString("customName");
+                    String customName = ChatColor.translateAlternateColorCodes('&', text);
+                    oreObjectOptions.setCustomName(customName);
+                }
+
             } catch (NullPointerException ignored){}
             dropChances.put(oreObjectOptions.getName(), oreObjectOptions);
         }
