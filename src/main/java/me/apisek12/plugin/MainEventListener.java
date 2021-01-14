@@ -5,10 +5,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -55,13 +52,18 @@ public class MainEventListener implements Listener {
     }
 
     private void giveExp(Player player){
-        float experienceToGive = PluginMain.experienceToDrop/((float)Math.sqrt((double)player.getLevel()+1));
-        if (player.getExp() == 1.0 || player.getExp()+experienceToGive >= 1.0){
-            player.setLevel(player.getLevel() + (int)(player.getExp()+experienceToGive));
-            player.setExp((player.getExp() + experienceToGive)-((int)(player.getExp()+experienceToGive)));
-        }
-        else {
-            player.setExp(player.getExp()+ experienceToGive);
+        if (!PluginMain.dropExpOrb){
+            float experienceToGive = PluginMain.experienceToDrop/((float)Math.sqrt((double)player.getLevel()+1));
+            if (player.getExp() == 1.0 || player.getExp()+experienceToGive >= 1.0){
+                player.setLevel(player.getLevel() + (int)(player.getExp()+experienceToGive));
+                player.setExp((player.getExp() + experienceToGive)-((int)(player.getExp()+experienceToGive)));
+            }
+            else {
+                player.setExp(player.getExp()+ experienceToGive);
+            }
+        } else {
+            ExperienceOrb experienceOrb = (ExperienceOrb) player.getLocation().getWorld().spawnEntity(player.getLocation(), EntityType.EXPERIENCE_ORB);
+            experienceOrb.setExperience((int) PluginMain.experienceToDrop);
         }
 
 

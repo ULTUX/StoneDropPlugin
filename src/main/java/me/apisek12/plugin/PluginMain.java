@@ -45,6 +45,7 @@ public class PluginMain extends JavaPlugin {
     public static boolean isNetherite = false;
     static HashMap<String, String> playerLastVersionPluginVersion = new HashMap<>();
     public static String currentPluginVersion;
+    public static boolean dropExpOrb = false;
 
     static boolean isVersionNew(){
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
@@ -273,6 +274,7 @@ public class PluginMain extends JavaPlugin {
         //Check if plugin should block item dropping from ores
         dropFromOres = getConfig().getBoolean("ore-drop");
         displayUpdateMessage = getConfig().getBoolean("display-update-message");
+        dropExpOrb = getConfig().getBoolean("drop-exp-orb");
         if (!dropFromOres) getServer().getConsoleSender().sendMessage("["+this.getName()+"] Drop from ores is now disabled");
 
         //Check if version is < 1.8.9

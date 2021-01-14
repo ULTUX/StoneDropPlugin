@@ -220,8 +220,12 @@ disabled-worlds:
 
 #Should ores drop items
 ore-drop: true
-
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Should the items ne dropped directly into the inventory
 drop-to-inventory: false
-
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Should display "The plugin has been updated" message
 display-update-message: true
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Should exp be added to player stats or dropped as exp orb - WARNING: in that case experience value has to be >= 1.0
+drop-exp-orb: false
