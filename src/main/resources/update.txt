@@ -1,1 +1,2 @@
-&7A StoneDrop plugin has been updated (&3v1.9.3.1) fixing some bugs and fixing MC 1.8 compatibility.
+&7A StoneDrop plugin has been updated (&3v1.9.5), changelog:
+    - &7You can now set exp to be &6dropped as exp orb.
