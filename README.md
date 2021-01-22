@@ -1,4 +1,4 @@
-![Stone Drop Plugin Logo (Image by Ponanoix)](https://camo.githubusercontent.com/2ec460f53b6341d50f5df8bc131d7615334c0d24/68747470733a2f2f63646e2e646973636f72646170702e636f6d2f6174746163686d656e74732f3235323037343839303435333138383630382f3630363936393234333538353437383636362f6c6f676f5f706c7567696e752e706e67)
+![Stone Drop Plugin Logo (Image by Ponanoix)](.github/banner.png)
 
 ![](https://img.shields.io/github/v/release/ULTUX/StoneDropPlugin)
 ![](https://img.shields.io/github/issues/ULTUX/StoneDropPlugin)
