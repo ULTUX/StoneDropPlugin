@@ -16,7 +16,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -107,16 +106,19 @@ public class MainEventListener implements Listener {
                 World world = block.getWorld();
                 Material tool = getItemInHand(event.getPlayer()).getType();
 
-                if (!PluginMain.dropFromOres && event.getBlock().getType().toString().contains("ORE"))
+                if (event.getBlock().getType().toString().contains("ORE"))
                 {
-                    event.setCancelled(true);
-                    event.getBlock().setType(Material.AIR);
-                    if (!messageTimestamp.containsKey(event.getPlayer())) {
-                        event.getPlayer().sendMessage(ChatColor.RED + Message.INFO_DROP_DISABLED.toString());
-                        synchronized (messageTimestamp) {
-                            messageTimestamp.put(event.getPlayer(), System.currentTimeMillis());
+                    if (PluginMain.dropFromOres && Chance.chance(PluginMain.oreDropChance)) return;
+                    if (!PluginMain.dropFromOres) {
+                        if (!messageTimestamp.containsKey(event.getPlayer())) {
+                            event.getPlayer().sendMessage(ChatColor.RED + Message.INFO_DROP_DISABLED.toString());
+                            synchronized (messageTimestamp) {
+                                messageTimestamp.put(event.getPlayer(), System.currentTimeMillis());
+                            }
                         }
                     }
+                    event.setCancelled(true);
+                    event.getBlock().setType(Material.AIR);
                     return;
                 }
 

@@ -46,6 +46,7 @@ public class PluginMain extends JavaPlugin {
     public static String currentPluginVersion;
     public static boolean dropExpOrb = false;
     public static boolean treasureChestBroadcast = true;
+    public static double oreDropChance = 1.0f;
 
     static boolean isVersionNew(){
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
@@ -278,6 +279,7 @@ public class PluginMain extends JavaPlugin {
         displayUpdateMessage = getConfig().getBoolean("display-update-message");
         dropExpOrb = getConfig().getBoolean("drop-exp-orb");
         treasureChestBroadcast = getConfig().getBoolean("treasure-broadcast");
+        oreDropChance = getConfig().getDouble("ore-drop-chance");
         if (!dropFromOres) getServer().getConsoleSender().sendMessage("["+this.getName()+"] Drop from ores is now disabled");
 
         //Check if version is < 1.8.9

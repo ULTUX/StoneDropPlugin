@@ -221,6 +221,9 @@ disabled-worlds:
 #Should ores drop items
 ore-drop: true
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#If ore-drop is true -> whats the chance to drop item from ore when mining it
+ore-drop-chance: 1.0
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Should the items ne dropped directly into the inventory
 drop-to-inventory: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -230,5 +233,6 @@ display-update-message: true
 #Should exp be added to player stats or dropped as exp orb - WARNING: in that case experience value has to be >= 1.0
 drop-exp-orb: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Shoud a message be broadcasted when a player finds a chest
+#Should a message be broadcasted when a player finds a chest
 treasure-broadcast: true
+
