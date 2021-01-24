@@ -229,3 +229,6 @@ display-update-message: true
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Should exp be added to player stats or dropped as exp orb - WARNING: in that case experience value has to be >= 1.0
 drop-exp-orb: false
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Shoud a message be broadcasted when a player finds a chest
+treasure-broadcast: true

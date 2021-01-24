@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +45,7 @@ public class PluginMain extends JavaPlugin {
     static HashMap<String, String> playerLastVersionPluginVersion = new HashMap<>();
     public static String currentPluginVersion;
     public static boolean dropExpOrb = false;
+    public static boolean treasureChestBroadcast = true;
 
     static boolean isVersionNew(){
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
@@ -252,10 +252,12 @@ public class PluginMain extends JavaPlugin {
         File file = new File(plugin.getDataFolder()+File.separator+"lang.yml");
         if (!file.exists()) {
             getConsoleSender().sendMessage("lang.yml file has not been found, generating a new one...");
-            try (BufferedWriter outputStream = new BufferedWriter(new FileWriter(file))) {
-                for (Message message: Message.values()){
-                    outputStream.write(message.name()+": "+message+"\n");
-                }
+            YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
+            for (Message message: Message.values()){
+                    configuration.set(message.name(), message.toString());
+            }
+            try {
+                configuration.save(file);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -275,6 +277,7 @@ public class PluginMain extends JavaPlugin {
         dropFromOres = getConfig().getBoolean("ore-drop");
         displayUpdateMessage = getConfig().getBoolean("display-update-message");
         dropExpOrb = getConfig().getBoolean("drop-exp-orb");
+        treasureChestBroadcast = getConfig().getBoolean("treasure-broadcast");
         if (!dropFromOres) getServer().getConsoleSender().sendMessage("["+this.getName()+"] Drop from ores is now disabled");
 
         //Check if version is < 1.8.9
