@@ -267,6 +267,7 @@ public class MainEventListener implements Listener {
         }
     }
 
+
     @EventHandler
     public void InventoryCloseEvent(InventoryCloseEvent event){
         if (openedChests.contains(event.getInventory())){
