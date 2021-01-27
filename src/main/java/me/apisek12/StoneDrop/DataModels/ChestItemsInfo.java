@@ -1,6 +1,7 @@
-package me.apisek12.plugin;
+package me.apisek12.StoneDrop.DataModels;
 
 
+import me.apisek12.StoneDrop.PluginMain;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 
@@ -25,7 +26,7 @@ public class ChestItemsInfo {
         this.min = min;
         this.max = max;
         enchantment.forEach((name, level) ->{
-            if (PluginMain.isVersionNew()){
+            if (PluginMain.plugin.isVersionNew()){
                 try {
                     this.enchantment.put((Enchantment) Enchantment.class.getMethod("getByKey", NamespacedKey.class).invoke(Enchantment.class, NamespacedKey.minecraft(name)), level);
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

@@ -1,6 +1,11 @@
-package me.apisek12.plugin;
+package me.apisek12.StoneDrop.EventListeners;
 
 
+import me.apisek12.StoneDrop.DataModels.DropChance;
+import me.apisek12.StoneDrop.DataModels.Setting;
+import me.apisek12.StoneDrop.Enums.Message;
+import me.apisek12.StoneDrop.PluginMain;
+import me.apisek12.StoneDrop.Utils.Chance;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -22,10 +27,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 
-public class MainEventListener implements Listener {
+public class BlockBreakEventListener implements Listener {
 
     private final HashMap<String, DropChance> dropChances = PluginMain.dropChances;
-    static String[] set; //Ore names
+    public static String[] set; //Ore names
     static final Map<Player, Long> messageTimestamp = new HashMap<>();
     private static final long ORE_MESSAGE_DELAY = 10000;
     private ArrayList<Inventory> openedChests = new ArrayList<>();
@@ -69,7 +74,7 @@ public class MainEventListener implements Listener {
     }
     ItemStack getItemInHand(Player player){
         ItemStack tool = null;
-        if (PluginMain.isVersionNew()){
+        if (PluginMain.plugin.isVersionNew()){
             try {
                 tool = ((ItemStack) PlayerInventory.class.getMethod("getItemInMainHand").invoke(player.getInventory()));
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -246,11 +251,11 @@ public class MainEventListener implements Listener {
         block.setType(Material.CHEST);
         chestLocations.add(block.getLocation());
         if (PluginMain.treasureChestBroadcast) player.getServer().broadcastMessage(ChatColor.GOLD+ChatColor.translateAlternateColorCodes('&', Message.TREASURE_CHEST_BROADCAST.toString().replace("@name", player.getName())));
-        if (PluginMain.isVersionNew()) player.sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
-        if (PluginMain.isVersionNew()) player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.3f, 1f);
+        if (PluginMain.plugin.isVersionNew()) player.sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
+        if (PluginMain.plugin.isVersionNew()) player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.3f, 1f);
         Chest chest = (Chest) block.getState();
 
-        if (PluginMain.isVersionNew()) Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
+        if (PluginMain.plugin.isVersionNew()) Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
 
         for (Material material : PluginMain.chestContent.keySet()) {
             if (Chance.chance(PluginMain.chestContent.get(material).getChance())) {
@@ -274,12 +279,12 @@ public class MainEventListener implements Listener {
     public void InventoryCloseEvent(InventoryCloseEvent event){
         if (openedChests.contains(event.getInventory())){
             Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, () -> {
-                if (PluginMain.isVersionNew()) ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, 0.4f, 0.1f);
+                if (PluginMain.plugin.isVersionNew()) ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, 0.4f, 0.1f);
                 event.getInventory().clear();
                 chestLocations.remove(((Chest)event.getInventory().getHolder()).getLocation());
                 openedChests.remove(event.getInventory());
                 if (event.getInventory().getHolder() instanceof Chest) ((Chest)event.getInventory().getHolder()).getLocation().getBlock().setType(Material.AIR);
-                if (PluginMain.isVersionNew()) event.getInventory().getLocation().getWorld().spawnParticle(Particle.CLOUD, event.getInventory().getLocation(), 500, 0, 0, 0);
+                if (PluginMain.plugin.isVersionNew()) event.getInventory().getLocation().getWorld().spawnParticle(Particle.CLOUD, event.getInventory().getLocation(), 500, 0, 0, 0);
             }, 20);
         }
     }

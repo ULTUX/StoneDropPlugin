@@ -1,5 +1,12 @@
-package me.apisek12.plugin;
+package me.apisek12.StoneDrop;
 
+import me.apisek12.StoneDrop.DataModels.ChestItemsInfo;
+import me.apisek12.StoneDrop.DataModels.DropChance;
+import me.apisek12.StoneDrop.Enums.Message;
+import me.apisek12.StoneDrop.DataModels.Setting;
+import me.apisek12.StoneDrop.Apis.Metrics;
+import me.apisek12.StoneDrop.Apis.Updater;
+import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -11,7 +18,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
@@ -24,37 +30,37 @@ import static org.bukkit.Bukkit.getConsoleSender;
 import static org.bukkit.Bukkit.getPluginManager;
 
 public class PluginMain extends JavaPlugin {
-    static Plugin plugin = null;
+    public static PluginMain plugin = null;
 
-    static HashMap<String, HashMap<String, Setting>> playerSettings = new HashMap<>(); //These are settings set by players
-    static HashMap<String, DropChance> dropChances = new HashMap<>(); //These are chances set in config file String-material
-    static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
-    static float experienceToDrop;
-    static double chestSpawnRate = 0;
+    public static HashMap<String, HashMap<String, Setting>> playerSettings = new HashMap<>(); //These are settings set by players
+    public static HashMap<String, DropChance> dropChances = new HashMap<>(); //These are chances set in config file String-material
+    public static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
+    public static float experienceToDrop;
+    public static double chestSpawnRate = 0;
     private static boolean isDisabled = false;
     private static BukkitTask shutdownThread = null;
-    static ArrayList<String> disabledWorlds = null;
+    public static ArrayList<String> disabledWorlds = null;
     private static FileConfiguration playerData = null;
     private static FileConfiguration langData = null;
-    static ArrayList<Material> dropBlocks = null;
+    public static ArrayList<Material> dropBlocks = null;
     static public boolean dropFromOres = true;
     public static boolean dropIntoInventory = false;
     public static boolean displayUpdateMessage = true;
     public static Material wooden = null, golden = null;
     public static boolean isNetherite = false;
-    static HashMap<String, String> playerLastVersionPluginVersion = new HashMap<>();
+    public static HashMap<String, String> playerLastVersionPluginVersion = new HashMap<>();
     public static String currentPluginVersion;
     public static boolean dropExpOrb = false;
     public static boolean treasureChestBroadcast = true;
     public static double oreDropChance = 1.0f;
 
-    static boolean isVersionNew(){
+    public boolean isVersionNew(){
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
         return Integer.parseInt(version[1]) > 12;
     }
 
 
-    static boolean isIsDisabled() {
+    public static boolean isIsDisabled() {
         return isDisabled;
     }
 
@@ -136,14 +142,14 @@ public class PluginMain extends JavaPlugin {
                                 player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD +" is now "+ChatColor.RED+"disabled");
 
                         } else {
-                            for (int i = 0; i < MainEventListener.set.length; i++) {
-                                if (!MainEventListener.set[i].equals("STACK") && !MainEventListener.set[i].equals("COBBLE")){
-                                    if (args[0].equalsIgnoreCase(MainEventListener.set[i])) {
-                                        setting.get(MainEventListener.set[i]).setOn(!setting.get(MainEventListener.set[i]).isOn());
-                                        if (setting.get(MainEventListener.set[i]).isOn()) {
-                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MainEventListener.set[i] + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
+                            for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
+                                if (!BlockBreakEventListener.set[i].equals("STACK") && !BlockBreakEventListener.set[i].equals("COBBLE")){
+                                    if (args[0].equalsIgnoreCase(BlockBreakEventListener.set[i])) {
+                                        setting.get(BlockBreakEventListener.set[i]).setOn(!setting.get(BlockBreakEventListener.set[i]).isOn());
+                                        if (setting.get(BlockBreakEventListener.set[i]).isOn()) {
+                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + BlockBreakEventListener.set[i] + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
                                         } else {
-                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + MainEventListener.set[i] + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
+                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + BlockBreakEventListener.set[i] + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
                                         }
                                         wasOk = true;
                                     }
@@ -151,7 +157,7 @@ public class PluginMain extends JavaPlugin {
                         }
                     }
                 if (!wasOk){
-                    player.sendMessage(ChatColor.GRAY+Message.COMMAND_ARGUMENT_UNKNOWN.toString());
+                    player.sendMessage(ChatColor.GRAY+ Message.COMMAND_ARGUMENT_UNKNOWN.toString());
 
                 }
 
@@ -271,7 +277,7 @@ public class PluginMain extends JavaPlugin {
         currentPluginVersion = getDescription().getVersion();
         generateConfig();
         generateLang();
-        MainEventListener.initialize();
+        BlockBreakEventListener.initialize();
         //Check if plugin should drop items into inventory
         dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
         //Check if plugin should block item dropping from ores
@@ -284,7 +290,7 @@ public class PluginMain extends JavaPlugin {
 
         //Check if version is < 1.8.9
         try {
-            if (PluginMain.isVersionNew()) {
+            if (this.isVersionNew()) {
                 golden = Material.getMaterial(Material.class.getField("GOLDEN_PICKAXE").getName());
                 wooden = Material.getMaterial(Material.class.getField("WOODEN_PICKAXE").getName());
                 isNetherite = true;
@@ -337,7 +343,7 @@ public class PluginMain extends JavaPlugin {
         loadChances();
         loadChestChances();
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GREEN + "Configuration Loaded, Plugin enabled!");
-        this.getServer().getPluginManager().registerEvents(new MainEventListener(), this);
+        this.getServer().getPluginManager().registerEvents(new BlockBreakEventListener(), this);
         getPluginManager().registerEvents(new InventorySelector(), this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             if (Bukkit.getServer().getOnlinePlayers().size() > 0){
@@ -424,14 +430,14 @@ public class PluginMain extends JavaPlugin {
             }
     }, 40L, 80L);
 
-        MainEventListener.set = new String[dropChances.keySet().toArray().length];
+        BlockBreakEventListener.set = new String[dropChances.keySet().toArray().length];
         for (int i = 0; i < dropChances.keySet().toArray().length; i++) {
-            MainEventListener.set[i] = (String) dropChances.keySet().toArray()[i];
+            BlockBreakEventListener.set[i] = (String) dropChances.keySet().toArray()[i];
         }
 
         playerSettings.forEach((name, settings) -> {
-            for (int i = 0; i < MainEventListener.set.length; i++) {
-                if (!settings.containsKey(MainEventListener.set[i])) settings.put(MainEventListener.set[i], new Setting(true, MainEventListener.set[i]));
+            for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
+                if (!settings.containsKey(BlockBreakEventListener.set[i])) settings.put(BlockBreakEventListener.set[i], new Setting(true, BlockBreakEventListener.set[i]));
             }
         });
     }

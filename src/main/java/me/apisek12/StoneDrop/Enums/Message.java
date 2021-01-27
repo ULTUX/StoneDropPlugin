@@ -1,4 +1,4 @@
-package me.apisek12.plugin;
+package me.apisek12.StoneDrop.Enums;
 
 import org.bukkit.ChatColor;
 
@@ -40,7 +40,7 @@ public enum Message {
 
     public void setDefaultMessage(String defaultMessage) {
         String toSet = ChatColor.translateAlternateColorCodes('&', defaultMessage);
-        if (toSet == "") return;
+        if (toSet.equals("")) return;
         this.defaultMessage = toSet;
     }
 

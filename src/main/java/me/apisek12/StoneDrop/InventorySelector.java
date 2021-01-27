@@ -1,5 +1,9 @@
-package me.apisek12.plugin;
+package me.apisek12.StoneDrop;
 
+import me.apisek12.StoneDrop.DataModels.DropChance;
+import me.apisek12.StoneDrop.Enums.Message;
+import me.apisek12.StoneDrop.DataModels.Setting;
+import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -60,7 +64,7 @@ public class InventorySelector implements Listener {
 
         refreshCobbleObject();
         reloadInventory();
-        if (PluginMain.isVersionNew()) player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 255, 0);
+        if (PluginMain.plugin.isVersionNew()) player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 255, 0);
         player.openInventory(selector);
     }
 
@@ -73,7 +77,7 @@ public class InventorySelector implements Listener {
                 DropChance dropData = PluginMain.dropChances.get(materialName);
                 if (dropData != null) {
                     ItemStack item = new ItemStack(material);
-                    MainEventListener.applyCustomName(dropData, item);
+                    BlockBreakEventListener.applyCustomName(dropData, item);
                     ItemMeta itemMeta = item.getItemMeta();
                     if (dropData != null && dropData.getEnchant() != null)
                         dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
@@ -212,7 +216,7 @@ public class InventorySelector implements Listener {
     }
     private void openSecondaryWindow(ArrayList<ItemStack> items){
         willBeUsed = false;
-        if (PluginMain.isVersionNew()) player.playSound(player.getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
+        if (PluginMain.plugin.isVersionNew()) player.playSound(player.getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
         secondaryWindow = Bukkit.createInventory(null, 27, ChatColor.DARK_AQUA+Message.GUI_SECOND_TITLE.toString());
         AtomicInteger i = new AtomicInteger(10);
         items.forEach(item -> secondaryWindow.setItem(i.getAndAdd(2), item));
@@ -237,7 +241,7 @@ public class InventorySelector implements Listener {
                     inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
                 }
                 inventorySelector.reloadInventory();
-                if (PluginMain.isVersionNew()) player.playSound(player.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, 255, 1);
+                if (PluginMain.plugin.isVersionNew()) player.playSound(player.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, 255, 1);
             } else if (event.isLeftClick()) {
                if (event.getCurrentItem() != null && inventorySelector.items.containsKey(clickedItem)){
                    inventorySelector.willBeUsed = true;
@@ -249,7 +253,7 @@ public class InventorySelector implements Listener {
         if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).secondaryWindow) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) return;
-            if (PluginMain.isVersionNew()) ((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Sound.ENTITY_CHICKEN_EGG, 255, 1);
+            if (PluginMain.plugin.isVersionNew()) ((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Sound.ENTITY_CHICKEN_EGG, 255, 1);
             checkForFuncButtonsPressed(event);
         }
     }
@@ -258,11 +262,11 @@ public class InventorySelector implements Listener {
     public void InventoryCloseEvent(InventoryCloseEvent event) {
         if (objects.containsKey(event.getPlayer())) {
             if (event.getInventory().equals(objects.get(event.getPlayer()).selector)){
-                if (PluginMain.isVersionNew()) ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
+                if (PluginMain.plugin.isVersionNew()) ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
                 if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
             }
             else if (event.getInventory().equals(objects.get(event.getPlayer()).secondaryWindow)){
-                if (PluginMain.isVersionNew()) ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
+                if (PluginMain.plugin.isVersionNew()) ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, 255, 1);
                 if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
             }
         }

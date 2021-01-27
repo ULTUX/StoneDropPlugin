@@ -1,4 +1,4 @@
-package me.apisek12.plugin;
+package me.apisek12.StoneDrop.DataModels;
 
 import org.bukkit.Material;
 
