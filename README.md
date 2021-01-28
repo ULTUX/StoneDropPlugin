@@ -26,23 +26,22 @@ Everything can be configured and changed to meet server requirements.
 ## Features
 
 
--   GUI
--   Language support *(lang.yml)*
--   Enchant support
--   Item naming support
--   Fortune enchantment affects chances
--   Set what blocks are affected by plugin
--   Disable plugin in specific worlds
--   Disable drop from ores
--   Set chance of getting drop from ores
--   Set items drop directly to inventory
--   Set exp orbs to be spawned *(Mending support)*
--   Configurable required Y level range for an item to spawn
+-   GUI.
+-   Language support *(lang.yml)*.
+-   Enchant support.
+-   Item naming support.
+-   Fortune enchantment affects chances.
+-   Set what blocks are affected by plugin.
+-   Disable plugin in specific worlds.
+-   Disable drop from ores.
+-   Set chance of getting drop from ores.
+-   Set items drop directly to inventory.
+-   Set exp orbs to be spawned *(Mending support)*.
+-   Configurable required Y level range for an item to spawn.
 -   Player can find a treasure chest while mining stone.
--   Every player manage their drop preferences quickly and easily by right-clicking on an item in the menu
--   Left-clicking on the items shows drop chances for every fortune level
-
-**And more**
+-   Every player manage their drop preferences quickly and easily by right-clicking on an item in the menu.
+-   Left-clicking on the items shows drop chances for every fortune level.\
+**And more!**
 ## Recommendations
 
 -   Server running **PaperMC**
