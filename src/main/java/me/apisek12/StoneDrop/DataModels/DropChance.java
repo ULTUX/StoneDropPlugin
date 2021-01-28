@@ -1,6 +1,7 @@
-package me.apisek12.plugin;
+package me.apisek12.StoneDrop.DataModels;
 
 
+import me.apisek12.StoneDrop.PluginMain;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -66,7 +67,7 @@ public class DropChance {
 
     public void setEnchant(HashMap<String, Integer> enchant) {
         enchant.forEach((enchantName, level) ->{
-            if (PluginMain.isVersionNew()) {
+            if (PluginMain.plugin.isVersionNew()) {
                 try {
                     this.enchant.put((Enchantment) Enchantment.class.getMethod("getByKey", NamespacedKey.class).invoke(Enchantment.class, NamespacedKey.minecraft(enchantName)), level);
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

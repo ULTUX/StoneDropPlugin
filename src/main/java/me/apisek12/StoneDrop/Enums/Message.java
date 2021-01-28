@@ -1,11 +1,11 @@
-package me.apisek12.plugin;
+package me.apisek12.StoneDrop.Enums;
 
 import org.bukkit.ChatColor;
 
 public enum Message {
 
     PERMISSION_MISSING("You don't have permission to use that command!"),
-    COMMAND_ARGUMENT_UNKNOWN("Unknown argument!\\nCommand should look like:\\n &6/drop <info, stack, DROPPABLE_NAME>"),
+    COMMAND_ARGUMENT_UNKNOWN("Unknown argument!\nCommand should look like:\n &6/drop <info, stack, DROPPABLE_NAME>"),
     GUI_TITLE("Item Drop Chances"),
     GUI_EXIT_BUTTON("Exit"),
     GUI_BACK_BUTTON("Back"),
@@ -40,7 +40,7 @@ public enum Message {
 
     public void setDefaultMessage(String defaultMessage) {
         String toSet = ChatColor.translateAlternateColorCodes('&', defaultMessage);
-        if (toSet == "") return;
+        if (toSet.equals("")) return;
         this.defaultMessage = toSet;
     }
 
