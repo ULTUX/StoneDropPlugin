@@ -488,15 +488,15 @@ public class PluginMain extends JavaPlugin {
             }
             try {
                 int minLevel = -1, maxLevel = -1;
-                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).contains("minLevel", true)) minLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("minLevel");
-                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).contains("maxLevel", true)) maxLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("maxLevel");
+                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).isSet("minLevel")) minLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("minLevel");
+                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).isSet("maxLevel")) maxLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("maxLevel");
                 if (minLevel == maxLevel && minLevel == -1) throw new NullPointerException();
                 oreObjectOptions.setMinLevel(minLevel);
                 oreObjectOptions.setMaxLevel(maxLevel);
             } catch (NullPointerException ignored){}
             try {
                 String text;
-                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).contains("customName", true)) {
+                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).isSet("customName")) {
                     text = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getString("customName");
                     String customName = ChatColor.translateAlternateColorCodes('&', text);
                     oreObjectOptions.setCustomName(customName);

@@ -25,6 +25,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.logging.Level;
 
 
 public class BlockBreakEventListener implements Listener {
@@ -190,10 +191,16 @@ public class BlockBreakEventListener implements Listener {
                                 DropChance oreSettings = dropChances.get(set[i]);
                                 if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
                                     if (Chance.chance(dropChances.get(set[i]).getNof()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
-                                        ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof()));
-                                        applyEnchants(event, oreSettings, itemToDrop);
-                                        applyCustomName(oreSettings, itemToDrop);
-                                        dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
+                                        try {
+                                            ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof()));
+                                            applyEnchants(event, oreSettings, itemToDrop);
+                                            applyCustomName(oreSettings, itemToDrop);
+                                            dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
+                                        }
+                                        catch (NullPointerException e){
+                                            PluginMain.plugin.getLogger().log(Level.WARNING, "Material: "+set[i]+" does not exist in this minecraft version, something is probably not properly set in config.yml file.");
+                                        }
+
                                     }
                                 }
                             }
