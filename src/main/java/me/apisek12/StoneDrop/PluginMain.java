@@ -29,19 +29,11 @@ import static org.bukkit.Bukkit.getPluginManager;
 public class PluginMain extends JavaPlugin {
     public static PluginMain plugin = null;
 
-<<<<<<< HEAD:src/main/java/me/apisek12/plugin/PluginMain.java
-    static LinkedHashMap<String, LinkedHashMap<String, Setting>> playerSettings = new LinkedHashMap<>(); //These are settings set by players
-    static LinkedHashMap<String, DropChance> dropChances = new LinkedHashMap<>(); //These are chances set in config file String-material
-    static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
-    static float experienceToDrop;
-    static double chestSpawnRate = 0;
-=======
-    public static HashMap<String, HashMap<String, Setting>> playerSettings = new HashMap<>(); //These are settings set by players
-    public static HashMap<String, DropChance> dropChances = new HashMap<>(); //These are chances set in config file String-material
+    public static LinkedHashMap<String, LinkedHashMap<String, Setting>> playerSettings = new LinkedHashMap<>(); //These are settings set by players
+    public static LinkedHashMap<String, DropChance> dropChances = new LinkedHashMap<>(); //These are chances set in config file String-material
     public static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
     public static float experienceToDrop;
     public static double chestSpawnRate = 0;
->>>>>>> 67fcf035a83b02e7cc1c7b303a2115e87b362614:src/main/java/me/apisek12/StoneDrop/PluginMain.java
     private static boolean isDisabled = false;
     private static BukkitTask shutdownThread = null;
     public static ArrayList<String> disabledWorlds = null;

@@ -29,13 +29,8 @@ import java.util.*;
 
 public class BlockBreakEventListener implements Listener {
 
-<<<<<<< HEAD:src/main/java/me/apisek12/plugin/MainEventListener.java
     private final LinkedHashMap<String, DropChance> dropChances = PluginMain.dropChances;
-    static String[] set; //Ore names
-=======
-    private final HashMap<String, DropChance> dropChances = PluginMain.dropChances;
     public static String[] set; //Ore names
->>>>>>> 67fcf035a83b02e7cc1c7b303a2115e87b362614:src/main/java/me/apisek12/StoneDrop/EventListeners/BlockBreakEventListener.java
     static final Map<Player, Long> messageTimestamp = new HashMap<>();
     private static final long ORE_MESSAGE_DELAY = 10000;
     private ArrayList<Inventory> openedChests = new ArrayList<>();
