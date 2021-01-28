@@ -15,10 +15,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static org.bukkit.Bukkit.getConsoleSender;
 import static org.bukkit.Bukkit.getPluginManager;
@@ -26,8 +23,8 @@ import static org.bukkit.Bukkit.getPluginManager;
 public class PluginMain extends JavaPlugin {
     static Plugin plugin = null;
 
-    static HashMap<String, HashMap<String, Setting>> playerSettings = new HashMap<>(); //These are settings set by players
-    static HashMap<String, DropChance> dropChances = new HashMap<>(); //These are chances set in config file String-material
+    static LinkedHashMap<String, LinkedHashMap<String, Setting>> playerSettings = new LinkedHashMap<>(); //These are settings set by players
+    static LinkedHashMap<String, DropChance> dropChances = new LinkedHashMap<>(); //These are chances set in config file String-material
     static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
     static float experienceToDrop;
     static double chestSpawnRate = 0;
@@ -104,7 +101,7 @@ public class PluginMain extends JavaPlugin {
             Player player = (Player) sender;
             if (command.getName().equalsIgnoreCase("drop")){
                 if (player.hasPermission("stonedrop.drop")){
-                    HashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
+                    LinkedHashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
                     boolean wasOk = false;
                     if (args.length == 0 || (args.length == 1 && args[0] == "info")){
 //                        playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)-> {
@@ -233,7 +230,9 @@ public class PluginMain extends JavaPlugin {
 
     static private void generateConfig(){
         File file = new File(plugin.getDataFolder()+File.separator+"config.yml");
+        File folderFile = new File(plugin.getDataFolder().toString());
         if (!file.exists()) {
+            if (!folderFile.isDirectory()) folderFile.mkdir();
             try (OutputStream outputStream = new FileOutputStream(file.toPath().toString())) {
                 InputStream is = plugin.getResource("config.yml");
                 byte[] buffer = new byte[1024];
@@ -250,8 +249,10 @@ public class PluginMain extends JavaPlugin {
         }
     }
     static private void generateLang(){
+        File folderFile = new File(plugin.getDataFolder().toString());
         File file = new File(plugin.getDataFolder()+File.separator+"lang.yml");
         if (!file.exists()) {
+            if (!folderFile.isDirectory()) folderFile.mkdir();
             getConsoleSender().sendMessage("lang.yml file has not been found, generating a new one...");
             YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
             for (Message message: Message.values()){
@@ -314,7 +315,7 @@ public class PluginMain extends JavaPlugin {
             Set<String> keyList = cs.getKeys(false);
             keyList.forEach((user) -> {
                 ConfigurationSection materialsSection = cs.getConfigurationSection(user);
-                HashMap<String, Setting> settings = new HashMap<>();
+                LinkedHashMap<String, Setting> settings = new LinkedHashMap<>();
                 for (int i = 0; i < Objects.requireNonNull(materialsSection).getKeys(false).toArray().length; i++) {
                     String materialName = (String) materialsSection.getKeys(false).toArray()[i];
                     boolean setting = (boolean) materialsSection.get(materialName);

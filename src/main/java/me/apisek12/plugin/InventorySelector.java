@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class InventorySelector implements Listener {
     private Player player;
-    private HashMap<String, Setting> settings;
+    private LinkedHashMap<String, Setting> settings;
     private static String title = ChatColor.DARK_AQUA + Message.GUI_TITLE.toString();
     private Inventory selector;
     private LinkedHashMap<ItemStack, ArrayList<ItemStack>> items = new LinkedHashMap<>();
@@ -50,9 +50,10 @@ public class InventorySelector implements Listener {
 
     public InventorySelector() {}
 
-    public InventorySelector(Player player, HashMap<String, Setting> settings) {
+    public InventorySelector(Player player, LinkedHashMap<String, Setting> settings) {
         this.player = player;
-        this.settings = settings;
+        this.settings = new LinkedHashMap<>();
+        this.settings.putAll(settings);
         objects.put(player, this);
         selector = Bukkit.createInventory(null, PluginMain.dropChances.size() + (9 - PluginMain.dropChances.size() % 9) + 2 * 9, title);
 

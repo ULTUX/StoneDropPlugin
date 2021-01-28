@@ -24,7 +24,7 @@ import java.util.*;
 
 public class MainEventListener implements Listener {
 
-    private final HashMap<String, DropChance> dropChances = PluginMain.dropChances;
+    private final LinkedHashMap<String, DropChance> dropChances = PluginMain.dropChances;
     static String[] set; //Ore names
     static final Map<Player, Long> messageTimestamp = new HashMap<>();
     private static final long ORE_MESSAGE_DELAY = 10000;
@@ -315,7 +315,7 @@ public class MainEventListener implements Listener {
         String uid = player.getUniqueId().toString();
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data");
         if (!PluginMain.playerSettings.containsKey(uid)) {
-            HashMap<String, Setting> settings = new HashMap<>();
+            LinkedHashMap<String, Setting> settings = new LinkedHashMap<>();
             for (int i = 0; i < set.length; i++) {
                 settings.put(set[i], new Setting(true, set[i]));
             }
