@@ -1,5 +1,6 @@
 package me.apisek12.StoneDrop;
 
+import me.apisek12.StoneDrop.Apis.Updater;
 import me.apisek12.StoneDrop.DataModels.ChestItemsInfo;
 import me.apisek12.StoneDrop.DataModels.DropChance;
 import me.apisek12.StoneDrop.Enums.Message;

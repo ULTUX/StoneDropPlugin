@@ -6,4 +6,5 @@
     - &7Fixed &bMC 1.8 &7compatibility
     - &7Added volume config option.
     - &7Added option of &6command execution &7while mining
+    - &7Added option to drop treasure chest contents into inventory instead of spawning a chest.
 &cIf you come across any bugs or have any problems, please visit your discord: &bhttps://discord.com/invite/4gsa9wCCST
