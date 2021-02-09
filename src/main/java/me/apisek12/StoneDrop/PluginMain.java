@@ -5,7 +5,6 @@ import me.apisek12.StoneDrop.DataModels.DropChance;
 import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Apis.Metrics;
-import me.apisek12.StoneDrop.Apis.Updater;
 import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
 import org.bukkit.*;
 import org.bukkit.Material;
@@ -23,7 +22,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
 
 import static org.bukkit.Bukkit.getConsoleSender;
 import static org.bukkit.Bukkit.getPluginManager;
@@ -54,6 +52,8 @@ public class PluginMain extends JavaPlugin {
     public static double volume = 0.3d;
     public static LinkedHashMap<String, Double> commands;
     public static boolean dropChestToInv = false;
+
+
 
     public boolean isVersionNew() {
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
@@ -121,14 +121,6 @@ public class PluginMain extends JavaPlugin {
                     LinkedHashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
                     boolean wasOk = false;
                     if (args.length == 0 || (args.length == 1 && args[0] == "info")) {
-//                        playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)-> {
-//                            String stringMaterial = material;
-//                            stringMaterial = stringMaterial.replace("_", " ");
-//                            stringMaterial = stringMaterial.toLowerCase();
-//                            String toSend = ChatColor.GREEN+stringMaterial+": "+ChatColor.BLUE+preferences.isOn();
-//                            toSend = toSend.replace("true", "on").replace("false", "off");
-//                            player.sendMessage(toSend);
-//                        });
                         new InventorySelector(player, setting);
                         wasOk = true;
                     } else if (args.length > 1)
@@ -319,6 +311,7 @@ public class PluginMain extends JavaPlugin {
     }
 
     private void fixPlayerData() {
+        getServer().getOnlinePlayers().forEach(PluginMain::newPlayerJoined);
         playerSettings.forEach((name, settings) -> {
             for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
                 if (!settings.containsKey(BlockBreakEventListener.set[i]))
@@ -542,6 +535,40 @@ public class PluginMain extends JavaPlugin {
         for (int i = 0; i < dropChances.keySet().toArray().length; i++) {
             BlockBreakEventListener.set[i] = (String) dropChances.keySet().toArray()[i];
         }
+    }
+
+
+    public static void newPlayerJoined(Player player){
+        String uid = player.getUniqueId().toString();
+        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data");
+        if (!playerSettings.containsKey(uid)) {
+            LinkedHashMap<String, Setting> settings = new LinkedHashMap<>();
+            for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
+                settings.put(BlockBreakEventListener.set[i], new Setting(true, BlockBreakEventListener.set[i]));
+            }
+            settings.put("COBBLE", new Setting(false, "COBBLE"));
+            settings.put("STACK", new Setting(false, "STACK"));
+            playerSettings.put(uid, settings);
+        }
+        if (!playerLastVersionPluginVersion.containsKey(uid)) {
+            playerLastVersionPluginVersion.put(uid, currentPluginVersion);
+            if (displayUpdateMessage){
+                displayUpdateMessage(player);
+            }
+        }
+
+    }
+
+    public static void displayUpdateMessage(Player player) {
+        Scanner reader;
+        InputStream inputStream= plugin.getResource("update.txt");
+        reader = new Scanner(inputStream, "utf-8");
+        while (reader.hasNextLine()){
+            String message = ChatColor.translateAlternateColorCodes('&', reader.nextLine());
+            player.sendMessage(message);
+
+        }
+
     }
 }
 

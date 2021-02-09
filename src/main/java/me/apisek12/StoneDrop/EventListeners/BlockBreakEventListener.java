@@ -2,14 +2,12 @@ package me.apisek12.StoneDrop.EventListeners;
 
 
 import me.apisek12.StoneDrop.DataModels.DropChance;
-import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.PluginMain;
 import me.apisek12.StoneDrop.Utils.Chance;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -23,7 +21,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
-import java.io.InputStream;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Level;
@@ -250,11 +248,11 @@ public class BlockBreakEventListener implements Listener {
     public void PlayerJoinEvent(PlayerJoinEvent e){
         if (!PluginMain.playerSettings.containsKey(e.getPlayer().getUniqueId().toString())
                 || !PluginMain.playerLastVersionPluginVersion.containsKey(e.getPlayer().getUniqueId().toString())) {
-            newPlayerJoined(e.getPlayer());
+            PluginMain.newPlayerJoined(e.getPlayer());
 
         }
         if (e.getPlayer().isOp() && isNewToUpdate(e.getPlayer().getUniqueId().toString())){
-            displayUpdateMessage(e.getPlayer());
+            PluginMain.displayUpdateMessage(e.getPlayer());
             PluginMain.playerLastVersionPluginVersion.remove(e.getPlayer().getUniqueId().toString());
             PluginMain.playerLastVersionPluginVersion.put(e.getPlayer().getUniqueId().toString(), PluginMain.currentPluginVersion);
         }
@@ -357,42 +355,6 @@ public class BlockBreakEventListener implements Listener {
         if (possibleInv.size() == 0) return -1;
         int random = Chance.randBetween(0, possibleInv.size()-1);
         return possibleInv.get(random);
-    }
-
-
-    private void newPlayerJoined(Player player){
-        String uid = player.getUniqueId().toString();
-        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data");
-        if (!PluginMain.playerSettings.containsKey(uid)) {
-            LinkedHashMap<String, Setting> settings = new LinkedHashMap<>();
-            for (int i = 0; i < set.length; i++) {
-                settings.put(set[i], new Setting(true, set[i]));
-            }
-            settings.put("COBBLE", new Setting(false, "COBBLE"));
-            settings.put("STACK", new Setting(false, "STACK"));
-            PluginMain.playerSettings.put(uid, settings);
-        }
-        if (!PluginMain.playerLastVersionPluginVersion.containsKey(uid)) {
-            PluginMain.playerLastVersionPluginVersion.put(uid, PluginMain.currentPluginVersion);
-            if (PluginMain.displayUpdateMessage){
-                displayUpdateMessage(player);
-            }
-        }
-
-    }
-
-
-    private void displayUpdateMessage(Player player) {
-        Scanner reader;
-        InputStream inputStream= PluginMain.plugin.getResource("update.txt");
-        reader = new Scanner(inputStream, "utf-8");
-        while (reader.hasNextLine()){
-            String message = ChatColor.translateAlternateColorCodes('&', reader.nextLine());
-            player.sendMessage(message);
-
-        }
-
-
     }
 
 
