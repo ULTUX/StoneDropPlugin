@@ -132,7 +132,15 @@ public class BlockBreakEventListener implements Listener {
 
                 if (PluginMain.dropBlocks.contains(block.getType()) && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
                         tool == PluginMain.golden || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == PluginMain.wooden || (PluginMain.isNetherite && tool == Material.NETHERITE_PICKAXE))) {
-                    if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("COBBLE").isOn()) event.setDropItems(false);
+                    if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("COBBLE").isOn()) {
+                        event.setCancelled(true);
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, new Runnable() {
+                            @Override
+                            public void run() {
+                                event.getBlock().setType(Material.AIR);
+                            }
+                        }, 1);
+                    }
                     if (Chance.chance(PluginMain.chestSpawnRate)) {
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
                             spawnChest(event.getBlock().getLocation(), event.getPlayer());
@@ -261,15 +269,12 @@ public class BlockBreakEventListener implements Listener {
     }
     public void spawnChest(Location location, Player player){
         Block block = location.getBlock();
-        block.setType(Material.CHEST);
-        chestLocations.add(block.getLocation());
         if (PluginMain.treasureChestBroadcast) player.getServer().broadcastMessage(ChatColor.GOLD+ChatColor.translateAlternateColorCodes('&', Message.TREASURE_CHEST_BROADCAST.toString().replace("@name", player.getName())));
         if (PluginMain.plugin.isVersionNew()) player.sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
         if (PluginMain.plugin.isVersionNew()) player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, (float)PluginMain.volume, 1f);
-        Chest chest = (Chest) block.getState();
 
-        if (PluginMain.plugin.isVersionNew()) Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
 
+        ArrayList<ItemStack> chestInv = new ArrayList<>();
         for (Material material : PluginMain.chestContent.keySet()) {
             if (Chance.chance(PluginMain.chestContent.get(material).getChance())) {
                 if (PluginMain.chestContent.get(material).getEnchantment() != null) {
@@ -279,11 +284,37 @@ public class BlockBreakEventListener implements Listener {
                         if (whatToEnchant != null) meta.addEnchant(whatToEnchant, level, true);
                     });
                     item.setItemMeta(meta);
-                    int freeSlot = getRandomFreeSlot(chest.getBlockInventory());
-                    if (freeSlot >= 0) chest.getBlockInventory().setItem(freeSlot, item);
+                    chestInv.add(item);
                 } else
-                    chest.getBlockInventory().addItem(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
+                    chestInv.add(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
             }
+        }
+        boolean isChestNeighbour = false;
+
+        for (int xi = -1; xi < 2; xi++){
+            for (int zi = -1; zi < 2; zi++){
+                if (xi == 0 && zi == 0 || xi*xi+zi*zi == 2) continue;
+                if (block.getRelative(xi, 0, zi).getType().equals(Material.CHEST)) isChestNeighbour = true;
+            }
+        }
+        if (!isChestNeighbour) {
+            block.setType(Material.CHEST);
+            chestLocations.add(block.getLocation());
+
+            Chest chest = (Chest) block.getState();
+
+            if (PluginMain.plugin.isVersionNew())
+                Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
+
+            chestInv.forEach(itemStack -> {
+                int freeSlot = getRandomFreeSlot(chest.getBlockInventory());
+                if (freeSlot >= 0) chest.getBlockInventory().setItem(freeSlot, itemStack);
+            });
+        }
+        else {
+            player.sendMessage(ChatColor.RED+Message.CHEST_CANT_BE_SPAWNED.toString());
+            HashMap<Integer, ItemStack> items = player.getInventory().addItem(chestInv.toArray(new ItemStack[0]));
+            items.forEach((integer, itemStack1) -> location.getWorld().dropItemNaturally(location, itemStack1));
         }
     }
 

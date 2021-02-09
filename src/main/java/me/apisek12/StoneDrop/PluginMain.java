@@ -102,6 +102,7 @@ public class PluginMain extends JavaPlugin {
                 loadChances();
                 loadChestChances();
                 BlockBreakEventListener.initialize();
+                sender.sendMessage(ChatColor.GREEN+Message.RELOADED_SUCCESSFULLY.toString());
                 return true;
             } else sender.sendMessage(ChatColor.RED+Message.PERMISSION_MISSING.toString());
         }
@@ -304,7 +305,7 @@ public class PluginMain extends JavaPlugin {
         }
         getPluginManager().registerEvents(new BlockBreakEventListener(), this);
         getPluginManager().registerEvents(new InventorySelector(), this);
-        new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
+//        new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         new Metrics(this);
         loadPlayerData();
         loadChances();
