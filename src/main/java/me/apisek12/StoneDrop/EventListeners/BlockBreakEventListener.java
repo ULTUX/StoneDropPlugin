@@ -297,7 +297,7 @@ public class BlockBreakEventListener implements Listener {
                 if (block.getRelative(xi, 0, zi).getType().equals(Material.CHEST)) isChestNeighbour = true;
             }
         }
-        if (!isChestNeighbour) {
+        if (!isChestNeighbour && !PluginMain.dropChestToInv) {
             block.setType(Material.CHEST);
             chestLocations.add(block.getLocation());
 
@@ -312,7 +312,7 @@ public class BlockBreakEventListener implements Listener {
             });
         }
         else {
-            player.sendMessage(ChatColor.RED+Message.CHEST_CANT_BE_SPAWNED.toString());
+            if (isChestNeighbour) player.sendMessage(ChatColor.RED+Message.CHEST_CANT_BE_SPAWNED.toString());
             HashMap<Integer, ItemStack> items = player.getInventory().addItem(chestInv.toArray(new ItemStack[0]));
             items.forEach((integer, itemStack1) -> location.getWorld().dropItemNaturally(location, itemStack1));
         }

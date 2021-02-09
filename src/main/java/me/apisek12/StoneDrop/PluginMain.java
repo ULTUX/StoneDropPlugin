@@ -53,6 +53,7 @@ public class PluginMain extends JavaPlugin {
     public static double oreDropChance = 1.0f;
     public static double volume = 0.3d;
     public static LinkedHashMap<String, Double> commands;
+    public static boolean dropChestToInv = false;
 
     public boolean isVersionNew() {
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
@@ -462,6 +463,7 @@ public class PluginMain extends JavaPlugin {
         volume = getConfig().getDouble("volume");
         experienceToDrop = (float) ((double) getConfig().get("experience"));
         disabledWorlds = new ArrayList<>(getConfig().getStringList("disabled-worlds"));
+        dropChestToInv = getConfig().getBoolean("drop-chest-to-inventory");
     }
 
     private void loadChestChances() {
