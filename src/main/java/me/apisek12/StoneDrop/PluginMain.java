@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
@@ -22,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
 import java.util.*;
+import java.util.logging.Logger;
 
 import static org.bukkit.Bukkit.getConsoleSender;
 import static org.bukkit.Bukkit.getPluginManager;
@@ -29,12 +31,11 @@ import static org.bukkit.Bukkit.getPluginManager;
 public class PluginMain extends JavaPlugin {
     public static PluginMain plugin = null;
 
-    public static LinkedHashMap<String, LinkedHashMap<String, Setting>> playerSettings = new LinkedHashMap<>(); //These are settings set by players
-    public static LinkedHashMap<String, DropChance> dropChances = new LinkedHashMap<>(); //These are chances set in config file String-material
-    public static HashMap<Material, ChestItemsInfo> chestContent = new HashMap<>();
+    public static LinkedHashMap<String, LinkedHashMap<String, Setting>> playerSettings; //These are settings set by players
+    public static LinkedHashMap<String, DropChance> dropChances; //These are chances set in config file String-material
+    public static HashMap<Material, ChestItemsInfo> chestContent;
     public static float experienceToDrop;
     public static double chestSpawnRate = 0;
-    private static boolean isDisabled = false;
     private static BukkitTask shutdownThread = null;
     public static ArrayList<String> disabledWorlds = null;
     private static FileConfiguration playerData = null;
@@ -50,66 +51,74 @@ public class PluginMain extends JavaPlugin {
     public static boolean dropExpOrb = false;
     public static boolean treasureChestBroadcast = true;
     public static double oreDropChance = 1.0f;
+    public static double volume = 0.3d;
+    public static LinkedHashMap<String, Double> commands;
 
-    public boolean isVersionNew(){
+    public boolean isVersionNew() {
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
         return Integer.parseInt(version[1]) > 12;
     }
 
 
-    public static boolean isIsDisabled() {
-        return isDisabled;
-    }
 
     @Override
     public void onDisable() {
-        Bukkit.getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GRAY+"Saving getConfig() file...");
-        playerSettings.forEach((player, settings) -> settings.forEach((material, setting)->{
-            playerData.set("users."+player+"."+material, setting.isOn());
+        Bukkit.getConsoleSender().sendMessage("[StoneDrop] " + ChatColor.GRAY + "Saving getConfig() file...");
+        playerSettings.forEach((player, settings) -> settings.forEach((material, setting) -> {
+            playerData.set("users." + player + "." + material, setting.isOn());
         }));
 
         playerLastVersionPluginVersion.forEach((user, version) -> {
-            playerData.set("userVersion."+user, version);
+            playerData.set("userVersion." + user, version);
         });
 
         try {
             playerData.save(new File(getDataFolder(), "playerData.yml"));
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"[StoneDrop] Config file saved!");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY + "[StoneDrop] Config file saved!");
 
         } catch (IOException e) {
             getServer().getConsoleSender().sendMessage("[StoneDrop] Player data file not found, creating a new one...");
             try {
                 playerData.save(new File(getDataFolder(), "playerData.yml"));
-                Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY+"[StoneDrop] Config file saved!");
+                Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY + "[StoneDrop] Config file saved!");
             } catch (IOException ex) {
                 getServer().getConsoleSender().sendMessage("[StoneDrop] Could not create player data file!");
 
             }
         }
-        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.DARK_RED + "Plugin disabled!");
+        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] " + ChatColor.DARK_RED + "Plugin disabled!");
         plugin = null;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!isDisabled){
-            if (command.getName().equalsIgnoreCase("whatdrops")){
-                if (sender instanceof ConsoleCommandSender || (sender instanceof Player && sender.hasPermission("stonedrop.whatdrops"))){
-                    dropChances.forEach((ore, oreOptions) -> sender.sendMessage(oreOptions.toString()));
-                }
-                else {
-                    sender.sendMessage(ChatColor.RED+"You don't have permission to use that command!");
-                }
+        if (command.getName().equalsIgnoreCase("drop") && args.length == 1 && args[0].equalsIgnoreCase("reload")){
+            if (sender.hasPermission("stonedrop.reload")){
+                HandlerList.unregisterAll(plugin);
+                getPluginManager().registerEvents(new BlockBreakEventListener(), this);
+                getPluginManager().registerEvents(new InventorySelector(), this);
+                loadConfig();
+                loadPlayerData();
+                loadChances();
+                loadChestChances();
+                BlockBreakEventListener.initialize();
+                return true;
+            } else sender.sendMessage(ChatColor.RED+Message.PERMISSION_MISSING.toString());
+        }
+        if (command.getName().equalsIgnoreCase("whatdrops")) {
+            if (sender instanceof ConsoleCommandSender || (sender instanceof Player && sender.hasPermission("stonedrop.whatdrops"))) {
+                dropChances.forEach((ore, oreOptions) -> sender.sendMessage(oreOptions.toString()));
+            } else {
+                sender.sendMessage(ChatColor.RED + "You don't have permission to use that command!");
             }
         }
-
-        if (sender instanceof Player && !isDisabled) {
+        if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (command.getName().equalsIgnoreCase("drop")){
-                if (player.hasPermission("stonedrop.drop")){
+            if (command.getName().equalsIgnoreCase("drop")) {
+                if (player.hasPermission("stonedrop.drop")) {
                     LinkedHashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
                     boolean wasOk = false;
-                    if (args.length == 0 || (args.length == 1 && args[0] == "info")){
+                    if (args.length == 0 || (args.length == 1 && args[0] == "info")) {
 //                        playerSettings.get(player.getUniqueId().toString()).forEach((material, preferences)-> {
 //                            String stringMaterial = material;
 //                            stringMaterial = stringMaterial.replace("_", " ");
@@ -120,55 +129,52 @@ public class PluginMain extends JavaPlugin {
 //                        });
                         new InventorySelector(player, setting);
                         wasOk = true;
-                    }
-                    else if (args.length > 1) player.sendMessage(ChatColor.GRAY+"Command should look like that:\n"+ChatColor.GOLD+"/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
+                    } else if (args.length > 1)
+                        player.sendMessage(ChatColor.GRAY + "Command should look like that:\n" + ChatColor.GOLD + "/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
                     else {
                         if (args[0].equalsIgnoreCase("cobble")) {
                             wasOk = true;
                             setting.get("COBBLE").setOn(!setting.get("COBBLE").isOn());
                             if (!setting.get("COBBLE").isOn())
-                                player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
+                                player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now " + ChatColor.GREEN + "enabled");
                             else
-                                player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
+                                player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
                         } else if (args[0].equalsIgnoreCase("stack")) {
                             wasOk = true;
                             setting.get("STACK").setOn(!setting.get("STACK").isOn());
                             if (setting.get("STACK").isOn())
-                                player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
+                                player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now " + ChatColor.GREEN + "enabled");
                             else
-                                player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD +" is now "+ChatColor.RED+"disabled");
+                                player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
 
                         } else {
                             for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
-                                if (!BlockBreakEventListener.set[i].equals("STACK") && !BlockBreakEventListener.set[i].equals("COBBLE")){
+                                if (!BlockBreakEventListener.set[i].equals("STACK") && !BlockBreakEventListener.set[i].equals("COBBLE")) {
                                     if (args[0].equalsIgnoreCase(BlockBreakEventListener.set[i])) {
                                         setting.get(BlockBreakEventListener.set[i]).setOn(!setting.get(BlockBreakEventListener.set[i]).isOn());
                                         if (setting.get(BlockBreakEventListener.set[i]).isOn()) {
-                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + BlockBreakEventListener.set[i] + ChatColor.GOLD + " is now "+ChatColor.GREEN+"enabled");
+                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + BlockBreakEventListener.set[i] + ChatColor.GOLD + " is now " + ChatColor.GREEN + "enabled");
                                         } else {
-                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + BlockBreakEventListener.set[i] + ChatColor.GOLD + " is now "+ChatColor.RED+"disabled");
+                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + BlockBreakEventListener.set[i] + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
                                         }
                                         wasOk = true;
                                     }
-                                }}
+                                }
+                            }
                         }
                     }
-                if (!wasOk){
-                    player.sendMessage(ChatColor.GRAY+ Message.COMMAND_ARGUMENT_UNKNOWN.toString());
+                    if (!wasOk) {
+                        player.sendMessage(ChatColor.GRAY + Message.COMMAND_ARGUMENT_UNKNOWN.toString());
 
-                }
+                    }
 
-            } else {
-                    player.sendMessage(ChatColor.RED+Message.PERMISSION_MISSING.toString());
+                } else {
+                    player.sendMessage(ChatColor.RED + Message.PERMISSION_MISSING.toString());
                 }
             }
         }
         if (sender instanceof ConsoleCommandSender || sender.isOp()) {
-            if (command.getName().equalsIgnoreCase("emergencyDisable")) {
-                isDisabled = !isDisabled;
-                sender.sendMessage("PluginDisabled: " + isDisabled);
-            }
-            else if (command.getName().equalsIgnoreCase("shutdown") && args.length == 1) {
+            if (command.getName().equalsIgnoreCase("shutdown") && args.length == 1) {
                 long time = Long.parseLong(args[0]) * 1000;
                 long timeToStop = System.currentTimeMillis() + time;
                 final long[] lastDisplayedTime = {System.currentTimeMillis() - 60000}; // Last time when remaining minutes were displayed
@@ -190,52 +196,52 @@ public class PluginMain extends JavaPlugin {
                                     Player player = (Player) o;
                                     player.sendTitle(ChatColor.RED + "Server shut down in " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minutes", null, 10, 80, 10);
                                 }
-                                    getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minutes");
-                                    timer[0] = System.currentTimeMillis();
-                                    lastDisplayedTime[0] = System.currentTimeMillis();
+                                getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minutes");
+                                timer[0] = System.currentTimeMillis();
+                                lastDisplayedTime[0] = System.currentTimeMillis();
                             }
                         } else {
                             for (Object o : players) {
                                 Player player = (Player) o;
                                 player.sendTitle(ChatColor.RED + "Server shut down in: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds", null, 0, 40, 0);
                             }
-                                getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds");
+                            getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds");
                         }
                     }
 
                 };
                 shutdownThread = Bukkit.getScheduler().runTaskTimer(plugin, thread, 0, 1);
                 return true;
-            }
-            else if (command.getName().equalsIgnoreCase("cancelShutdown")) {
-                    if (shutdownThread != null && !shutdownThread.isCancelled()) {
-                            shutdownThread.cancel();
-                            sender.sendMessage(ChatColor.GREEN + "Server shut down cancelled.");
-                            getServer().getOnlinePlayers().forEach((player) -> player.sendTitle(ChatColor.GREEN + "Server shut down cancelled.", null, 10, 80, 10));
-                        return true;
-                    } else {
-                        sender.sendMessage(ChatColor.DARK_RED + "Server shut down has not been initialized yet. To initialize use command /shutdown <time_in_seconds>");
-                        return false;
-                    }
+            } else if (command.getName().equalsIgnoreCase("cancelShutdown")) {
+                if (shutdownThread != null && !shutdownThread.isCancelled()) {
+                    shutdownThread.cancel();
+                    sender.sendMessage(ChatColor.GREEN + "Server shut down cancelled.");
+                    getServer().getOnlinePlayers().forEach((player) -> player.sendTitle(ChatColor.GREEN + "Server shut down cancelled.", null, 10, 80, 10));
+                    return true;
+                } else {
+                    sender.sendMessage(ChatColor.DARK_RED + "Server shut down has not been initialized yet. To initialize use command /shutdown <time_in_seconds>");
+                    return false;
                 }
+            }
         }
-
         return false;
 
     }
-    boolean checkForSpace (Material material, Inventory inventory){
+
+    boolean checkForSpace(Material material, Inventory inventory) {
         ItemStack[] contents = inventory.getContents();
-        for (int i = 0; i < contents.length; i++){
+        for (int i = 0; i < contents.length; i++) {
             if (contents[i] != null) {
-                if (contents[i].getType().equals(material) && contents[i].getAmount() < material.getMaxStackSize()) return true;
+                if (contents[i].getType().equals(material) && contents[i].getAmount() < material.getMaxStackSize())
+                    return true;
 
             }
         }
         return false;
     }
 
-    static private void generateConfig(){
-        File file = new File(plugin.getDataFolder()+File.separator+"config.yml");
+    static private void generateConfig() {
+        File file = new File(plugin.getDataFolder() + File.separator + "config.yml");
         File folderFile = new File(plugin.getDataFolder().toString());
         if (!file.exists()) {
             if (!folderFile.isDirectory()) folderFile.mkdir();
@@ -254,15 +260,16 @@ public class PluginMain extends JavaPlugin {
             }
         }
     }
-    static private void generateLang(){
+
+    static private void generateLang() {
         File folderFile = new File(plugin.getDataFolder().toString());
-        File file = new File(plugin.getDataFolder()+File.separator+"lang.yml");
+        File file = new File(plugin.getDataFolder() + File.separator + "lang.yml");
         if (!file.exists()) {
             if (!folderFile.isDirectory()) folderFile.mkdir();
             getConsoleSender().sendMessage("lang.yml file has not been found, generating a new one...");
             YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-            for (Message message: Message.values()){
-                    configuration.set(message.name(), message.toString());
+            for (Message message : Message.values()) {
+                configuration.set(message.name(), message.toString());
             }
             try {
                 configuration.save(file);
@@ -278,16 +285,9 @@ public class PluginMain extends JavaPlugin {
         currentPluginVersion = getDescription().getVersion();
         generateConfig();
         generateLang();
-        BlockBreakEventListener.initialize();
-        //Check if plugin should drop items into inventory
-        dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
-        //Check if plugin should block item dropping from ores
-        dropFromOres = getConfig().getBoolean("ore-drop");
-        displayUpdateMessage = getConfig().getBoolean("display-update-message");
-        dropExpOrb = getConfig().getBoolean("drop-exp-orb");
-        treasureChestBroadcast = getConfig().getBoolean("treasure-broadcast");
-        oreDropChance = getConfig().getDouble("ore-drop-chance");
-        if (!dropFromOres) getServer().getConsoleSender().sendMessage("["+this.getName()+"] Drop from ores is now disabled");
+        loadConfig();
+        if (!dropFromOres)
+            getServer().getConsoleSender().sendMessage("[" + this.getName() + "] Drop from ores is now disabled");
 
         //Check if version is < 1.8.9
         try {
@@ -302,20 +302,112 @@ public class PluginMain extends JavaPlugin {
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
-        playerData = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "playerData.yml"));
-        langData = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "lang.yml"));
-        langData.getKeys(false).forEach(key -> {
-            Message.valueOf(key).setDefaultMessage((String) langData.get(key));
-        });
-        Updater updater = new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
-        Metrics metrics = new Metrics(this);
+        getPluginManager().registerEvents(new BlockBreakEventListener(), this);
+        getPluginManager().registerEvents(new InventorySelector(), this);
+        new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
+        new Metrics(this);
+        loadPlayerData();
+        loadChances();
+        loadChestChances();
 
-        experienceToDrop = (float) ((double)getConfig().get("experience"));
-        disabledWorlds = new ArrayList<>(getConfig().getStringList("disabled-worlds"));
-        dropBlocks = new ArrayList<>();
-        getConfig().getStringList("dropBlocks").forEach(material -> {
-            dropBlocks.add(Material.getMaterial(material));
+        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] " + ChatColor.GREEN + "Configuration Loaded, Plugin enabled!");
+        startStackScheduler();
+        fixPlayerData();
+        BlockBreakEventListener.initialize();
+    }
+
+    private void fixPlayerData() {
+        playerSettings.forEach((name, settings) -> {
+            for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
+                if (!settings.containsKey(BlockBreakEventListener.set[i]))
+                    settings.put(BlockBreakEventListener.set[i], new Setting(true, BlockBreakEventListener.set[i]));
+            }
         });
+    }
+
+    private void startStackScheduler() {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            if (Bukkit.getServer().getOnlinePlayers().size() > 0) {
+                for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().toArray().length; i++) {
+                    Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[i];
+                    if (playerSettings.get(player.getUniqueId().toString()) != null && playerSettings.get(player.getUniqueId().toString()).get("STACK").isOn()) {
+                        boolean tak = true;
+                        while (tak) {
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)
+                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.REDSTONE_BLOCK, player.getInventory())))) {
+                                player.getInventory().removeItem(new ItemStack(Material.REDSTONE, 9));
+                                player.getInventory().addItem(new ItemStack(Material.REDSTONE_BLOCK));
+                            } else tak = false;
+                        }
+                        if (isVersionNew()) {
+                            tak = true;
+                            while (tak) {
+                                try {
+                                    if (player.getInventory().containsAtLeast(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName()))), 9)
+                                            && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.LAPIS_BLOCK, player.getInventory())))) {
+                                        player.getInventory().removeItem(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName())), 9));
+                                        player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
+
+                                    } else tak = false;
+                                } catch (NoSuchFieldException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        tak = true;
+                        while (tak) {
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9)
+                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.COAL_BLOCK, player.getInventory())))) {
+                                player.getInventory().removeItem(new ItemStack(Material.COAL, 9));
+                                player.getInventory().addItem(new ItemStack(Material.COAL_BLOCK));
+
+                            } else tak = false;
+                        }
+                        tak = true;
+                        while (tak) {
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9)
+                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.IRON_BLOCK, player.getInventory())))) {
+                                player.getInventory().removeItem(new ItemStack(Material.IRON_INGOT, 9));
+                                player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK));
+
+                            } else tak = false;
+                        }
+                        tak = true;
+                        while (tak) {
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9)
+                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.DIAMOND_BLOCK, player.getInventory())))) {
+                                player.getInventory().removeItem(new ItemStack(Material.DIAMOND, 9));
+                                player.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK));
+
+                            } else tak = false;
+                        }
+                        tak = true;
+                        while (tak) {
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9)
+                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.GOLD_BLOCK, player.getInventory())))) {
+                                player.getInventory().removeItem(new ItemStack(Material.GOLD_INGOT, 9));
+                                player.getInventory().addItem(new ItemStack(Material.GOLD_BLOCK));
+
+                            } else tak = false;
+                        }
+                        tak = true;
+                        while (tak) {
+                            if (player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9)
+                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.EMERALD_BLOCK, player.getInventory())))) {
+                                player.getInventory().removeItem(new ItemStack(Material.EMERALD, 9));
+                                player.getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
+
+                            } else tak = false;
+                        }
+                    }
+                }
+            }
+        }, 40L, 80L);
+    }
+
+    private void loadPlayerData() {
+        playerSettings = new LinkedHashMap<>();
+        playerData = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "playerData.yml"));
         final ConfigurationSection cs = playerData.getConfigurationSection("users");
         if (cs != null) {
             Set<String> keyList = cs.getKeys(false);
@@ -332,7 +424,7 @@ public class PluginMain extends JavaPlugin {
             });
         }
         final ConfigurationSection cs2 = playerData.getConfigurationSection("userVersion");
-        if (cs2 != null){
+        if (cs2 != null) {
             Set<String> keyList = cs2.getKeys(false);
             keyList.forEach((user) -> {
                 String version = cs2.get(user).toString();
@@ -340,134 +432,68 @@ public class PluginMain extends JavaPlugin {
 
             });
         }
-
-        loadChances();
-        loadChestChances();
-        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] "+ChatColor.GREEN + "Configuration Loaded, Plugin enabled!");
-        this.getServer().getPluginManager().registerEvents(new BlockBreakEventListener(), this);
-        getPluginManager().registerEvents(new InventorySelector(), this);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            if (Bukkit.getServer().getOnlinePlayers().size() > 0){
-                for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().toArray().length; i++){
-                    Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[i];
-                    if (playerSettings.get(player.getUniqueId().toString()) != null && playerSettings.get(player.getUniqueId().toString()).get("STACK").isOn()){
-                        boolean tak = true;
-                        while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)
-                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.REDSTONE_BLOCK, player.getInventory())))){
-                                player.getInventory().removeItem(new ItemStack(Material.REDSTONE, 9));
-                                player.getInventory().addItem(new ItemStack(Material.REDSTONE_BLOCK));
-                            }
-                            else tak = false;
-                        }
-                        if (isVersionNew()){
-                            tak = true;
-                            while (tak){
-                                try {
-                                    if (player.getInventory().containsAtLeast(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName()))), 9)
-                                            && (player.getInventory().firstEmpty() != -1  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.LAPIS_BLOCK, player.getInventory())))){
-                                        player.getInventory().removeItem(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName())), 9));
-                                        player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
-
-                                    }
-                                    else tak = false;
-                                } catch (NoSuchFieldException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                        tak = true;
-                        while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9)
-                                    && (player.getInventory().firstEmpty() != -1  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.COAL_BLOCK, player.getInventory())))){
-                                player.getInventory().removeItem(new ItemStack(Material.COAL, 9));
-                                player.getInventory().addItem(new ItemStack(Material.COAL_BLOCK));
-
-                            }
-                            else tak = false;
-                        }
-                        tak = true;
-                        while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9)
-                                    && (player.getInventory().firstEmpty() != -1  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.IRON_BLOCK, player.getInventory())))){
-                                player.getInventory().removeItem(new ItemStack(Material.IRON_INGOT, 9));
-                                player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK));
-
-                            }
-                            else tak = false;
-                        }
-                        tak = true;
-                        while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9)
-                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.DIAMOND_BLOCK, player.getInventory())))){
-                                player.getInventory().removeItem(new ItemStack(Material.DIAMOND, 9));
-                                player.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK));
-
-                            }
-                            else tak = false;
-                        }
-                        tak = true;
-                        while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9)
-                                    && (player.getInventory().firstEmpty() != -1  || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.GOLD_BLOCK, player.getInventory())))){
-                                player.getInventory().removeItem(new ItemStack(Material.GOLD_INGOT, 9));
-                                player.getInventory().addItem(new ItemStack(Material.GOLD_BLOCK));
-
-                            }
-                            else tak = false;
-                        }
-                        tak = true;
-                        while (tak){
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9)
-                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.EMERALD_BLOCK, player.getInventory())))){
-                                player.getInventory().removeItem(new ItemStack(Material.EMERALD, 9));
-                                player.getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
-
-                            }
-                            else tak = false;
-                        }
-                    }
-                }
-            }
-    }, 40L, 80L);
-
-        BlockBreakEventListener.set = new String[dropChances.keySet().toArray().length];
-        for (int i = 0; i < dropChances.keySet().toArray().length; i++) {
-            BlockBreakEventListener.set[i] = (String) dropChances.keySet().toArray()[i];
-        }
-
-        playerSettings.forEach((name, settings) -> {
-            for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
-                if (!settings.containsKey(BlockBreakEventListener.set[i])) settings.put(BlockBreakEventListener.set[i], new Setting(true, BlockBreakEventListener.set[i]));
-            }
-        });
     }
 
-    private void loadChestChances(){
+    private void loadConfig() {
+        getLogger().info("Loading config...");
+        reloadConfig();
+        langData = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "lang.yml"));
+        langData.getKeys(false).forEach(key -> {
+            Message.valueOf(key).setDefaultMessage((String) langData.get(key));
+        });
+        commands = new LinkedHashMap<>();
+        ConfigurationSection cs = getConfig().getConfigurationSection("executeCommands");
+        Set<String> keys = null;
+        if (cs != null) {
+            keys = cs.getKeys(false);
+            keys.forEach(s -> {
+                commands.put(s, cs.getDouble(s));
+            });
+        }
+        //Check if plugin should drop items into inventory
+        dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
+        //Check if plugin should block item dropping from ores
+        dropFromOres = getConfig().getBoolean("ore-drop");
+        displayUpdateMessage = getConfig().getBoolean("display-update-message");
+        dropExpOrb = getConfig().getBoolean("drop-exp-orb");
+        treasureChestBroadcast = getConfig().getBoolean("treasure-broadcast");
+        oreDropChance = getConfig().getDouble("ore-drop-chance");
+        volume = getConfig().getDouble("volume");
+        experienceToDrop = (float) ((double) getConfig().get("experience"));
+        disabledWorlds = new ArrayList<>(getConfig().getStringList("disabled-worlds"));
+    }
+
+    private void loadChestChances() {
+         chestContent = new HashMap<>();
         chestSpawnRate = Double.parseDouble(getConfig().get("chest-spawn-chance").toString());
-        Set<String> config =  getConfig().getConfigurationSection("chest").getKeys(false);
-        for (String k: config){
+        Set<String> config = getConfig().getConfigurationSection("chest").getKeys(false);
+        for (String k : config) {
             Material material = Material.getMaterial(k);
-            if (material != null){
+            if (material != null) {
                 try {
-                    HashMap<String, Integer> enchants = (HashMap) getConfig().getConfigurationSection("chest."+k+".enchant").getValues(false);
-                   if (enchants != null) {
-                       chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max"), enchants));
-                   }
-                }catch (NullPointerException e){
-                    chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest."+k).get("chance"), (Integer) getConfig().getConfigurationSection("chest."+k).get("min"), (Integer) getConfig().getConfigurationSection("chest."+k).get("max")));
+                    HashMap<String, Integer> enchants = (HashMap) getConfig().getConfigurationSection("chest." + k + ".enchant").getValues(false);
+                    if (enchants != null) {
+                        chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest." + k).get("chance"), (Integer) getConfig().getConfigurationSection("chest." + k).get("min"), (Integer) getConfig().getConfigurationSection("chest." + k).get("max"), enchants));
+                    }
+                } catch (NullPointerException e) {
+                    chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest." + k).get("chance"), (Integer) getConfig().getConfigurationSection("chest." + k).get("min"), (Integer) getConfig().getConfigurationSection("chest." + k).get("max")));
                 }
             }
         }
     }
 
     private void loadChances() {
+        dropChances = new LinkedHashMap<>();
+        dropBlocks = new ArrayList<>();
+        getConfig().getStringList("dropBlocks").forEach(material -> {
+            dropBlocks.add(Material.getMaterial(material));
+        });
 
         for (String key : getConfig().getConfigurationSection("chances").getKeys(false)) {
-            ConfigurationSection oreObject = getConfig().getConfigurationSection("chances."+key);
-             DropChance oreObjectOptions = new DropChance();
-             oreObjectOptions.setName(key);
-            for (String fortuneLevel : Objects.requireNonNull(oreObject).getKeys(false)){
+            ConfigurationSection oreObject = getConfig().getConfigurationSection("chances." + key);
+            DropChance oreObjectOptions = new DropChance();
+            oreObjectOptions.setName(key);
+            for (String fortuneLevel : Objects.requireNonNull(oreObject).getKeys(false)) {
                 if (fortuneLevel.split("-")[0].equals("fortune")) {
                     int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
                     double chance = (double) oreObject.getConfigurationSection(fortuneLevel).get("chance");
@@ -483,17 +509,19 @@ public class PluginMain extends JavaPlugin {
                 if (enchants.size() != 0) {
                     oreObjectOptions.setEnchant(enchants);
                 }
-            }
-            catch (NullPointerException ignored){
+            } catch (NullPointerException ignored) {
             }
             try {
                 int minLevel = -1, maxLevel = -1;
-                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).isSet("minLevel")) minLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("minLevel");
-                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).isSet("maxLevel")) maxLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("maxLevel");
+                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).isSet("minLevel"))
+                    minLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("minLevel");
+                if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).isSet("maxLevel"))
+                    maxLevel = getConfig().getConfigurationSection("chances").getConfigurationSection(key).getInt("maxLevel");
                 if (minLevel == maxLevel && minLevel == -1) throw new NullPointerException();
                 oreObjectOptions.setMinLevel(minLevel);
                 oreObjectOptions.setMaxLevel(maxLevel);
-            } catch (NullPointerException ignored){}
+            } catch (NullPointerException ignored) {
+            }
             try {
                 String text;
                 if (getConfig().getConfigurationSection("chances").getConfigurationSection(key).isSet("customName")) {
@@ -502,10 +530,15 @@ public class PluginMain extends JavaPlugin {
                     oreObjectOptions.setCustomName(customName);
                 }
 
-            } catch (NullPointerException ignored){}
+            } catch (NullPointerException ignored) {
+            }
             dropChances.put(oreObjectOptions.getName(), oreObjectOptions);
         }
+        BlockBreakEventListener.set = new String[dropChances.keySet().toArray().length];
 
+        for (int i = 0; i < dropChances.keySet().toArray().length; i++) {
+            BlockBreakEventListener.set[i] = (String) dropChances.keySet().toArray()[i];
+        }
     }
 }
 

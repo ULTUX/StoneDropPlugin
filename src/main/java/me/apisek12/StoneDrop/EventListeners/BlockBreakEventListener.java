@@ -9,6 +9,7 @@ import me.apisek12.StoneDrop.Utils.Chance;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -30,13 +31,14 @@ import java.util.logging.Level;
 
 public class BlockBreakEventListener implements Listener {
 
-    private final LinkedHashMap<String, DropChance> dropChances = PluginMain.dropChances;
+    private static LinkedHashMap<String, DropChance> dropChances;
     public static String[] set; //Ore names
     static final Map<Player, Long> messageTimestamp = new HashMap<>();
     private static final long ORE_MESSAGE_DELAY = 10000;
     private ArrayList<Inventory> openedChests = new ArrayList<>();
     private ArrayList<Location> chestLocations = new ArrayList<>();
     public static void initialize(){
+        dropChances = PluginMain.dropChances;
         Bukkit.getServer().getConsoleSender().sendMessage("["+PluginMain.plugin.getName()+"] Starting internal scheduler...");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(PluginMain.plugin, new Runnable() {
             @Override
@@ -106,7 +108,7 @@ public class BlockBreakEventListener implements Listener {
     public void blockBreak(BlockBreakEvent event) {
         if (!PluginMain.disabledWorlds.contains(event.getPlayer().getWorld().getName())){
 
-            if (!PluginMain.isIsDisabled() && !event.isCancelled()) {
+            if (!event.isCancelled()) {
                 Block block = event.getBlock();
                 Location location = block.getLocation();
                 World world = block.getWorld();
@@ -135,9 +137,13 @@ public class BlockBreakEventListener implements Listener {
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
                             spawnChest(event.getBlock().getLocation(), event.getPlayer());
                         }, 4);
-
-
                     }
+                    PluginMain.commands.forEach((s, aDouble) -> {
+                        if (Chance.chance(aDouble)) {
+                            String command = s.replace("@player", event.getPlayer().getName());
+                            Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), command);
+                        }
+                    });
 
                     if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 1) {
                         for (int i = 0; i < set.length; i++) {
@@ -259,7 +265,7 @@ public class BlockBreakEventListener implements Listener {
         chestLocations.add(block.getLocation());
         if (PluginMain.treasureChestBroadcast) player.getServer().broadcastMessage(ChatColor.GOLD+ChatColor.translateAlternateColorCodes('&', Message.TREASURE_CHEST_BROADCAST.toString().replace("@name", player.getName())));
         if (PluginMain.plugin.isVersionNew()) player.sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
-        if (PluginMain.plugin.isVersionNew()) player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.3f, 1f);
+        if (PluginMain.plugin.isVersionNew()) player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, (float)PluginMain.volume, 1f);
         Chest chest = (Chest) block.getState();
 
         if (PluginMain.plugin.isVersionNew()) Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
@@ -286,7 +292,7 @@ public class BlockBreakEventListener implements Listener {
     public void InventoryCloseEvent(InventoryCloseEvent event){
         if (openedChests.contains(event.getInventory())){
             Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, () -> {
-                if (PluginMain.plugin.isVersionNew()) ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, 0.4f, 0.1f);
+                if (PluginMain.plugin.isVersionNew()) ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, (float)PluginMain.volume, 0.1f);
                 event.getInventory().clear();
                 chestLocations.remove(((Chest)event.getInventory().getHolder()).getLocation());
                 openedChests.remove(event.getInventory());

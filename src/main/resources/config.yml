@@ -196,9 +196,11 @@ chest:
       lure: 3
       luck_of_the_sea: 3
       mending: 1
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#List of commands that cold be executed (use @name for player name)
+executeCommands:
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 #List of blocks that the plugin should work on. The list of all possible blocks is listed here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
 dropBlocks:
   - STONE
@@ -235,4 +237,6 @@ drop-exp-orb: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Should a message be broadcasted when a player finds a chest
 treasure-broadcast: true
-
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Volume of all sounds used in the plugin
+volume: 0.3

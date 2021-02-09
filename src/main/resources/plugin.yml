@@ -25,3 +25,6 @@ permissions:
   stonedrop.whatdrops:
     description: Allow players to use /whatdrops command.
     default: op
+  stonedrop.reload:
+    description: Allow players to reload the plugin.
+    default: op
