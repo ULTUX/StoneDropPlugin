@@ -298,7 +298,7 @@ public class PluginMain extends JavaPlugin {
         }
         getPluginManager().registerEvents(new BlockBreakEventListener(), this);
         getPluginManager().registerEvents(new InventorySelector(), this);
-//        new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
+        new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         new Metrics(this);
         loadPlayerData();
         loadChances();
