@@ -181,7 +181,7 @@ chest:
       luck_of_the_sea: 3
       mending: 1
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#List of commands that cold be executed (use @name for player name)
+#List of commands that could be executed (use @name for player name)
 #In this example: 10% chance of executing command give on player.
 executeCommands:
   "give @player stick 20": 0.1
