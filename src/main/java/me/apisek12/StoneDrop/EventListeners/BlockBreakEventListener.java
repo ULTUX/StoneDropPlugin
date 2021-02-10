@@ -112,7 +112,7 @@ public class BlockBreakEventListener implements Listener {
                 World world = block.getWorld();
                 Material tool = getItemInHand(event.getPlayer()).getType();
 
-                if (event.getBlock().getType().toString().contains("ORE"))
+                if (event.getBlock().getType().toString().contains("ORE") || event.getBlock().getType().toString().equalsIgnoreCase("ancient_debris"))
                 {
                     if (PluginMain.dropFromOres && Chance.chance(PluginMain.oreDropChance)) return;
                     if (!PluginMain.dropFromOres) {

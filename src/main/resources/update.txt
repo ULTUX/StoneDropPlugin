@@ -7,4 +7,5 @@
     - &7Added volume config option.
     - &7Added option of &6command execution &7while mining
     - &7Added option to drop treasure chest contents into inventory instead of spawning a chest.
+    - &7Ancient debris is now treated as an ore
 &cIf you come across any bugs or have any problems, please visit your discord: &bhttps://discord.com/invite/4gsa9wCCST

@@ -88,23 +88,6 @@ chances:
       chance: 0.02
       max-amount: 4
       min-amount: 3
-  LAPIS_LAZULI:
-    fortune-0:
-      chance: 0.005
-      max-amount: 3
-      min-amount: 2
-    fortune-1:
-      chance: 0.008
-      max-amount: 4
-      min-amount: 3
-    fortine-2:
-      chance: 0.01
-      max-amount: 5
-      min-amount: 4
-    fortune-3:
-      chance: 0.015
-      max-amount: 6
-      min-amount: 5
   REDSTONE:
     fortune-0:
       chance: 0.005
@@ -122,24 +105,25 @@ chances:
       chance: 0.01
       max-amount: 6
       min-amount: 5
-  BLUE_ICE:
+  DIAMOND_PICKAXE:
     fortune-0:
-      chance: 0.05
-      max-amount: 3
-      min-amount: 2
+      chance: 0.02
+      max-amount: 1
+      min-amount: 1
     fortune-1:
-      chance: 0.052
-      max-amount: 4
-      min-amount: 3
+      chance: 0.02
+      max-amount: 1
+      min-amount: 1
     fortune-2:
-      chance: 0.054
-      max-amount: 5
-      min-amount: 4
+      chance: 0.09
+      max-amount: 1
+      min-amount: 1
     fortune-3:
-      chance: 0.056
-      max-amount: 6
-      min-amount: 5
-
+      chance: 0.2
+      max-amount: 1
+      min-amount: 1
+  enchant:
+    silk_touch: 1
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #This is chance of getting a chest spawned
@@ -198,8 +182,9 @@ chest:
       mending: 1
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #List of commands that cold be executed (use @name for player name)
+#In this example: 10% chance of executing command give on player.
 executeCommands:
-
+  "give @player stick 20": 0.1
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #List of blocks that the plugin should work on. The list of all possible blocks is listed here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
 dropBlocks:
@@ -210,7 +195,7 @@ dropBlocks:
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #experience dropped from stone:
-experience: 3.0
+experience: 0.3
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -235,7 +220,7 @@ display-update-message: true
 #Should exp be added to player stats or dropped as exp orb - WARNING: in that case experience value has to be >= 1.0
 drop-exp-orb: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Should a message be broadcasted when a player finds a chest
+#Should a message be broadcast when a player finds a chest
 treasure-broadcast: true
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Volume of all sounds used in the plugin
