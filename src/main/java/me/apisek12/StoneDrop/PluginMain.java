@@ -96,9 +96,17 @@ public class PluginMain extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("drop") && args.length == 1 && args[0].equalsIgnoreCase("reload")){
             if (sender.hasPermission("stonedrop.reload")){
+                sender.sendMessage(ChatColor.GRAY+"Starting reload...");
+                reloadConfig();
+                sender.sendMessage(ChatColor.GRAY+"Unregistering all event listeners...");
                 HandlerList.unregisterAll(plugin);
+                sender.sendMessage(ChatColor.GRAY+"Generating config files...");
+                generateConfig();
+                generateLang();
+                sender.sendMessage(ChatColor.GRAY+"Registering new event listeners");
                 getPluginManager().registerEvents(new BlockBreakEventListener(), this);
                 getPluginManager().registerEvents(new InventorySelector(), this);
+                sender.sendMessage(ChatColor.GRAY+"Loading all config files...");
                 loadConfig();
                 loadPlayerData();
                 loadChances();
@@ -301,9 +309,11 @@ public class PluginMain extends JavaPlugin {
         getPluginManager().registerEvents(new InventorySelector(), this);
         new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         new Metrics(this);
+        reloadConfig();
         loadPlayerData();
         loadChances();
         loadChestChances();
+        BlockBreakEventListener.initialize();
 
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] " + ChatColor.GREEN + "Configuration Loaded, Plugin enabled!");
         startStackScheduler();
@@ -432,7 +442,6 @@ public class PluginMain extends JavaPlugin {
 
     private void loadConfig() {
         getLogger().info("Loading config...");
-        reloadConfig();
         langData = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "lang.yml"));
         langData.getKeys(false).forEach(key -> {
             Message.valueOf(key).setDefaultMessage((String) langData.get(key));
