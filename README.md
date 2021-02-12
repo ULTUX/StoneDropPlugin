@@ -59,9 +59,8 @@ Command | Description
 /drop (*or /d*) | base command - shows a menu
 /drop reload | reload the plugin
 /drop stack | toggle (for command sender) automatic crafting of diamonds, gold, etc. into their block equivalents.
-/drop cobble | toggle (for command sender) drop of cobblestone from stone.
-/whatdrops | displays a list of items that can drop, their chances and amounts.\
-/shutdown | op/console-only command. It schedules a server shut down and informs all players about it.\
+/whatdrops | displays a list of items that can drop, their chances and amounts.
+/shutdown | op/console-only command. It schedules a server shut down and informs all players about it.
 /cancelshutdown | op/console-only command. Cancels shut down if it's been initialized.
 
 ## Example Images:
