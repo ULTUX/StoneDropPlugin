@@ -131,13 +131,7 @@ public class BlockBreakEventListener implements Listener {
                 if (PluginMain.dropBlocks.contains(block.getType()) && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
                         tool == PluginMain.golden || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == PluginMain.wooden || (PluginMain.isNetherite && tool == Material.NETHERITE_PICKAXE))) {
                     if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("COBBLE").isOn()) {
-                        event.setCancelled(true);
-                        Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, new Runnable() {
-                            @Override
-                            public void run() {
-                                event.getBlock().setType(Material.AIR);
-                            }
-                        }, 1);
+                        event.getBlock().setType(Material.AIR);
                     }
                     if (Chance.chance(PluginMain.chestSpawnRate)) {
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
