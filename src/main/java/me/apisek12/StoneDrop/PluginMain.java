@@ -550,7 +550,7 @@ public class PluginMain extends JavaPlugin {
 
     public static void newPlayerJoined(Player player){
         String uid = player.getUniqueId().toString();
-        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data");
+        Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data...");
         if (!playerSettings.containsKey(uid)) {
             LinkedHashMap<String, Setting> settings = new LinkedHashMap<>();
             for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
