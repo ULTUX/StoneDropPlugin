@@ -26,30 +26,27 @@ Everything can be configured and changed to meet server requirements.
 ## Features
 
 
--   GUI.
+-   Menu with all information and settings (GUI)
 -   Language support *(lang.yml)*.
--   Enchant support.
--   Item naming support.
--   Fortune enchantment affects chances.
--   Set what blocks are affected by plugin.
--   Disable plugin in specific worlds.
--   Disable drop from ores.
--   Set chance of getting drop from ores.
--   Set items drop directly to inventory.
--   Set exp orbs to be spawned *(Mending support)*.
--   Configurable required Y level range for an item to spawn.
--   Player can find a treasure chest while mining stone.
--   Every player manage their drop preferences quickly and easily by right-clicking on an item in the menu.
--   Left-clicking on the items shows drop chances for every fortune level.\
-**And more!**
-## Recommendations
-
--   Server running **PaperMC**
--   *Java* version *8*
--   *Minecraft* version **1.16.4**
+-   **Enchant** support.
+-   **Item naming** support.
+-   **Fortune** enchantment affects chances.
+-   Configurable drop blocks *(ie. stone, andesite)*
+-   Set not affected **worlds**.
+-   Disabling **drop from ores**.
+-   Set **chance** of getting **drop from ores**.
+-   Set items drop **directly to inventory**.
+-   Set **exp orbs** to be spawned *(Mending support)*.
+-   Configurable required **Y level range** for an item to spawn.
+-   **Treasure chest** while mining stone.
+- 
+**And many more!**
+## How to use GUI
+- Menu can be opened by typing /drop *(or /d)*.
+- Every player manage their drop preferences quickly and easily by right-clicking on an item in the menu.
+- Left-clicking on the items shows drop chances for every fortune level.
 
 ## How to install
-
 
 1.  **Download** plugin from **[here.](https://github.com/ULTUX/StoneDropPlugin/releases)**
 2.  Place the file in **plugins** folder inside your server directory.
@@ -57,20 +54,15 @@ Everything can be configured and changed to meet server requirements.
 4.  You have successfully **downloaded and installed** the plugin!
 
 ## Commands
-
-
-/drop (or /d) - this is a base command - shows a menu\
-/drop stack - toggle (for command sender) automatic crafting of diamonds, gold, etc. into their block equivalents.\
-/drop cobble - toggle (for command sender) drop of cobblestone from stone.\
-/drop - toggle (for command sender) drop of specific material from stone.\
-/whatdrops - displays a list of items that can drop, their chances and amounts.\
-/shutdown - op/console-only command. It schedules a server shut down and informs all players about it.\
-/cancelshutdown - op/console-only command. Cancels shut down if it's been initialized.
-
-## How to edit config.yml file?
-
-
-### It is all explained on my github page: **[StoneDrop Wiki](https://github.com/ULTUX/StoneDropPlugin/wiki/Config-file)**
+Command | Description
+--------|------------
+/drop (*or /d*) | base command - shows a menu
+/drop reload | reload the plugin
+/drop stack | toggle (for command sender) automatic crafting of diamonds, gold, etc. into their block equivalents.
+/drop cobble | toggle (for command sender) drop of cobblestone from stone.
+/whatdrops | displays a list of items that can drop, their chances and amounts.\
+/shutdown | op/console-only command. It schedules a server shut down and informs all players about it.\
+/cancelshutdown | op/console-only command. Cancels shut down if it's been initialized.
 
 ## Example Images:
 
@@ -81,7 +73,10 @@ Everything can be configured and changed to meet server requirements.
 ## Permissions
 
 
--   `stonedrop.drop` - Allow players to use `/drop` command.
--   `stonedrop.whatdrops` - Allow players to use `/whatdrops` command.
+-   `stonedrop.drop` - Permission to use `/drop` command.
+- `stonedrop.reload` - Permission to reload the plugin.
+-   `stonedrop.whatdrops` - Permission to to use `/whatdrops` command.
+
+## Looking for answers? Visit [StoneDrop Wiki](https://github.com/ULTUX/StoneDropPlugin/wiki/Config-file).
 
 ## Latest releases: [Releases](https://github.com/ULTUX/minecraft-stone-drop-plugin/releases/)
