@@ -9,7 +9,9 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -20,8 +22,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Level;
@@ -131,7 +133,32 @@ public class BlockBreakEventListener implements Listener {
                 if (PluginMain.dropBlocks.contains(block.getType()) && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
                         tool == PluginMain.golden || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == PluginMain.wooden || (PluginMain.isNetherite && tool == Material.NETHERITE_PICKAXE))) {
                     if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("COBBLE").isOn()) {
-                        event.getBlock().setType(Material.AIR);
+                        event.setCancelled(true);
+                        Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> event.getBlock().setType(Material.AIR), 1L);
+                        Player player = event.getPlayer();
+                        if (PluginMain.plugin.isVersionNew()){
+                            Damageable itemMeta = (Damageable) player.getInventory().getItemInMainHand().getItemMeta();
+                            if (((ItemMeta)itemMeta).hasEnchant(Enchantment.DURABILITY)){
+                                if (Chance.chance(1f/(((ItemMeta)itemMeta).getEnchantLevel(Enchantment.DURABILITY)+1))){
+                                    itemMeta.setDamage(itemMeta.getDamage()+1);
+                                }
+                            }
+                            else {
+                                itemMeta.setDamage(itemMeta.getDamage()+1);
+                            }
+                            player.getInventory().getItemInMainHand().setItemMeta((ItemMeta) itemMeta);
+                        }
+                        else {
+                            if (player.getItemInHand().containsEnchantment(Enchantment.DURABILITY)){
+                                if (Chance.chance(1f/(player.getItemInHand().getEnchantmentLevel(Enchantment.DURABILITY)+1))){
+                                    player.getItemInHand().setDurability((short) (player.getItemInHand().getDurability()+1));
+                                }
+                            }
+                            else {
+                                player.getItemInHand().setDurability((short) (player.getItemInHand().getDurability()+1));
+                            }
+                        }
+                        player.updateInventory();
                     }
                     if (Chance.chance(PluginMain.chestSpawnRate)) {
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {

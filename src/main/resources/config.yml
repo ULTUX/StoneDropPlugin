@@ -107,23 +107,23 @@ chances:
       min-amount: 5
   DIAMOND_PICKAXE:
     fortune-0:
-      chance: 0.02
+      chance: 0.002
       max-amount: 1
       min-amount: 1
     fortune-1:
-      chance: 0.02
+      chance: 0.003
       max-amount: 1
       min-amount: 1
     fortune-2:
-      chance: 0.09
+      chance: 0.004
       max-amount: 1
       min-amount: 1
     fortune-3:
-      chance: 0.2
+      chance: 0.005
       max-amount: 1
       min-amount: 1
-  enchant:
-    silk_touch: 1
+    enchant:
+      silk_touch: 1
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #This is chance of getting a chest spawned
@@ -182,9 +182,9 @@ chest:
       mending: 1
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #List of commands that could be executed (use @name for player name)
-#In this example: 10% chance of executing command give on player.
+#In this example: 1% chance of executing command give on player.
 executeCommands:
-  "give @player stick 20": 0.1
+  "give @player stick 2": 0.01
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #List of blocks that the plugin should work on. The list of all possible blocks is listed here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
 dropBlocks:
