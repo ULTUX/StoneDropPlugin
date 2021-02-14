@@ -146,7 +146,8 @@ public class BlockBreakEventListener implements Listener {
                             else {
                                 itemMeta.setDamage(itemMeta.getDamage()+1);
                             }
-                            player.getInventory().getItemInMainHand().setItemMeta((ItemMeta) itemMeta);
+                            if (itemMeta.getDamage() > player.getInventory().getItemInMainHand().getType().getMaxDurability()) player.getInventory().setItemInMainHand(null);
+                            else player.getInventory().getItemInMainHand().setItemMeta((ItemMeta) itemMeta);
                         }
                         else {
                             if (player.getItemInHand().containsEnchantment(Enchantment.DURABILITY)){
@@ -157,6 +158,7 @@ public class BlockBreakEventListener implements Listener {
                             else {
                                 player.getItemInHand().setDurability((short) (player.getItemInHand().getDurability()+1));
                             }
+                            if (player.getItemInHand().getDurability() > player.getItemInHand().getType().getMaxDurability()) player.setItemInHand(null);
                         }
                         player.updateInventory();
                     }
