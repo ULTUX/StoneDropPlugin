@@ -1,3 +1,2 @@
-&7A StoneDrop plugin has been updated (&3v1.9.6.1):
-    - &7Bug fixes
+&7A This version is a snapshot version not production ready (&3v1.9.6.1).
 &cIf you come across any bugs or have any problems, please visit your discord: &bhttps://discord.com/invite/4gsa9wCCST

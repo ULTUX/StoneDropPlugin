@@ -17,7 +17,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +31,7 @@ public class InventorySelector implements Listener {
     private LinkedHashMap<ItemStack, ArrayList<ItemStack>> items = new LinkedHashMap<>();
     private static HashMap<Player, InventorySelector> objects = new HashMap<>();
     private boolean willBeUsed = false;
-    private static Inventory secondaryWindow;
+    private Inventory secondaryWindow;
     private static ItemStack exit, back;
     private ItemStack cobble;
 
@@ -230,15 +229,15 @@ public class InventorySelector implements Listener {
     public void InventoryClickEvent(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;
         if (event.getCurrentItem() == null) return;
-        if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
+        if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).secondaryWindow) || event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) return;
             InventorySelector inventorySelector = objects.get(event.getWhoClicked());
             Player player = inventorySelector.player;
             ItemStack clickedItem = event.getCurrentItem();
-            if (event.isRightClick()) {
+            if (event.isRightClick() && !event.getWhoClicked().getOpenInventory().getTopInventory().equals(secondaryWindow)) {
                 if (event.getCurrentItem().equals(inventorySelector.cobble)) inventorySelector.settings.get("COBBLE").toggle();
-                else {
+                else if (event.getClickedInventory().equals(inventorySelector.selector)){
                     inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
                 }
                 inventorySelector.reloadInventory();
