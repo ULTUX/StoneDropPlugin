@@ -29,7 +29,6 @@ import static org.bukkit.Bukkit.getPluginManager;
 
 public class PluginMain extends JavaPlugin {
     public static PluginMain plugin = null;
-
     public static LinkedHashMap<String, LinkedHashMap<String, Setting>> playerSettings; //These are settings set by players
     public static LinkedHashMap<String, DropChance> dropChances; //These are chances set in config file String-material
     public static HashMap<Material, ChestItemsInfo> chestContent;
@@ -479,10 +478,10 @@ public class PluginMain extends JavaPlugin {
                 try {
                     HashMap<String, Integer> enchants = (HashMap) getConfig().getConfigurationSection("chest." + k + ".enchant").getValues(false);
                     if (enchants != null) {
-                        chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest." + k).get("chance"), (Integer) getConfig().getConfigurationSection("chest." + k).get("min"), (Integer) getConfig().getConfigurationSection("chest." + k).get("max"), enchants));
+                        chestContent.put(material, new ChestItemsInfo(getConfig().getConfigurationSection("chest." + k).getDouble("chance"), getConfig().getConfigurationSection("chest." + k).getInt("min"), getConfig().getConfigurationSection("chest." + k).getInt("max"), enchants));
                     }
                 } catch (NullPointerException e) {
-                    chestContent.put(material, new ChestItemsInfo((Double) getConfig().getConfigurationSection("chest." + k).get("chance"), (Integer) getConfig().getConfigurationSection("chest." + k).get("min"), (Integer) getConfig().getConfigurationSection("chest." + k).get("max")));
+                    chestContent.put(material, new ChestItemsInfo(getConfig().getConfigurationSection("chest." + k).getDouble("chance"), getConfig().getConfigurationSection("chest." + k).getInt("min"), getConfig().getConfigurationSection("chest." + k).getInt("max")));
                 }
             }
         }
@@ -502,9 +501,9 @@ public class PluginMain extends JavaPlugin {
             for (String fortuneLevel : Objects.requireNonNull(oreObject).getKeys(false)) {
                 if (fortuneLevel.split("-")[0].equals("fortune")) {
                     int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
-                    double chance = (double) oreObject.getConfigurationSection(fortuneLevel).get("chance");
-                    int min = (int) oreObject.getConfigurationSection(fortuneLevel).get("min-amount");
-                    int max = (int) oreObject.getConfigurationSection(fortuneLevel).get("max-amount");
+                    double chance = oreObject.getConfigurationSection(fortuneLevel).getDouble("chance");
+                    int min = oreObject.getConfigurationSection(fortuneLevel).getInt("min-amount");
+                    int max = oreObject.getConfigurationSection(fortuneLevel).getInt("max-amount");
                     oreObjectOptions.setChance(level, chance);
                     oreObjectOptions.setMinDrop(level, min);
                     oreObjectOptions.setMaxDrop(level, max);
