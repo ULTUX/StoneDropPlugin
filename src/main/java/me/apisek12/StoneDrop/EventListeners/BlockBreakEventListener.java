@@ -130,8 +130,7 @@ public class BlockBreakEventListener implements Listener {
                     return;
                 }
 
-                if (PluginMain.dropBlocks.contains(block.getType()) && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) &&  (tool == Material.DIAMOND_PICKAXE ||
-                        tool == PluginMain.golden || tool == Material.IRON_PICKAXE || tool == Material.STONE_PICKAXE || tool == PluginMain.wooden || (PluginMain.isNetherite && tool == Material.NETHERITE_PICKAXE))) {
+                if (PluginMain.dropBlocks.contains(block.getType()) && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL) && (tool.toString().contains("PICKAXE") || tool.toString().contains("SHOVEL") || tool.toString().contains("AXE") || tool.toString().contains("HOE")) || (PluginMain.isNetherite && tool == Material.NETHERITE_PICKAXE)) {
                     if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("COBBLE").isOn()) {
                         event.setCancelled(true);
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> event.getBlock().setType(Material.AIR), 1L);
