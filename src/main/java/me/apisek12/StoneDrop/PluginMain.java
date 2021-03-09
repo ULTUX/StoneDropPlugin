@@ -54,10 +54,14 @@ public class PluginMain extends JavaPlugin {
     public static boolean dropChestToInv = false;
 
 
-
-    public boolean isVersionNew() {
+    /**
+     * Checks if plugin version is compatible with given version number. Value is a second number in version string (in 1.16.6 it is 16).
+     * @param val A version to compare with.
+     * @return true if plugin verison is greater or equal than given value.
+     */
+    public boolean versionCompatible(int val) {
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
-        return Integer.parseInt(version[1]) > 12;
+        return Integer.parseInt(version[1]) > val;
     }
 
 
@@ -293,10 +297,12 @@ public class PluginMain extends JavaPlugin {
 
         //Check if version is < 1.8.9
         try {
-            if (this.isVersionNew()) {
+            if (versionCompatible(16)) {
+                isNetherite = true;
+            }
+            if (this.versionCompatible(12)) {
                 golden = Material.getMaterial(Material.class.getField("GOLDEN_PICKAXE").getName());
                 wooden = Material.getMaterial(Material.class.getField("WOODEN_PICKAXE").getName());
-                isNetherite = true;
             } else {
                 golden = Material.getMaterial(Material.class.getField("GOLD_PICKAXE").getName());
                 wooden = Material.getMaterial(Material.class.getField("WOOD_PICKAXE").getName());
@@ -344,7 +350,7 @@ public class PluginMain extends JavaPlugin {
                                 player.getInventory().addItem(new ItemStack(Material.REDSTONE_BLOCK));
                             } else tak = false;
                         }
-                        if (isVersionNew()) {
+                        if (versionCompatible(12)) {
                             tak = true;
                             while (tak) {
                                 try {

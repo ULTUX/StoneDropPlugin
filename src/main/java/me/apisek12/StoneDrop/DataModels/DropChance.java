@@ -68,7 +68,7 @@ public class DropChance {
     public void setEnchant(HashMap<String, Integer> enchant) {
         enchant.forEach((enchantName, level) ->{
             enchantName = enchantName.toLowerCase();
-            if (PluginMain.plugin.isVersionNew()) {
+            if (PluginMain.plugin.versionCompatible(12)) {
                 try {
                     this.enchant.put((Enchantment) Enchantment.class.getMethod("getByKey", NamespacedKey.class).invoke(Enchantment.class, NamespacedKey.minecraft(enchantName)), level);
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

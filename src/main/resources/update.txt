@@ -1,3 +1,3 @@
-&7A StoneDrop plugin has been updated (&3v1.9.8):
-    - &7Players can now get drops from blocks that are mined with axes, shovels and hoes.
+&7A StoneDrop plugin has been updated (&3v1.9.9):
+    - &7Fixed and issue on minecraft version 1.13 that prevented some players from getting drops from stone.
 &cIf you come across any bugs or have any problems, please visit your discord: &bhttps://discord.com/invite/4gsa9wCCST

@@ -77,7 +77,7 @@ public class BlockBreakEventListener implements Listener {
     }
     ItemStack getItemInHand(Player player){
         ItemStack tool = null;
-        if (PluginMain.plugin.isVersionNew()){
+        if (PluginMain.plugin.versionCompatible(12)){
             try {
                 tool = ((ItemStack) PlayerInventory.class.getMethod("getItemInMainHand").invoke(player.getInventory()));
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -135,7 +135,7 @@ public class BlockBreakEventListener implements Listener {
                         event.setCancelled(true);
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> event.getBlock().setType(Material.AIR), 1L);
                         Player player = event.getPlayer();
-                        if (PluginMain.plugin.isVersionNew()){
+                        if (PluginMain.plugin.versionCompatible(12)){
                             Damageable itemMeta = (Damageable) player.getInventory().getItemInMainHand().getItemMeta();
                             if (((ItemMeta)itemMeta).hasEnchant(Enchantment.DURABILITY)){
                                 if (Chance.chance(1f/(((ItemMeta)itemMeta).getEnchantLevel(Enchantment.DURABILITY)+1))){
@@ -290,8 +290,8 @@ public class BlockBreakEventListener implements Listener {
     public void spawnChest(Location location, Player player){
         Block block = location.getBlock();
         if (PluginMain.treasureChestBroadcast) player.getServer().broadcastMessage(ChatColor.GOLD+ChatColor.translateAlternateColorCodes('&', Message.TREASURE_CHEST_BROADCAST.toString().replace("@name", player.getName())));
-        if (PluginMain.plugin.isVersionNew()) player.sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
-        if (PluginMain.plugin.isVersionNew()) player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, (float)PluginMain.volume, 1f);
+        if (PluginMain.plugin.versionCompatible(12)) player.sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
+        if (PluginMain.plugin.versionCompatible(12)) player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, (float)PluginMain.volume, 1f);
 
 
         ArrayList<ItemStack> chestInv = new ArrayList<>();
@@ -323,7 +323,7 @@ public class BlockBreakEventListener implements Listener {
 
             Chest chest = (Chest) block.getState();
 
-            if (PluginMain.plugin.isVersionNew())
+            if (PluginMain.plugin.versionCompatible(12))
                 Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
 
             chestInv.forEach(itemStack -> {
@@ -343,12 +343,12 @@ public class BlockBreakEventListener implements Listener {
     public void InventoryCloseEvent(InventoryCloseEvent event){
         if (openedChests.contains(event.getInventory())){
             Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, () -> {
-                if (PluginMain.plugin.isVersionNew()) ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, (float)PluginMain.volume, 0.1f);
+                if (PluginMain.plugin.versionCompatible(12)) ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, (float)PluginMain.volume, 0.1f);
                 event.getInventory().clear();
                 chestLocations.remove(((Chest)event.getInventory().getHolder()).getLocation());
                 openedChests.remove(event.getInventory());
                 if (event.getInventory().getHolder() instanceof Chest) ((Chest)event.getInventory().getHolder()).getLocation().getBlock().setType(Material.AIR);
-                if (PluginMain.plugin.isVersionNew()) event.getInventory().getLocation().getWorld().spawnParticle(Particle.CLOUD, event.getInventory().getLocation(), 500, 0, 0, 0);
+                if (PluginMain.plugin.versionCompatible(12)) event.getInventory().getLocation().getWorld().spawnParticle(Particle.CLOUD, event.getInventory().getLocation(), 500, 0, 0, 0);
             }, 20);
         }
     }

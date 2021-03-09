@@ -26,7 +26,7 @@ public class ChestItemsInfo {
         this.min = min;
         this.max = max;
         enchantment.forEach((name, level) ->{
-            if (PluginMain.plugin.isVersionNew()){
+            if (PluginMain.plugin.versionCompatible(12)){
                 try {
                     this.enchantment.put((Enchantment) Enchantment.class.getMethod("getByKey", NamespacedKey.class).invoke(Enchantment.class, NamespacedKey.minecraft(name)), level);
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

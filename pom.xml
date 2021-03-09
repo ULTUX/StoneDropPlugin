@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <groupId>codes.ultux.stonedrop</groupId>
     <artifactId>StoneDrop</artifactId>
-    <version>1.9.8</version>
+    <version>1.9.9</version>
 
 
     <repositories>
