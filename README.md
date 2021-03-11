@@ -39,7 +39,6 @@ Everything can be configured and changed to meet server requirements.
 -   Set **exp orbs** to be spawned *(Mending support)*.
 -   Configurable required **Y level range** for an item to spawn.
 -   **Treasure chest** while mining stone.
-- 
 **And many more!**
 ## How to use GUI
 - Menu can be opened by typing /drop *(or /d)*.
