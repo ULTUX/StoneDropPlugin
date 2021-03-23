@@ -6,6 +6,9 @@
 ![](https://img.shields.io/github/release-date/ULTUX/StoneDropPlugin)
 ![Build](https://github.com/ULTUX/StoneDropPlugin/workflows/Java%20CI%20with%20Maven/badge.svg?branch=master)
 
+## Thanks for over 50k downloads!
+
+
 ## What is Stone Drop?
 
 
@@ -15,6 +18,7 @@ Everything can be configured and changed to meet server requirements.
 
 ## Need help, have some ideas or have found a bug? Visit our Discord Server.
 [ ![](https://i.imgur.com/lUUtxLdl.jpg) ](https://discord.gg/4gsa9wCCST)
+
 
 ## Requirements
 
