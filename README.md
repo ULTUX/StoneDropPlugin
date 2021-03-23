@@ -6,7 +6,7 @@
 ![](https://img.shields.io/github/release-date/ULTUX/StoneDropPlugin)
 ![Build](https://github.com/ULTUX/StoneDropPlugin/workflows/Java%20CI%20with%20Maven/badge.svg?branch=master)
 
-# Thanks for over 50k downloads!
+# <ins>Thanks for over 50k downloads!</ins>
 
 
 ## What is Stone Drop?
