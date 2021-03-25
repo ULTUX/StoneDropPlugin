@@ -57,6 +57,7 @@ Everything can be configured and changed to meet server requirements.
 4.  You have successfully **downloaded and installed** the plugin!
 
 ## Commands
+
 | Command | Description                                                                                              |
 | --------|------------                                                                                              |
 | /drop (*or /d*) | base command - shows a menu                                                                      |
