@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/ULTUX/StoneDropPlugin/master/.github/banner.png" height=347/>
+<img src="https://raw.githubusercontent.com/ULTUX/StoneDropPlugin/master/.github/banner.png" desc="img by Ponanoix" height=347/>
 
 ![](https://img.shields.io/github/v/release/ULTUX/StoneDropPlugin)
 ![](https://img.shields.io/github/issues/ULTUX/StoneDropPlugin)
