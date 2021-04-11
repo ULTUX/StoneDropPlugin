@@ -7,6 +7,7 @@ import me.apisek12.StoneDrop.PluginMain;
 import me.apisek12.StoneDrop.Utils.Chance;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -16,6 +17,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -26,6 +29,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 
@@ -101,11 +105,38 @@ public class BlockBreakEventListener implements Listener {
             }
         }
         else {
-            location.getWorld().dropItem(location, itemStack);
+            if(PluginMain.dropSpreadMultiDir){
+                chestDropItems(itemStack,player,location);
+            }else {
+                location.getWorld().dropItem(location, itemStack);
+            }
         }
     }
+
+    private static void chestDropItems(ItemStack itemStack, Player player,  Location location){
+        Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
+            spawnDropChest(itemStack,player,location);
+        }, 4);
+    }
+    private static  void spawnDropChest(ItemStack itemStack, Player player,Location location){
+        location.getBlock().setType(Material.CHEST);
+
+        Chest chest = (Chest) location.getBlock().getState();
+        int chestSlotAmount = (int) (itemStack.getAmount()/27);
+        int extraSlotAmount = (chestSlotAmount < 64) ?  itemStack.getAmount() % 27 : 0;
+        for (int ci=0,extraAdd=0;ci<27;ci++,extraAdd++){
+            int finalSlotItemAmount = (extraAdd < extraSlotAmount ) ? chestSlotAmount + 1 : chestSlotAmount;
+            chest.getInventory().setItem(ci,new ItemStack(itemStack.getType(), finalSlotItemAmount));
+
+        }
+
+        Bukkit.getServer().getPluginManager().callEvent(new BlockBreakEvent(location.getBlock(),player));
+        location.getBlock().setType(Material.AIR);
+    }
+
     @EventHandler (priority = EventPriority.HIGHEST)
     public void blockBreak(BlockBreakEvent event) {
+
         if (!PluginMain.disabledWorlds.contains(event.getPlayer().getWorld().getName())){
 
             if (!event.isCancelled()) {
@@ -114,10 +145,15 @@ public class BlockBreakEventListener implements Listener {
                 World world = block.getWorld();
                 Material tool = getItemInHand(event.getPlayer()).getType();
 
-                if (event.getBlock().getType().toString().contains("ORE") || event.getBlock().getType().toString().equalsIgnoreCase("ancient_debris"))
+                Material breakBlockName = event.getBlock().getType();
+                if (breakBlockName.toString().contains("ORE") || event.getBlock().getType().toString().equalsIgnoreCase("ancient_debris"))
                 {
                     if (PluginMain.dropFromOres && Chance.chance(PluginMain.oreDropChance)) return;
                     if (!PluginMain.dropFromOres) {
+                        if(PluginMain.dropOresWhiteList!=null &&
+                                PluginMain.dropOresWhiteList.contains(breakBlockName)){
+                            return;
+                        }
                         if (!messageTimestamp.containsKey(event.getPlayer())) {
                             event.getPlayer().sendMessage(ChatColor.RED + Message.INFO_DROP_DISABLED.toString());
                             synchronized (messageTimestamp) {
@@ -219,6 +255,26 @@ public class BlockBreakEventListener implements Listener {
                             }
                         }
 
+                    } else if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.SILK_TOUCH) >= 1) {
+                        for (int i = 0; i < set.length; i++) {
+                            if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
+                                DropChance oreSettings = dropChances.get(set[i]);
+                                if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
+                                    if (Chance.chance(dropChances.get(set[i]).getST()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
+                                        try {
+                                            ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinST(), dropChances.get(set[i]).getMaxST()));
+                                            applyEnchants(event, oreSettings, itemToDrop);
+                                            applyCustomName(oreSettings, itemToDrop);
+                                            dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
+                                        }
+                                        catch (NullPointerException e){
+                                            PluginMain.plugin.getLogger().log(Level.WARNING, "Material: "+set[i]+" does not exist in this minecraft version, something is probably not properly set in config.yml file.");
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
                     } else {
                         for (int i = 0; i < set.length; i++) {
                             if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
@@ -379,5 +435,21 @@ public class BlockBreakEventListener implements Listener {
         return possibleInv.get(random);
     }
 
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent e) {
+        if (PluginMain.dropFromOres && Chance.chance(PluginMain.oreDropChance)) return;
+        for (Block b : e.blockList()) {
+            if(b.getType().toString().contains("ORE")) {
+                if (PluginMain.dropOresWhiteList != null &&
+                        PluginMain.dropOresWhiteList.contains(b.getType())) {
+                    continue;
+                }
+
+                b.setType(Material.AIR); // Stop item drops from spawning
+            }
+
+        }
+    }
 
 }
