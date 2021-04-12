@@ -53,7 +53,7 @@ public class PluginMain extends JavaPlugin {
     public static double volume = 0.3d;
     public static LinkedHashMap<String, Double> commands;
     public static boolean dropChestToInv = false;
-    public static boolean dropSpreadMultiDir = true;
+    public static boolean realisticDrop = true;
 
 
     /**
@@ -480,7 +480,7 @@ public class PluginMain extends JavaPlugin {
         experienceToDrop = (float) ((double) getConfig().get("experience"));
         disabledWorlds = new ArrayList<>(getConfig().getStringList("disabled-worlds"));
         dropChestToInv = getConfig().getBoolean("drop-chest-to-inventory");
-        dropSpreadMultiDir = getConfig().getBoolean("drop-spread-multi-directions");
+        realisticDrop = getConfig().getBoolean("realistic-drop");
     }
 
     private void loadChestChances() {

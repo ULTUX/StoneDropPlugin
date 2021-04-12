@@ -7,7 +7,6 @@ import me.apisek12.StoneDrop.PluginMain;
 import me.apisek12.StoneDrop.Utils.Chance;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -17,7 +16,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -29,7 +27,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 
@@ -105,33 +102,39 @@ public class BlockBreakEventListener implements Listener {
             }
         }
         else {
-            if(PluginMain.dropSpreadMultiDir){
-                chestDropItems(itemStack,player,location);
+            if(PluginMain.realisticDrop){
+                spawnDropChest(itemStack,player,location);
             }else {
                 location.getWorld().dropItem(location, itemStack);
             }
         }
     }
 
-    private static void chestDropItems(ItemStack itemStack, Player player,  Location location){
-        Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
-            spawnDropChest(itemStack,player,location);
-        }, 4);
-    }
-    private static  void spawnDropChest(ItemStack itemStack, Player player,Location location){
-        location.getBlock().setType(Material.CHEST);
+    private static void spawnDropChest(ItemStack itemStack, Player player,Location location){
+        boolean isTrpChstNeighbour = hasTheSameNeighbour(location.getBlock(),Material.TRAPPED_CHEST);
 
-        Chest chest = (Chest) location.getBlock().getState();
-        int chestSlotAmount = (int) (itemStack.getAmount()/27);
-        int extraSlotAmount = (chestSlotAmount < 64) ?  itemStack.getAmount() % 27 : 0;
-        for (int ci=0,extraAdd=0;ci<27;ci++,extraAdd++){
-            int finalSlotItemAmount = (extraAdd < extraSlotAmount ) ? chestSlotAmount + 1 : chestSlotAmount;
-            chest.getInventory().setItem(ci,new ItemStack(itemStack.getType(), finalSlotItemAmount));
+        if (isTrpChstNeighbour){
+            location.getWorld().dropItemNaturally(location, itemStack);
+        }
+        else{
+            location.getBlock().setType(Material.TRAPPED_CHEST);
+            Chest chest = (Chest) location.getBlock().getState();
+            int chestSlotAmount = (itemStack.getAmount()/27);
+            int extraSlotAmount = (chestSlotAmount < 64) ?  itemStack.getAmount() % 27 : 0;
+            for (int ci=0,extraAdd=0;ci<27;ci++,extraAdd++){
+                if (extraAdd < extraSlotAmount ){
+                    chest.getInventory().setItem(ci,new ItemStack(itemStack.getType(), chestSlotAmount+1));
+                }
+                else {
+                    chest.getInventory().setItem(ci,new ItemStack(itemStack.getType(), chestSlotAmount));
+                }
+            }
+
+            Bukkit.getServer().getPluginManager().callEvent(new BlockBreakEvent(location.getBlock(),player));
+            location.getBlock().setType(Material.AIR);
 
         }
 
-        Bukkit.getServer().getPluginManager().callEvent(new BlockBreakEvent(location.getBlock(),player));
-        location.getBlock().setType(Material.AIR);
     }
 
     @EventHandler (priority = EventPriority.HIGHEST)
@@ -202,6 +205,12 @@ public class BlockBreakEventListener implements Listener {
                             spawnChest(event.getBlock().getLocation(), event.getPlayer());
                         }, 4);
                     }
+                    /*if(!PluginMain.realisticDrop && Chance.chance(PluginMain.chestSpawnRate)){
+                        //when realistic drop is on, this method is call in drop function
+                        runTaskSpawnChest(event.getBlock().getLocation(),event.getPlayer());
+                    }*/
+
+
                     PluginMain.commands.forEach((s, aDouble) -> {
                         if (Chance.chance(aDouble)) {
                             String command = s.replace("@player", event.getPlayer().getName());
@@ -343,6 +352,25 @@ public class BlockBreakEventListener implements Listener {
             openedChests.add(event.getInventory());
         }
     }
+    /*public void runTaskSpawnChest(Location location, Player player){
+        if (Chance.chance(PluginMain.chestSpawnRate)) {
+            Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
+                spawnChest(location, player);
+            }, 4);
+        }
+    }*/
+
+    public static boolean hasTheSameNeighbour(Block block, Material material){
+        for (int xi = -1; xi < 2; xi++){
+            for (int zi = -1; zi < 2; zi++){
+                if (xi*xi+zi*zi == 2) continue;
+                if (block.getRelative(xi, 0, zi).getType().equals(material)) return true;
+            }
+        }
+        return false;
+        //xi == 0 && zi == 0 ||
+    }
+
     public void spawnChest(Location location, Player player){
         Block block = location.getBlock();
         if (PluginMain.treasureChestBroadcast) player.getServer().broadcastMessage(ChatColor.GOLD+ChatColor.translateAlternateColorCodes('&', Message.TREASURE_CHEST_BROADCAST.toString().replace("@name", player.getName())));
@@ -365,14 +393,9 @@ public class BlockBreakEventListener implements Listener {
                     chestInv.add(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
             }
         }
-        boolean isChestNeighbour = false;
+        //boolean isChestNeighbour = false;
+        boolean isChestNeighbour = hasTheSameNeighbour(block,Material.CHEST);
 
-        for (int xi = -1; xi < 2; xi++){
-            for (int zi = -1; zi < 2; zi++){
-                if (xi == 0 && zi == 0 || xi*xi+zi*zi == 2) continue;
-                if (block.getRelative(xi, 0, zi).getType().equals(Material.CHEST)) isChestNeighbour = true;
-            }
-        }
         if (!isChestNeighbour && !PluginMain.dropChestToInv) {
             block.setType(Material.CHEST);
             chestLocations.add(block.getLocation());

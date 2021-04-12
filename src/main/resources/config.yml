@@ -244,5 +244,5 @@ volume: 0.3
 #Drop chest contents to inventory
 drop-chest-to-inventory: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Drop spread multi directions
-drop-spread-multi-directions: true
+#realistic multi direction drop spread
+realistic-drop: true
