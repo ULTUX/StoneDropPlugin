@@ -37,6 +37,14 @@ chances:
       chance: 0.00325
       max-amount: 4
       min-amount: 3
+  DIAMOND_ORE:
+    minLevel: 0
+    maxLevel: 25
+    customName: "&bCustom named diamond that is found on Y=<0, 25>!"
+    silk_touch-1:
+      chance: 0.1
+      max-amount: 1
+      min-amount: 1
   EMERALD:
     fortune-0:
       chance: 0.0025
@@ -189,9 +197,9 @@ executeCommands:
 #List of blocks that the plugin should work on. The list of all possible blocks is listed here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
 dropBlocks:
   - STONE
-#  - ANDESITE
-#  - GRANITE
-
+  - ANDESITE
+  - GRANITE
+  - DIORITE
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #experience dropped from stone:
@@ -208,6 +216,13 @@ disabled-worlds:
 #Should ores drop items
 ore-drop: true
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#If ore-drop is False, some specific ores can drop anyway. This is white list drop ores.
+#If there is no, type []
+ores-whitelist:
+  - COAL_ORE
+  - REDSTONE_ORE
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 #If ore-drop is true -> whats the chance to drop item from ore when mining it
 ore-drop-chance: 1.0
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -228,3 +243,6 @@ volume: 0.3
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Drop chest contents to inventory
 drop-chest-to-inventory: false
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#realistic multi direction drop spread
+realistic-drop: true

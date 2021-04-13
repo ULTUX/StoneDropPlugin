@@ -40,6 +40,7 @@ public class PluginMain extends JavaPlugin {
     private static FileConfiguration langData = null;
     public static ArrayList<Material> dropBlocks = null;
     static public boolean dropFromOres = true;
+    public static ArrayList<Material> dropOresWhiteList = null;
     public static boolean dropIntoInventory = false;
     public static boolean displayUpdateMessage = true;
     public static Material wooden = null, golden = null;
@@ -52,6 +53,7 @@ public class PluginMain extends JavaPlugin {
     public static double volume = 0.3d;
     public static LinkedHashMap<String, Double> commands;
     public static boolean dropChestToInv = false;
+    public static boolean realisticDrop = true;
 
 
     /**
@@ -464,6 +466,12 @@ public class PluginMain extends JavaPlugin {
         dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
         //Check if plugin should block item dropping from ores
         dropFromOres = getConfig().getBoolean("ore-drop");
+        if(dropFromOres==false){
+            dropOresWhiteList = new ArrayList<>();
+            getConfig().getStringList("ores-whitelist").forEach(white_ore -> {
+                dropOresWhiteList.add(Material.getMaterial(white_ore));
+            });
+        }
         displayUpdateMessage = getConfig().getBoolean("display-update-message");
         dropExpOrb = getConfig().getBoolean("drop-exp-orb");
         treasureChestBroadcast = getConfig().getBoolean("treasure-broadcast");
@@ -472,10 +480,11 @@ public class PluginMain extends JavaPlugin {
         experienceToDrop = (float) ((double) getConfig().get("experience"));
         disabledWorlds = new ArrayList<>(getConfig().getStringList("disabled-worlds"));
         dropChestToInv = getConfig().getBoolean("drop-chest-to-inventory");
+        realisticDrop = getConfig().getBoolean("realistic-drop");
     }
 
     private void loadChestChances() {
-         chestContent = new HashMap<>();
+        chestContent = new HashMap<>();
         chestSpawnRate = Double.parseDouble(getConfig().get("chest-spawn-chance").toString());
         Set<String> config = getConfig().getConfigurationSection("chest").getKeys(false);
         for (String k : config) {
@@ -513,7 +522,16 @@ public class PluginMain extends JavaPlugin {
                     oreObjectOptions.setChance(level, chance);
                     oreObjectOptions.setMinDrop(level, min);
                     oreObjectOptions.setMaxDrop(level, max);
+                } else if (fortuneLevel.split("-")[0].equals("silk_touch")) {
+                    int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
+                    double chance = oreObject.getConfigurationSection(fortuneLevel).getDouble("chance");
+                    int min = oreObject.getConfigurationSection(fortuneLevel).getInt("min-amount");
+                    int max = oreObject.getConfigurationSection(fortuneLevel).getInt("max-amount");
+                    oreObjectOptions.setSilkCahnce(level, chance);
+                    oreObjectOptions.setSilkMinDrop(level, min);
+                    oreObjectOptions.setSilkMaxDrop(level, max);
                 }
+
             }
             try {
                 HashMap<String, Integer> enchants = (HashMap) getConfig().getConfigurationSection("chances").getConfigurationSection(key + ".enchant").getValues(false);

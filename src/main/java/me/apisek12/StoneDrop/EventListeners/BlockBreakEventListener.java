@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -101,11 +102,44 @@ public class BlockBreakEventListener implements Listener {
             }
         }
         else {
-            location.getWorld().dropItem(location, itemStack);
+            if(PluginMain.realisticDrop){
+                spawnDropChest(itemStack,player,location);
+            }else {
+                location.getWorld().dropItem(location, itemStack);
+            }
         }
     }
+
+    private static void spawnDropChest(ItemStack itemStack, Player player,Location location){
+        boolean isTrpChstNeighbour = hasTheSameNeighbour(location.getBlock(),Material.TRAPPED_CHEST);
+
+        if (isTrpChstNeighbour){
+            location.getWorld().dropItemNaturally(location, itemStack);
+        }
+        else{
+            location.getBlock().setType(Material.TRAPPED_CHEST);
+            Chest chest = (Chest) location.getBlock().getState();
+            int chestSlotAmount = (itemStack.getAmount()/27);
+            int extraSlotAmount = (chestSlotAmount < 64) ?  itemStack.getAmount() % 27 : 0;
+            for (int ci=0,extraAdd=0;ci<27;ci++,extraAdd++){
+                if (extraAdd < extraSlotAmount ){
+                    chest.getInventory().setItem(ci,new ItemStack(itemStack.getType(), chestSlotAmount+1));
+                }
+                else {
+                    chest.getInventory().setItem(ci,new ItemStack(itemStack.getType(), chestSlotAmount));
+                }
+            }
+
+            Bukkit.getServer().getPluginManager().callEvent(new BlockBreakEvent(location.getBlock(),player));
+            location.getBlock().setType(Material.AIR);
+
+        }
+
+    }
+
     @EventHandler (priority = EventPriority.HIGHEST)
     public void blockBreak(BlockBreakEvent event) {
+
         if (!PluginMain.disabledWorlds.contains(event.getPlayer().getWorld().getName())){
 
             if (!event.isCancelled()) {
@@ -114,10 +148,15 @@ public class BlockBreakEventListener implements Listener {
                 World world = block.getWorld();
                 Material tool = getItemInHand(event.getPlayer()).getType();
 
-                if (event.getBlock().getType().toString().contains("ORE") || event.getBlock().getType().toString().equalsIgnoreCase("ancient_debris"))
+                Material breakBlockName = event.getBlock().getType();
+                if (breakBlockName.toString().contains("ORE") || event.getBlock().getType().toString().equalsIgnoreCase("ancient_debris"))
                 {
                     if (PluginMain.dropFromOres && Chance.chance(PluginMain.oreDropChance)) return;
                     if (!PluginMain.dropFromOres) {
+                        if(PluginMain.dropOresWhiteList!=null &&
+                                PluginMain.dropOresWhiteList.contains(breakBlockName)){
+                            return;
+                        }
                         if (!messageTimestamp.containsKey(event.getPlayer())) {
                             event.getPlayer().sendMessage(ChatColor.RED + Message.INFO_DROP_DISABLED.toString());
                             synchronized (messageTimestamp) {
@@ -166,6 +205,12 @@ public class BlockBreakEventListener implements Listener {
                             spawnChest(event.getBlock().getLocation(), event.getPlayer());
                         }, 4);
                     }
+                    /*if(!PluginMain.realisticDrop && Chance.chance(PluginMain.chestSpawnRate)){
+                        //when realistic drop is on, this method is call in drop function
+                        runTaskSpawnChest(event.getBlock().getLocation(),event.getPlayer());
+                    }*/
+
+
                     PluginMain.commands.forEach((s, aDouble) -> {
                         if (Chance.chance(aDouble)) {
                             String command = s.replace("@player", event.getPlayer().getName());
@@ -219,6 +264,26 @@ public class BlockBreakEventListener implements Listener {
                             }
                         }
 
+                    } else if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.SILK_TOUCH) >= 1) {
+                        for (int i = 0; i < set.length; i++) {
+                            if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
+                                DropChance oreSettings = dropChances.get(set[i]);
+                                if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
+                                    if (Chance.chance(dropChances.get(set[i]).getST()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
+                                        try {
+                                            ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinST(), dropChances.get(set[i]).getMaxST()));
+                                            applyEnchants(event, oreSettings, itemToDrop);
+                                            applyCustomName(oreSettings, itemToDrop);
+                                            dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
+                                        }
+                                        catch (NullPointerException e){
+                                            PluginMain.plugin.getLogger().log(Level.WARNING, "Material: "+set[i]+" does not exist in this minecraft version, something is probably not properly set in config.yml file.");
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
                     } else {
                         for (int i = 0; i < set.length; i++) {
                             if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
@@ -287,6 +352,25 @@ public class BlockBreakEventListener implements Listener {
             openedChests.add(event.getInventory());
         }
     }
+    /*public void runTaskSpawnChest(Location location, Player player){
+        if (Chance.chance(PluginMain.chestSpawnRate)) {
+            Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
+                spawnChest(location, player);
+            }, 4);
+        }
+    }*/
+
+    public static boolean hasTheSameNeighbour(Block block, Material material){
+        for (int xi = -1; xi < 2; xi++){
+            for (int zi = -1; zi < 2; zi++){
+                if (xi*xi+zi*zi == 2) continue;
+                if (block.getRelative(xi, 0, zi).getType().equals(material)) return true;
+            }
+        }
+        return false;
+        //xi == 0 && zi == 0 ||
+    }
+
     public void spawnChest(Location location, Player player){
         Block block = location.getBlock();
         if (PluginMain.treasureChestBroadcast) player.getServer().broadcastMessage(ChatColor.GOLD+ChatColor.translateAlternateColorCodes('&', Message.TREASURE_CHEST_BROADCAST.toString().replace("@name", player.getName())));
@@ -309,14 +393,9 @@ public class BlockBreakEventListener implements Listener {
                     chestInv.add(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
             }
         }
-        boolean isChestNeighbour = false;
+        //boolean isChestNeighbour = false;
+        boolean isChestNeighbour = hasTheSameNeighbour(block,Material.CHEST);
 
-        for (int xi = -1; xi < 2; xi++){
-            for (int zi = -1; zi < 2; zi++){
-                if (xi == 0 && zi == 0 || xi*xi+zi*zi == 2) continue;
-                if (block.getRelative(xi, 0, zi).getType().equals(Material.CHEST)) isChestNeighbour = true;
-            }
-        }
         if (!isChestNeighbour && !PluginMain.dropChestToInv) {
             block.setType(Material.CHEST);
             chestLocations.add(block.getLocation());
@@ -379,5 +458,21 @@ public class BlockBreakEventListener implements Listener {
         return possibleInv.get(random);
     }
 
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent e) {
+        if (PluginMain.dropFromOres && Chance.chance(PluginMain.oreDropChance)) return;
+        for (Block b : e.blockList()) {
+            if(b.getType().toString().contains("ORE")) {
+                if (PluginMain.dropOresWhiteList != null &&
+                        PluginMain.dropOresWhiteList.contains(b.getType())) {
+                    continue;
+                }
+
+                b.setType(Material.AIR); // Stop item drops from spawning
+            }
+
+        }
+    }
 
 }
