@@ -24,7 +24,7 @@ Everything can be configured and changed to meet server requirements.
 
 
 -   **Stone Drop** requires Java version 8 or higher, most likely already installed.
--   **Stone Drop** has been tested on Minecraft version **1.16.4** although it may work with previous versions (such as **1.12**)
+-   Minecraft version **1.8 or higher**
 -   And you probably know that because this is a plugin, **Stone Drop** requires *Bukkit, Spigot or Paper* as a server engine
 
 ## Features
