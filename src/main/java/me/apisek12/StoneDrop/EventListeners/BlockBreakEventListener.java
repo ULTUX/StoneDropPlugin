@@ -352,13 +352,7 @@ public class BlockBreakEventListener implements Listener {
             openedChests.add(event.getInventory());
         }
     }
-    /*public void runTaskSpawnChest(Location location, Player player){
-        if (Chance.chance(PluginMain.chestSpawnRate)) {
-            Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
-                spawnChest(location, player);
-            }, 4);
-        }
-    }*/
+
 
     public static boolean hasTheSameNeighbour(Block block, Material material){
         for (int xi = -1; xi < 2; xi++){
@@ -368,7 +362,6 @@ public class BlockBreakEventListener implements Listener {
             }
         }
         return false;
-        //xi == 0 && zi == 0 ||
     }
 
     public void spawnChest(Location location, Player player){
@@ -393,7 +386,6 @@ public class BlockBreakEventListener implements Listener {
                     chestInv.add(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
             }
         }
-        //boolean isChestNeighbour = false;
         boolean isChestNeighbour = hasTheSameNeighbour(block,Material.CHEST);
 
         if (!isChestNeighbour && !PluginMain.dropChestToInv) {
