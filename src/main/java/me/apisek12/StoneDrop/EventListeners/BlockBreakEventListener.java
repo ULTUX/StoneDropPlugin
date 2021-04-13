@@ -417,7 +417,7 @@ public class BlockBreakEventListener implements Listener {
                 if (PluginMain.plugin.versionCompatible(12)) ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, (float)PluginMain.volume, 0.1f);
                 event.getInventory().clear();
                 chestLocations.remove(((Chest)event.getInventory().getHolder()).getLocation());
-                openedChests.remove(event.getInventory());
+                if(openedChests.contains(event.getInventory())) openedChests.remove(event.getInventory());
                 if (event.getInventory().getHolder() instanceof Chest) ((Chest)event.getInventory().getHolder()).getLocation().getBlock().setType(Material.AIR);
                 if (PluginMain.plugin.versionCompatible(12)) event.getInventory().getLocation().getWorld().spawnParticle(Particle.CLOUD, event.getInventory().getLocation(), 500, 0, 0, 0);
             }, 20);
