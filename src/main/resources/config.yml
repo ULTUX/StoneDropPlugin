@@ -46,6 +46,8 @@ chances:
       max-amount: 1
       min-amount: 1
   EMERALD:
+    biomes:
+      - Mountains
     fortune-0:
       chance: 0.0025
       max-amount: 1

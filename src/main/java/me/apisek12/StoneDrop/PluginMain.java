@@ -7,6 +7,7 @@ import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Apis.Metrics;
 import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
+import me.apisek12.StoneDrop.InventorySelectors.InventorySelector;
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -54,6 +55,7 @@ public class PluginMain extends JavaPlugin {
     public static LinkedHashMap<String, Double> commands;
     public static boolean dropChestToInv = false;
     public static boolean realisticDrop = true;
+    public static String bukkitVersion;
 
 
     /**
@@ -291,6 +293,7 @@ public class PluginMain extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         currentPluginVersion = getDescription().getVersion();
+        bukkitVersion = Bukkit.getBukkitVersion();
         generateConfig();
         generateLang();
         loadConfig();
@@ -519,9 +522,14 @@ public class PluginMain extends JavaPlugin {
                     double chance = oreObject.getConfigurationSection(fortuneLevel).getDouble("chance");
                     int min = oreObject.getConfigurationSection(fortuneLevel).getInt("min-amount");
                     int max = oreObject.getConfigurationSection(fortuneLevel).getInt("max-amount");
+                    oreObjectOptions.setFortuneChance(level,chance);
+                    oreObjectOptions.setFortuneItemsAmountMin(level,min);
+                    oreObjectOptions.setFortuneItemsAmountMax(level,max);
+                    /*int min = oreObject.getConfigurationSection(fortuneLevel).getInt("min-amount");
+                    int max = oreObject.getConfigurationSection(fortuneLevel).getInt("max-amount");
                     oreObjectOptions.setChance(level, chance);
                     oreObjectOptions.setMinDrop(level, min);
-                    oreObjectOptions.setMaxDrop(level, max);
+                    oreObjectOptions.setMaxDrop(level, max);*/
                 } else if (fortuneLevel.split("-")[0].equals("silk_touch")) {
                     int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
                     double chance = oreObject.getConfigurationSection(fortuneLevel).getDouble("chance");

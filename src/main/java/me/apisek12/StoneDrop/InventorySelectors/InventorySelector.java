@@ -1,9 +1,10 @@
-package me.apisek12.StoneDrop;
+package me.apisek12.StoneDrop.InventorySelectors;
 
 import me.apisek12.StoneDrop.DataModels.DropChance;
 import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
+import me.apisek12.StoneDrop.PluginMain;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -24,16 +25,16 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InventorySelector implements Listener {
-    private Player player;
-    private LinkedHashMap<String, Setting> settings;
-    private static String title = ChatColor.DARK_AQUA + Message.GUI_TITLE.toString();
-    private Inventory selector;
-    private LinkedHashMap<ItemStack, ArrayList<ItemStack>> items = new LinkedHashMap<>();
-    private static HashMap<Player, InventorySelector> objects = new HashMap<>();
-    private boolean willBeUsed = false;
-    private Inventory secondaryWindow;
-    private static ItemStack exit, back;
-    private ItemStack cobble;
+    protected Player player;
+    protected LinkedHashMap<String, Setting> settings;
+    protected static String title = ChatColor.DARK_AQUA + Message.GUI_TITLE.toString();
+    protected Inventory selector;
+    protected LinkedHashMap<ItemStack, ArrayList<ItemStack>> items = new LinkedHashMap<>();
+    protected static HashMap<Player, InventorySelector> objects = new HashMap<>();
+    protected boolean willBeUsed = false;
+    protected Inventory secondaryWindow;
+    protected static ItemStack exit, back;
+    protected ItemStack cobble;
 
     static {
         exit = new ItemStack(Material.BARRIER);
@@ -68,7 +69,9 @@ public class InventorySelector implements Listener {
         player.openInventory(selector);
     }
 
-    private void refreshSettings(){
+
+
+    protected void refreshSettings(){
         refreshCobbleObject();
         items.clear();
         settings.forEach((materialName, setting) -> {
@@ -103,7 +106,7 @@ public class InventorySelector implements Listener {
             }
         });
     }
-    private void refreshCobbleObject(){
+    protected void refreshCobbleObject(){
         ItemMeta cobbleMeta = cobble.getItemMeta();
         ArrayList<String> lore = new ArrayList<>();
         String onOff;
@@ -120,7 +123,7 @@ public class InventorySelector implements Listener {
         cobble.setItemMeta(cobbleMeta);
     }
 
-    private ArrayList<ItemStack> getItemDetailedData(DropChance dropData, Material dropMaterial) {
+    protected ArrayList<ItemStack> getItemDetailedData(DropChance dropData, Material dropMaterial) {
         ArrayList<ItemStack> items = new ArrayList<>();
         ItemStack f0, f1, f2, f3;
 
@@ -170,32 +173,46 @@ public class InventorySelector implements Listener {
 
     }
 
-    private ArrayList<String> generateItemLore(DropChance dropData, int level) {
+    protected ArrayList<String> generateItemLore(DropChance dropData, int level) {
         ArrayList<String> lore = new ArrayList<>();
         double chance = 0;
         int min = 0, max = 0;
         assert level == 0 || level == 1 || level == 2 || level == 3;
         DecimalFormat format = new DecimalFormat("##0.0##");
+
+
         switch (level) {
             case 0:
-                chance = dropData.getNof();
+                chance = dropData.getFortuneChance(0);
+                min = (int)dropData.getFortuneItemsAmountMin(0);
+                max = (int)dropData.getFortuneItemsAmountMax(0);
+                /*chance = dropData.getNof();
                 min = dropData.getMinnof();
-                max = dropData.getMaxnof();
+                max = dropData.getMaxnof();*/
                 break;
             case 1:
-                chance = dropData.getF1();
+                chance = dropData.getFortuneChance(1);
+                min = (int)dropData.getFortuneItemsAmountMin(1);
+                max = (int)dropData.getFortuneItemsAmountMax(1);
+                /*chance = dropData.getF1();
                 min = dropData.getMinf1();
-                max = dropData.getMaxnof();
+                max = dropData.getMaxnof();*/
                 break;
             case 2:
-                chance = dropData.getF2();
+                chance = dropData.getFortuneChance(2);
+                min = (int)dropData.getFortuneItemsAmountMin(2);
+                max = (int)dropData.getFortuneItemsAmountMax(2);
+                /*chance = dropData.getF2();
                 min = dropData.getMinf2();
-                max = dropData.getMaxf2();
+                max = dropData.getMaxf2();*/
                 break;
             case 3:
-                chance = dropData.getF3();
+                chance = dropData.getFortuneChance(3);
+                min = (int)dropData.getFortuneItemsAmountMin(3);
+                max = (int)dropData.getFortuneItemsAmountMax(3);
+                /*chance = dropData.getF3();
                 min = dropData.getMinf3();
-                max = dropData.getMaxf3();
+                max = dropData.getMaxf3();*/
                 break;
         }
         chance *= 100;
@@ -205,7 +222,7 @@ public class InventorySelector implements Listener {
         return lore;
     }
 
-    private void reloadInventory() {
+    protected void reloadInventory() {
         refreshSettings();
         selector.clear();
         AtomicInteger index = new AtomicInteger(9);
@@ -214,7 +231,7 @@ public class InventorySelector implements Listener {
         items.forEach((itemStack, itemStacks) -> selector.setItem(index.getAndIncrement(), itemStack));
         selector.setItem(selector.getSize()-5, exit);
     }
-    private void openSecondaryWindow(ArrayList<ItemStack> items){
+    protected void openSecondaryWindow(ArrayList<ItemStack> items){
         willBeUsed = false;
         if (PluginMain.plugin.versionCompatible(14)) player.playSound(player.getLocation(), Sound.UI_LOOM_TAKE_RESULT, (float)PluginMain.volume, 1);
         secondaryWindow = Bukkit.createInventory(null, 27, ChatColor.DARK_AQUA+Message.GUI_SECOND_TITLE.toString());
@@ -272,7 +289,7 @@ public class InventorySelector implements Listener {
         }
     }
 
-    private boolean checkForFuncButtonsPressed(InventoryClickEvent event){
+    protected boolean checkForFuncButtonsPressed(InventoryClickEvent event){
         if (event.getCurrentItem() != null){
             if (event.getCurrentItem().equals(exit)) {
                 objects.get(event.getWhoClicked()).willBeUsed = false;
