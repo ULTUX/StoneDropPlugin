@@ -60,19 +60,32 @@ public class InventorySelector implements Listener {
         this.settings.putAll(settings);
         objects.put(player, this);
         selector = Bukkit.createInventory(null, PluginMain.dropChances.size() + (9 - PluginMain.dropChances.size() % 9) + 2 * 9, title);
-
+        
         this.cobble = new ItemStack(Material.COBBLESTONE);
 
-        refreshCobbleObject();
+        this.refreshCobbleObject();
         reloadInventory();
         if (PluginMain.plugin.versionCompatible(12)) player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, (float)PluginMain.volume, 0);
         player.openInventory(selector);
     }
 
-
+    protected ArrayList<String> setDropItemLore(DropChance dropData, Setting setting){
+        ArrayList<String> lore = new ArrayList<>();
+        String onOff;
+        if (setting.isOn()) onOff = ChatColor.GREEN + Message.INFO_ENABLED.toString();
+        else onOff = ChatColor.RED + Message.INFO_DISABLED.toString();
+        lore.add(ChatColor.GRAY+ Message.GUI_ITEM_LEVEL_IN_RANGE.toString()+": "+ChatColor.GOLD+dropData.getMinLevel()+"-"+dropData.getMaxLevel());
+        lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
+        lore.add("");
+        /*lore.add(ChatColor.DARK_GRAY + "--------------------");
+        lore.add(ChatColor.AQUA + Message.GUI_ITEM_DESCRIPTION_RIGHT_CLICK_TO_TOGGLE.toString());
+        lore.add(ChatColor.AQUA + Message.GUI_ITEM_DESCRIPTION_LEFT_CLICK_TO_SEE_DETAILS.toString());
+        lore.add(ChatColor.DARK_GRAY + "--------------------");*/
+        return lore;
+    }
 
     protected void refreshSettings(){
-        refreshCobbleObject();
+        this.refreshCobbleObject();
         items.clear();
         settings.forEach((materialName, setting) -> {
             Material material;
@@ -84,8 +97,9 @@ public class InventorySelector implements Listener {
                     ItemMeta itemMeta = item.getItemMeta();
                     if (dropData != null && dropData.getEnchant() != null)
                         dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
-                    ArrayList<String> lore = new ArrayList<>();
-                    String onOff;
+                    //ArrayList<String> lore = new ArrayList<>();
+                    ArrayList<String> lore = this.setDropItemLore(dropData,setting);
+                    /*String onOff;
                     if (setting.isOn()) onOff = ChatColor.GREEN + Message.INFO_ENABLED.toString();
                     else onOff = ChatColor.RED + Message.INFO_DISABLED.toString();
                     lore.add(ChatColor.GRAY+ Message.GUI_ITEM_LEVEL_IN_RANGE.toString()+": "+ChatColor.GOLD+dropData.getMinLevel()+"-"+dropData.getMaxLevel());
@@ -94,7 +108,7 @@ public class InventorySelector implements Listener {
                     lore.add(ChatColor.DARK_GRAY + "--------------------");
                     lore.add(ChatColor.AQUA + Message.GUI_ITEM_DESCRIPTION_RIGHT_CLICK_TO_TOGGLE.toString());
                     lore.add(ChatColor.AQUA + Message.GUI_ITEM_DESCRIPTION_LEFT_CLICK_TO_SEE_DETAILS.toString());
-                    lore.add(ChatColor.DARK_GRAY + "--------------------");
+                    lore.add(ChatColor.DARK_GRAY + "--------------------");*/
 
                     itemMeta.setLore(lore);
                     itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -106,8 +120,20 @@ public class InventorySelector implements Listener {
             }
         });
     }
+
+    protected ArrayList<String> setCobbleLore(){
+        ArrayList<String> lore = new ArrayList<>();
+        String onOff;
+        if (!settings.get("COBBLE").isOn()) onOff = ChatColor.GREEN + Message.INFO_ENABLED.toString();
+        else onOff = ChatColor.RED + Message.INFO_DISABLED.toString();
+        lore.add("");
+        lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
+        return lore;
+    }
+
     protected void refreshCobbleObject(){
         ItemMeta cobbleMeta = cobble.getItemMeta();
+        //ArrayList<String> lore = setCobbleLore();
         ArrayList<String> lore = new ArrayList<>();
         String onOff;
         if (!settings.get("COBBLE").isOn()) onOff = ChatColor.GREEN + Message.INFO_ENABLED.toString();
