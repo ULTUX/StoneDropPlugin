@@ -8,6 +8,7 @@ import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Apis.Metrics;
 import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
 import me.apisek12.StoneDrop.InventorySelectors.InventorySelector;
+import me.apisek12.StoneDrop.InventorySelectors.InventorySelectorAdmin;
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -20,7 +21,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
 import java.util.*;
@@ -57,6 +60,16 @@ public class PluginMain extends JavaPlugin {
     public static boolean realisticDrop = true;
     public static String bukkitVersion;
 
+
+    public PluginMain()
+    {
+        super();
+    }
+
+    protected PluginMain(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file)
+    {
+        super(loader, description, dataFolder, file);
+    }
 
     /**
      * Checks if plugin version is compatible with given version number. Value is a second number in version string (in 1.16.6 it is 16).
@@ -137,7 +150,10 @@ public class PluginMain extends JavaPlugin {
                     LinkedHashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
                     boolean wasOk = false;
                     if (args.length == 0 || (args.length == 1 && args[0] == "info")) {
-                        new InventorySelector(player, setting);
+                        if(player.hasPermission("stonedrop.drop.admin"))
+                            new InventorySelectorAdmin(player, setting);
+                        else
+                            new InventorySelector(player,setting);
                         wasOk = true;
                     } else if (args.length > 1)
                         player.sendMessage(ChatColor.GRAY + "Command should look like that:\n" + ChatColor.GOLD + "/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
@@ -316,7 +332,9 @@ public class PluginMain extends JavaPlugin {
             e.printStackTrace();
         }
         getPluginManager().registerEvents(new BlockBreakEventListener(), this);
+        getPluginManager().registerEvents(new InventorySelectorAdmin(), this);
         getPluginManager().registerEvents(new InventorySelector(), this);
+        //getPluginManager().registerEvents(new InventorySelectorUser(), this);
         new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         new Metrics(this);
         reloadConfig();

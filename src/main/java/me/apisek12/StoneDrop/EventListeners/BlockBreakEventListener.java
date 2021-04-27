@@ -26,6 +26,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Dye;
+import org.bukkit.material.MaterialData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -140,20 +141,6 @@ public class BlockBreakEventListener implements Listener {
     }
 
 
-    private Material getMaterial(String name){
-        if(PluginMain.bukkitVersion.contains("1.8")){
-            if(name.contains("LAPIS_LAZULI")){
-                Dye d = new Dye();
-                d.setColor(DyeColor.BLUE);
-                return Material.DIRT;
-                //return d.toItemStack().getType();
-            }/*else if(name.equals("LAPIS_ORE")){
-                return Material.getMaterial(name,true);
-            }*/
-        }
-        return Material.getMaterial(name);
-    }
-
     @EventHandler (priority = EventPriority.HIGHEST)
     public void blockBreak(BlockBreakEvent event) {
 
@@ -240,13 +227,11 @@ public class BlockBreakEventListener implements Listener {
                                 if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
                                     if (Chance.chance(dropChances.get(set[i]).getST()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
                                         try {
-                                            ItemStack itemToDrop = new ItemStack(
-                                                    this.getMaterial(set[i]),
-                                                    Chance.randBetween(
-                                                            dropChances.get(set[i]).getMinST(),
-                                                            dropChances.get(set[i]).getMaxST()
-                                                    )
+                                            int dropAmount = Chance.randBetween(
+                                                    dropChances.get(set[i]).getMinST(),
+                                                    dropChances.get(set[i]).getMaxST()
                                             );
+                                            ItemStack itemToDrop = this.getItemStack(set[i],dropAmount);
                                             applyEnchants(event, oreSettings, itemToDrop);
                                             applyCustomName(oreSettings, itemToDrop);
                                             dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
@@ -267,15 +252,17 @@ public class BlockBreakEventListener implements Listener {
 
                                 if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
                                     if (Chance.chance(dropChances.get(set[i]).getFortuneChance(pickaxeLootLevel)) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
-                                        ItemStack itemToDrop = new ItemStack(
-                                                this.getMaterial(set[i]),
-                                                Chance.randBetween(
-                                                        (int)dropChances.get(set[i]).getFortuneItemsAmountMin(pickaxeLootLevel),
-                                                        (int)dropChances.get(set[i]).getFortuneItemsAmountMax(pickaxeLootLevel))
-                                        );
-                                        itemToDrop = applyEnchants(oreSettings, itemToDrop);
-                                        applyCustomName(oreSettings, itemToDrop);
-                                        dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
+                                        try {
+                                            int dropAmount = Chance.randBetween(
+                                                    (int) dropChances.get(set[i]).getFortuneItemsAmountMin(pickaxeLootLevel),
+                                                    (int) dropChances.get(set[i]).getFortuneItemsAmountMax(pickaxeLootLevel));
+                                            ItemStack itemToDrop = this.getItemStack(set[i], dropAmount);
+                                            itemToDrop = applyEnchants(oreSettings, itemToDrop);
+                                            applyCustomName(oreSettings, itemToDrop);
+                                            dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
+                                        } catch (NullPointerException e){
+                                            PluginMain.plugin.getLogger().log(Level.WARNING, "Material: "+set[i]+" does not exist in this minecraft version, something is probably not properly set in config.yml file.");
+                                        }
                                     }
                                 }
                             }
@@ -287,6 +274,34 @@ public class BlockBreakEventListener implements Listener {
                 }
             }
         }
+    }
+
+    private ItemStack getItemStack(String itemName, int dropAmount)  {
+        if(!PluginMain.plugin.versionCompatible(12)){
+            if(itemName.contains("LAPIS_LAZULI")){
+                //it unfortunetly give black inc_sac
+                /*Dye dye = new Dye();
+                dye.setColor(DyeColor.BLUE);
+                dye.setData((byte)4);
+                ItemStack lapis = dye.toItemStack();
+                lapis.setAmount(dropAmount);
+                return lapis; //black */
+                /*MaterialData mdata = new MaterialData(Material.LEGACY_INK_SACK,(byte) 4);
+                lapis.setData(mdata);
+                return lapis; // black
+                */
+                /*lapis.setData(dye.getData());
+                return lapis  //black */
+                /*ItemStack lapis_lazuli = new ItemStack(Material.LEGACY_INK_SACK,dropAmount, (short) 4, (byte)4);
+                return lapis_lazuli; //error*/
+                //ItemStack lapis_lazuli = new ItemStack(lapis.getType(),dropAmount,(short) 4, (byte) 4); //black
+                //ItemStack lapis_lazuli = new ItemStack(Material.INK_SAC,dropAmount,(short) 4); //error
+                //
+                //
+                //ItemStack lapis_lazuli = new ItemStack(Material.LEGACY_INK_SACK, dropAmount;
+            }
+        }
+        return new ItemStack(Material.getMaterial(itemName),dropAmount);
     }
 
     private void applyEnchants(BlockBreakEvent event, DropChance oreSettings, ItemStack itemToDrop) {
