@@ -47,7 +47,7 @@ public class PluginMain extends JavaPlugin {
     public static ArrayList<Material> dropOresWhiteList = null;
     public static boolean dropIntoInventory = false;
     public static boolean displayUpdateMessage = true;
-    public static Material wooden = null, golden = null;
+    public static Material wooden = null, golden = null, lapis_ore = null;
     public static boolean isNetherite = false;
     public static HashMap<String, String> playerLastVersionPluginVersion = new HashMap<>();
     public static String currentPluginVersion;
@@ -327,6 +327,8 @@ public class PluginMain extends JavaPlugin {
             } else {
                 golden = Material.getMaterial(Material.class.getField("GOLD_PICKAXE").getName());
                 wooden = Material.getMaterial(Material.class.getField("WOOD_PICKAXE").getName());
+                lapis_ore  = Material.getMaterial(Material.class.getField("LAPIS_ORE").getName());
+
             }
         } catch (NoSuchFieldException e) {
             e.printStackTrace();

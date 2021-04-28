@@ -26,7 +26,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Dye;
-import org.bukkit.material.MaterialData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -113,25 +112,46 @@ public class BlockBreakEventListener implements Listener {
         }
     }
 
-    private static void spawnDropChest(ItemStack itemStack, Player player,Location location){
+    private static void spawnDropChest(ItemStack itemToChest, Player player,Location location){
         boolean isTrpChstNeighbour = hasTheSameNeighbour(location.getBlock(),Material.TRAPPED_CHEST);
 
         if (isTrpChstNeighbour){
-            location.getWorld().dropItemNaturally(location, itemStack);
+            location.getWorld().dropItemNaturally(location, itemToChest);
         }
         else{
             location.getBlock().setType(Material.TRAPPED_CHEST);
             Chest chest = (Chest) location.getBlock().getState();
-            int chestSlotAmount = (itemStack.getAmount()/27);
-            int extraSlotAmount = (chestSlotAmount < 64) ?  itemStack.getAmount() % 27 : 0;
-            for (int ci=0,extraAdd=0;ci<27;ci++,extraAdd++){
+            int [] chestIndexesTable = new int [27];
+            int chestSlotAmount = (itemToChest.getAmount()/27);
+            Arrays.fill(chestIndexesTable,chestSlotAmount);
+            //in these case is not possible to drop more than 27*64 the same item
+            //by the way its very huge drop
+            int extraSlotAmount = (chestSlotAmount < 64) ?  itemToChest.getAmount() % 27 : 0;
+            for(int chestPlaceIndex=0;chestPlaceIndex<extraSlotAmount;chestPlaceIndex++)
+                chestIndexesTable[chestPlaceIndex]+=1;
+            for(int chestPlaceIndex=0;chestPlaceIndex<27;chestPlaceIndex++){
+                if(chestIndexesTable[chestPlaceIndex]<=0) break;
+                chest.getInventory().setItem(chestPlaceIndex,
+                        new ItemStack(
+                                itemToChest.getType(),
+                                chestIndexesTable[chestPlaceIndex],
+                                itemToChest.getDurability()
+                        )
+                );
+            }
+
+            /*for (int chestPlaceIndex=0,extraAdd=0;chestPlaceIndex<27;chestPlaceIndex++,extraAdd++){
                 if (extraAdd < extraSlotAmount ){
-                    chest.getInventory().setItem(ci,new ItemStack(itemStack.getType(), chestSlotAmount+1));
+                    chest.getInventory().setItem(chestPlaceIndex,
+                            new ItemStack(itemToChest.getType(), chestSlotAmount+1, itemToChest.getDurability())
+                    );
                 }
                 else {
-                    chest.getInventory().setItem(ci,new ItemStack(itemStack.getType(), chestSlotAmount));
+                    chest.getInventory().setItem(chestPlaceIndex,
+                            new ItemStack(itemToChest.getType(), chestSlotAmount, itemToChest.getDurability())
+                    );
                 }
-            }
+            }*/
 
             Bukkit.getServer().getPluginManager().callEvent(new BlockBreakEvent(location.getBlock(),player));
             location.getBlock().setType(Material.AIR);
@@ -232,7 +252,7 @@ public class BlockBreakEventListener implements Listener {
                                                     dropChances.get(set[i]).getMaxST()
                                             );
                                             ItemStack itemToDrop = this.getItemStack(set[i],dropAmount);
-                                            applyEnchants(event, oreSettings, itemToDrop);
+                                            applyEnchants(oreSettings, itemToDrop);
                                             applyCustomName(oreSettings, itemToDrop);
                                             dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
                                         }
@@ -257,7 +277,7 @@ public class BlockBreakEventListener implements Listener {
                                                     (int) dropChances.get(set[i]).getFortuneItemsAmountMin(pickaxeLootLevel),
                                                     (int) dropChances.get(set[i]).getFortuneItemsAmountMax(pickaxeLootLevel));
                                             ItemStack itemToDrop = this.getItemStack(set[i], dropAmount);
-                                            itemToDrop = applyEnchants(oreSettings, itemToDrop);
+                                            applyEnchants(oreSettings, itemToDrop);
                                             applyCustomName(oreSettings, itemToDrop);
                                             dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
                                         } catch (NullPointerException e){
@@ -279,32 +299,17 @@ public class BlockBreakEventListener implements Listener {
     private ItemStack getItemStack(String itemName, int dropAmount)  {
         if(!PluginMain.plugin.versionCompatible(12)){
             if(itemName.contains("LAPIS_LAZULI")){
-                //it unfortunetly give black inc_sac
-                /*Dye dye = new Dye();
-                dye.setColor(DyeColor.BLUE);
-                dye.setData((byte)4);
-                ItemStack lapis = dye.toItemStack();
-                lapis.setAmount(dropAmount);
-                return lapis; //black */
-                /*MaterialData mdata = new MaterialData(Material.LEGACY_INK_SACK,(byte) 4);
-                lapis.setData(mdata);
-                return lapis; // black
-                */
-                /*lapis.setData(dye.getData());
-                return lapis  //black */
-                /*ItemStack lapis_lazuli = new ItemStack(Material.LEGACY_INK_SACK,dropAmount, (short) 4, (byte)4);
-                return lapis_lazuli; //error*/
-                //ItemStack lapis_lazuli = new ItemStack(lapis.getType(),dropAmount,(short) 4, (byte) 4); //black
-                //ItemStack lapis_lazuli = new ItemStack(Material.INK_SAC,dropAmount,(short) 4); //error
-                //
-                //
-                //ItemStack lapis_lazuli = new ItemStack(Material.LEGACY_INK_SACK, dropAmount;
+
+                return new Dye(DyeColor.BLUE).toItemStack(dropAmount);
+            }
+            else if(itemName.contains("LAPIS_ORE")){
+                return new ItemStack(PluginMain.lapis_ore,dropAmount);
             }
         }
         return new ItemStack(Material.getMaterial(itemName),dropAmount);
     }
 
-    private void applyEnchants(BlockBreakEvent event, DropChance oreSettings, ItemStack itemToDrop) {
+    private void applyEnchants(DropChance oreSettings, ItemStack itemToDrop) {
         if (oreSettings.getEnchant().size() > 0) {
             ItemMeta itemMeta = itemToDrop.getItemMeta();
             oreSettings.getEnchant().forEach(((enchantment, level) -> {
@@ -315,18 +320,6 @@ public class BlockBreakEventListener implements Listener {
         }
     }
 
-    private ItemStack applyEnchants(DropChance oreSettings, ItemStack itemToDrop){
-        //ItemStack enchantedItem = new ItemStack(itemToDrop.getType(),itemToDrop.getAmount());
-        if (oreSettings.getEnchant().size() > 0) {
-            ItemMeta itemMeta = itemToDrop.getItemMeta();
-            oreSettings.getEnchant().forEach(((enchantment, level) -> {
-                itemMeta.addEnchant(enchantment, level, true);
-            }));
-            itemToDrop.setItemMeta(itemMeta);
-        }
-
-        return itemToDrop;
-    }
     public static void applyCustomName(DropChance oreSettings, ItemStack itemToDrop){
         if (oreSettings.getCustomName() != null) {
             ItemMeta meta = itemToDrop.getItemMeta();

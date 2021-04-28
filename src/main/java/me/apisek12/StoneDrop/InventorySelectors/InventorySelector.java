@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -69,25 +70,26 @@ public class InventorySelector implements Listener {
         lore.add(ChatColor.GRAY+ Message.GUI_ITEM_LEVEL_IN_RANGE.toString()+": "+ChatColor.GOLD+dropData.getMinLevel()+"-"+dropData.getMaxLevel());
         lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
         lore.add("");
+        DecimalFormat format = new DecimalFormat("##0.0##");
         for(int f_num=0;f_num<=3;f_num++){
             double chance = dropData.getFortuneChance(f_num);
             if(chance>0){
                 String amountStr = String.valueOf((int)dropData.getFortuneItemsAmountMin(f_num))+ " - "+
                         String.valueOf((int)dropData.getFortuneItemsAmountMax(f_num));
-                lore.add(ChatColor.GOLD+ "fortune "+ f_num+ ": "
-                        + ChatColor.GRAY+ String.format("%1$5s",String.valueOf(chance*100))+
-                         "%   "+ String.format("%1$8s",amountStr) );
+                String roundedPercent = format.format(chance*100);
+                lore.add(ChatColor.GOLD+ "fortune "+ f_num+ ": " + ChatColor.GRAY+
+                        String.format("%1$8s",roundedPercent)+ "%   "+
+                        String.format("%1$8s",amountStr) );
             }
         }
         double silkChance = dropData.getST();
         if(silkChance>0){
-            String amountStr = String.valueOf((int)dropData.getMinST())+
-                    " - "+
+            String amountStr = String.valueOf((int)dropData.getMinST())+ " - "+
                     String.valueOf((int)dropData.getMaxST());
-
+            String roundedPercent = format.format(silkChance*100);
             lore.add(ChatColor.GOLD+  "silk touch"+ ":  " + ChatColor.GRAY+
-                    String.format("%1$4s",String.valueOf(silkChance*100))+
-                    "%   "+ String.format("%1$8s",String.valueOf(amountStr))
+                    String.format("%1$8s",roundedPercent)+ "%   " +
+                    String.format("%1$8s",String.valueOf(amountStr))
             );
         }
         lore.add("");
@@ -125,7 +127,6 @@ public class InventorySelector implements Listener {
 
 
     protected void putItemToItems(ItemStack item, Material material, DropChance dropData){
-
 
         items.add(item);
     }
