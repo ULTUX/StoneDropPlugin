@@ -4,10 +4,12 @@ package me.apisek12.StoneDrop.DataModels;
 import me.apisek12.StoneDrop.PluginMain;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Biome;
 import org.bukkit.enchantments.Enchantment;
-
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 public class DropChance {
@@ -16,6 +18,7 @@ public class DropChance {
     private int minnof, maxnof, minf1, maxf1, minf2, maxf2, minf3, maxf3, min_st, max_st;
     private int minLevel = 0, maxLevel = 256;
     private String customName;
+    private Biome[] acceptedBiomes;
     private HashMap<Enchantment, Integer> enchant = new HashMap<>();
     public HashMap<Enchantment, Integer> getEnchant() {
         return enchant;
@@ -68,19 +71,37 @@ public class DropChance {
     public DropChance() {
     }
 
+    public void setAcceptedBiomes(Collection<String> biomes) {
+        ArrayList<Biome> acceptedBiomes1 = new ArrayList<>();
+        biomes.forEach(s -> {
+            try {
+                Biome biome;
+                 biome = Biome.valueOf(s.toUpperCase());
+                acceptedBiomes1.add(biome);
+            } catch (IllegalArgumentException ignored){}
+        });
+        acceptedBiomes = acceptedBiomes1.toArray(new Biome[0]);
+    }
+
+    public Biome[] getAcceptedBiomes() {
+        return acceptedBiomes;
+    }
+
     public void setEnchant(HashMap<String, Integer> enchant) {
         enchant.forEach((enchantName, level) ->{
             enchantName = enchantName.toLowerCase();
             if (PluginMain.plugin.versionCompatible(12)) {
                 try {
-                    this.enchant.put((Enchantment) Enchantment.class.getMethod("getByKey", NamespacedKey.class).invoke(Enchantment.class, NamespacedKey.minecraft(enchantName)), level);
+                    Enchantment ench = (Enchantment) Enchantment.class.getMethod("getByKey", NamespacedKey.class).invoke(Enchantment.class, NamespacedKey.minecraft(enchantName));
+                    if (ench != null) this.enchant.put(ench, level);
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                     e.printStackTrace();
                 }
             }
             else {
                 try {
-                    this.enchant.put((Enchantment) Enchantment.class.getMethod("getByName" , String.class).invoke(Enchantment.class, enchantName), level);
+                    Enchantment ench = (Enchantment) Enchantment.class.getMethod("getByName" , String.class).invoke(Enchantment.class, enchantName);
+                    if (ench != null) this.enchant.put(ench, level);
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                     e.printStackTrace();
                 }
@@ -95,7 +116,7 @@ public class DropChance {
         else if (level == 3) this.f3 = val;
     }
 
-    public void setSilkCahnce(int level, double val){
+    public void setSilkChance(int level, double val){
         if (level >= 1) this.st = val;
         else this.st = 0;
     }
@@ -107,13 +128,12 @@ public class DropChance {
     @Override
     public String toString() {
         DecimalFormat format = new DecimalFormat("##0.0##");
-        String toReturn = ChatColor.GOLD+name
+        return ChatColor.GOLD+name
                 +": \n   "+ChatColor.GREEN+"no fortune: "+ChatColor.GRAY+" chance: "+format.format(nof*100)+"%, drop amount: "+minnof+"-"+maxnof
                 +"\n   "+ChatColor.GREEN+"fortune 1: "+ChatColor.GRAY+" chance: "+format.format(f1*100)+"%, drop amount: "+minf1+"-"+maxf1
                 +"\n   "+ChatColor.GREEN+"fortune 2: "+ChatColor.GRAY+"chance: "+format.format(f2*100)+"%, drop amount: "+minf2+"-"+maxf2
                 +"\n   "+ChatColor.GREEN+"fortune 3: "+ChatColor.GRAY+"chance: "+format.format(f3*100)+"%, drop amount: "+minf3+"-"+maxf3
                 +"\n   "+ChatColor.GREEN+"silk touch: "+ChatColor.GRAY+"chance: "+format.format(st*100)+"%, drop amount: "+min_st+"-"+max_st;
-        return toReturn;
     }
 
     public double getNof() {

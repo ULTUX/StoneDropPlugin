@@ -80,7 +80,7 @@ public class InventorySelector implements Listener {
                     BlockBreakEventListener.applyCustomName(dropData, item);
                     ItemMeta itemMeta = item.getItemMeta();
                     if (dropData != null && dropData.getEnchant() != null)
-                        dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
+                        dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, true));
                     ArrayList<String> lore = new ArrayList<>();
                     String onOff;
                     if (setting.isOn()) onOff = ChatColor.GREEN + Message.INFO_ENABLED.toString();

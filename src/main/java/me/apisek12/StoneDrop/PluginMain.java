@@ -21,7 +21,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-
 import java.io.*;
 import java.util.*;
 
@@ -511,21 +510,26 @@ public class PluginMain extends JavaPlugin {
             ConfigurationSection oreObject = getConfig().getConfigurationSection("chances." + key);
             DropChance oreObjectOptions = new DropChance();
             oreObjectOptions.setName(key);
-            for (String fortuneLevel : Objects.requireNonNull(oreObject).getKeys(false)) {
-                if (fortuneLevel.split("-")[0].equals("fortune")) {
-                    int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
-                    double chance = oreObject.getConfigurationSection(fortuneLevel).getDouble("chance");
-                    int min = oreObject.getConfigurationSection(fortuneLevel).getInt("min-amount");
-                    int max = oreObject.getConfigurationSection(fortuneLevel).getInt("max-amount");
+            if (oreObject == null) continue;
+            if (oreObject.contains("biomes", true)){
+                List<String> biomes = oreObject.getStringList("biomes");
+                oreObjectOptions.setAcceptedBiomes(biomes);
+            }
+            for (String setting : oreObject.getKeys(false)) {
+                if (setting.split("-")[0].equals("fortune")) {
+                    int level = Integer.parseInt(setting.split(("-"))[1]);
+                    double chance = oreObject.getConfigurationSection(setting).getDouble("chance");
+                    int min = oreObject.getConfigurationSection(setting).getInt("min-amount");
+                    int max = oreObject.getConfigurationSection(setting).getInt("max-amount");
                     oreObjectOptions.setChance(level, chance);
                     oreObjectOptions.setMinDrop(level, min);
                     oreObjectOptions.setMaxDrop(level, max);
-                } else if (fortuneLevel.split("-")[0].equals("silk_touch")) {
-                    int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
-                    double chance = oreObject.getConfigurationSection(fortuneLevel).getDouble("chance");
-                    int min = oreObject.getConfigurationSection(fortuneLevel).getInt("min-amount");
-                    int max = oreObject.getConfigurationSection(fortuneLevel).getInt("max-amount");
-                    oreObjectOptions.setSilkCahnce(level, chance);
+                } else if (setting.split("-")[0].equals("silk_touch")) {
+                    int level = Integer.parseInt(setting.split(("-"))[1]);
+                    double chance = oreObject.getConfigurationSection(setting).getDouble("chance");
+                    int min = oreObject.getConfigurationSection(setting).getInt("min-amount");
+                    int max = oreObject.getConfigurationSection(setting).getInt("max-amount");
+                    oreObjectOptions.setSilkChance(level, chance);
                     oreObjectOptions.setSilkMinDrop(level, min);
                     oreObjectOptions.setSilkMaxDrop(level, max);
                 }
