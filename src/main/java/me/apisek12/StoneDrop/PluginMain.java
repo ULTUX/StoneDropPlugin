@@ -545,11 +545,6 @@ public class PluginMain extends JavaPlugin {
                     oreObjectOptions.setFortuneChance(level,chance);
                     oreObjectOptions.setFortuneItemsAmountMin(level,min);
                     oreObjectOptions.setFortuneItemsAmountMax(level,max);
-                    /*int min = oreObject.getConfigurationSection(fortuneLevel).getInt("min-amount");
-                    int max = oreObject.getConfigurationSection(fortuneLevel).getInt("max-amount");
-                    oreObjectOptions.setChance(level, chance);
-                    oreObjectOptions.setMinDrop(level, min);
-                    oreObjectOptions.setMaxDrop(level, max);*/
                 } else if (fortuneLevel.split("-")[0].equals("silk_touch")) {
                     int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
                     double chance = oreObject.getConfigurationSection(fortuneLevel).getDouble("chance");
