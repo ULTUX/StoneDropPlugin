@@ -228,7 +228,6 @@ public class InventorySelector implements Listener {
     @EventHandler
     public void InventoryClickEvent(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;
-        if (event.getCurrentItem() == null) return;
         if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).secondaryWindow) || event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) return;
@@ -236,7 +235,7 @@ public class InventorySelector implements Listener {
             Player player = inventorySelector.player;
             ItemStack clickedItem = event.getCurrentItem();
             if (event.isRightClick() && !event.getWhoClicked().getOpenInventory().getTopInventory().equals(secondaryWindow)) {
-                if (event.getCurrentItem().equals(inventorySelector.cobble)) inventorySelector.settings.get("COBBLE").toggle();
+                if (event.getCurrentItem() != null && event.getCurrentItem().equals(inventorySelector.cobble)) inventorySelector.settings.get("COBBLE").toggle();
                 else if (event.getClickedInventory().equals(inventorySelector.selector)){
                     inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
                 }

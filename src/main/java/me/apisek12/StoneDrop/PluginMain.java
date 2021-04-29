@@ -21,6 +21,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+
 import java.io.*;
 import java.util.*;
 
@@ -58,6 +59,7 @@ public class PluginMain extends JavaPlugin {
 
     /**
      * Checks if plugin version is compatible with given version number. Value is a second number in version string (in 1.16.6 it is 16).
+     *
      * @param val A version to compare with.
      * @return true if plugin verison is greater or equal than given value.
      */
@@ -65,7 +67,6 @@ public class PluginMain extends JavaPlugin {
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
         return Integer.parseInt(version[1]) > val;
     }
-
 
 
     @Override
@@ -99,61 +100,62 @@ public class PluginMain extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("drop") && args.length == 1 && args[0].equalsIgnoreCase("reload")){
-            if (sender.hasPermission("stonedrop.reload")){
-                sender.sendMessage(ChatColor.GRAY+"Starting reload...");
+        if (command.getName().equalsIgnoreCase("drop") && args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+            if (sender.hasPermission("stonedrop.reload")) {
+                sender.sendMessage(ChatColor.GRAY + "Starting reload...");
                 reloadConfig();
-                sender.sendMessage(ChatColor.GRAY+"Unregistering all event listeners...");
+                sender.sendMessage(ChatColor.GRAY + "Unregistering all event listeners...");
                 HandlerList.unregisterAll(plugin);
-                sender.sendMessage(ChatColor.GRAY+"Generating config files...");
+                sender.sendMessage(ChatColor.GRAY + "Generating config files...");
                 generateConfig();
                 generateLang();
-                sender.sendMessage(ChatColor.GRAY+"Registering new event listeners");
+                sender.sendMessage(ChatColor.GRAY + "Registering new event listeners");
                 getPluginManager().registerEvents(new BlockBreakEventListener(), this);
                 getPluginManager().registerEvents(new InventorySelector(), this);
-                sender.sendMessage(ChatColor.GRAY+"Loading all config files...");
+                sender.sendMessage(ChatColor.GRAY + "Loading all config files...");
                 loadConfig();
                 loadPlayerData();
                 loadChances();
                 loadChestChances();
                 BlockBreakEventListener.initialize();
-                sender.sendMessage(ChatColor.GREEN+Message.RELOADED_SUCCESSFULLY.toString());
+                sender.sendMessage(ChatColor.GREEN + Message.RELOADED_SUCCESSFULLY.toString());
                 return true;
-            } else sender.sendMessage(ChatColor.RED+Message.PERMISSION_MISSING.toString());
+            } else sender.sendMessage(ChatColor.RED + Message.PERMISSION_MISSING.toString());
         }
         if (command.getName().equalsIgnoreCase("whatdrops")) {
             if (sender instanceof ConsoleCommandSender || (sender instanceof Player && sender.hasPermission("stonedrop.whatdrops"))) {
                 dropChances.forEach((ore, oreOptions) -> sender.sendMessage(oreOptions.toString()));
             } else {
-                sender.sendMessage(ChatColor.RED + "You don't have permission to use that command!");
+                sender.sendMessage(ChatColor.RED + Message.PERMISSION_MISSING.toString());
             }
         }
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (command.getName().equalsIgnoreCase("drop")) {
                 if (player.hasPermission("stonedrop.drop")) {
+                    if (args.length > 1) {
+                        player.sendMessage(ChatColor.RED + Message.COMMAND_ARGUMENT_UNKNOWN.toString());
+                        return false;
+                    }
                     LinkedHashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
-                    boolean wasOk = false;
-                    if (args.length == 0 || (args.length == 1 && args[0] == "info")) {
+                    if (args.length == 0 || (args.length == 1 && args[0].equals("info"))) {
                         new InventorySelector(player, setting);
-                        wasOk = true;
-                    } else if (args.length > 1)
-                        player.sendMessage(ChatColor.GRAY + "Command should look like that:\n" + ChatColor.GOLD + "/drop <info, stack, cobble, zelazo, lapis, redstone, wegiel, diament, emerald, gold>");
-                    else {
+                        return true;
+                    } else {
                         if (args[0].equalsIgnoreCase("cobble")) {
-                            wasOk = true;
                             setting.get("COBBLE").setOn(!setting.get("COBBLE").isOn());
                             if (!setting.get("COBBLE").isOn())
                                 player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now " + ChatColor.GREEN + "enabled");
                             else
                                 player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
+                            return true;
                         } else if (args[0].equalsIgnoreCase("stack")) {
-                            wasOk = true;
                             setting.get("STACK").setOn(!setting.get("STACK").isOn());
                             if (setting.get("STACK").isOn())
                                 player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now " + ChatColor.GREEN + "enabled");
                             else
                                 player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
+                            return true;
 
                         } else {
                             for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
@@ -165,17 +167,13 @@ public class PluginMain extends JavaPlugin {
                                         } else {
                                             player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + BlockBreakEventListener.set[i] + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
                                         }
-                                        wasOk = true;
+                                        return true;
                                     }
                                 }
                             }
                         }
                     }
-                    if (!wasOk) {
-                        player.sendMessage(ChatColor.GRAY + Message.COMMAND_ARGUMENT_UNKNOWN.toString());
-
-                    }
-
+                    player.sendMessage(ChatColor.GRAY + Message.COMMAND_ARGUMENT_UNKNOWN.toString());
                 } else {
                     player.sendMessage(ChatColor.RED + Message.PERMISSION_MISSING.toString());
                 }
@@ -466,7 +464,7 @@ public class PluginMain extends JavaPlugin {
         dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
         //Check if plugin should block item dropping from ores
         dropFromOres = getConfig().getBoolean("ore-drop");
-        if(dropFromOres==false){
+        if (dropFromOres == false) {
             dropOresWhiteList = new ArrayList<>();
             getConfig().getStringList("ores-whitelist").forEach(white_ore -> {
                 dropOresWhiteList.add(Material.getMaterial(white_ore));
@@ -571,7 +569,7 @@ public class PluginMain extends JavaPlugin {
     }
 
 
-    public static void newPlayerJoined(Player player){
+    public static void newPlayerJoined(Player player) {
         String uid = player.getUniqueId().toString();
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data...");
         if (!playerSettings.containsKey(uid)) {
@@ -585,7 +583,7 @@ public class PluginMain extends JavaPlugin {
         }
         if (!playerLastVersionPluginVersion.containsKey(uid)) {
             playerLastVersionPluginVersion.put(uid, currentPluginVersion);
-            if (displayUpdateMessage){
+            if (displayUpdateMessage) {
                 displayUpdateMessage(player);
             }
         }
@@ -594,9 +592,9 @@ public class PluginMain extends JavaPlugin {
 
     public static void displayUpdateMessage(Player player) {
         Scanner reader;
-        InputStream inputStream= plugin.getResource("update.txt");
+        InputStream inputStream = plugin.getResource("update.txt");
         reader = new Scanner(inputStream, "utf-8");
-        while (reader.hasNextLine()){
+        while (reader.hasNextLine()) {
             String message = ChatColor.translateAlternateColorCodes('&', reader.nextLine());
             player.sendMessage(message);
 
