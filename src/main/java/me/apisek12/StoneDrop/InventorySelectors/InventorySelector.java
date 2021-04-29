@@ -62,6 +62,10 @@ public class InventorySelector implements Listener {
         player.openInventory(selector);
     }
 
+    protected String setLoreLine(String chance, String amount,String enchant){
+       return String.format("%s%-14s%s%10s%10s",ChatColor.GOLD,enchant,ChatColor.GRAY,chance,amount);
+    }
+
     protected ArrayList<String> setDropItemLore(DropChance dropData, Setting setting){
         ArrayList<String> lore = new ArrayList<>();
         String onOff;
@@ -76,21 +80,31 @@ public class InventorySelector implements Listener {
             if(chance>0){
                 String amountStr = String.valueOf((int)dropData.getFortuneItemsAmountMin(f_num))+ " - "+
                         String.valueOf((int)dropData.getFortuneItemsAmountMax(f_num));
-                String roundedPercent = format.format(chance*100);
-                lore.add(ChatColor.GOLD+ "fortune "+ f_num+ ": " + ChatColor.GRAY+
-                        String.format("%1$8s",roundedPercent)+ "%   "+
-                        String.format("%1$8s",amountStr) );
+                lore.add(setLoreLine(
+                        format.format(chance*100)+"%",
+                        amountStr,
+                        "fortune "+f_num+":"
+                        )
+                );
+
             }
         }
         double silkChance = dropData.getST();
         if(silkChance>0){
             String amountStr = String.valueOf((int)dropData.getMinST())+ " - "+
                     String.valueOf((int)dropData.getMaxST());
+            lore.add(setLoreLine(
+                    format.format(silkChance*100)+"%",
+                    amountStr,
+                    "silk_touch:"
+                    )
+            );
+            /*
             String roundedPercent = format.format(silkChance*100);
             lore.add(ChatColor.GOLD+  "silk touch"+ ":  " + ChatColor.GRAY+
                     String.format("%1$8s",roundedPercent)+ "%   " +
                     String.format("%1$8s",String.valueOf(amountStr))
-            );
+            );*/
         }
         lore.add("");
         return lore;
@@ -193,14 +207,6 @@ public class InventorySelector implements Listener {
                 event.getWhoClicked().closeInventory();
                 return true;
             }
-            /*else if (event.getCurrentItem().equals(back)) {
-                objects.get(event.getWhoClicked()).willBeUsed = true;
-                event.getWhoClicked().closeInventory();
-                objects.get(event.getWhoClicked()).player.openInventory(objects.get(event.getWhoClicked()).selector);
-                objects.get(event.getWhoClicked()).willBeUsed = false;
-                objects.get(event.getWhoClicked()).reloadInventory();
-                return true;
-            }*/
 
         }
         return false;

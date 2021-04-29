@@ -19,12 +19,10 @@ public class DropChance {
     private String name;
     private final int fortunesAmount = 4;
     private double st;
-    //private double nof, f1, f2, f3, st;
     private final double[] fortuneChances = new double[fortunesAmount];
     private final double[] fortuneMins = new double[fortunesAmount];
     private final double[] fortuneMaxs = new double[fortunesAmount];
     private int min_st, max_st;
-    //private int minnof, maxnof, minf1, maxf1, minf2, maxf2, minf3, maxf3, min_st, max_st;
     private int minLevel = 0, maxLevel = 256;
     private String customName;
     private HashMap<Enchantment, Integer> enchant = new HashMap<>();
@@ -32,26 +30,6 @@ public class DropChance {
         return enchant;
     }
 
-
-    /*public DropChance(String name, double nof, double f1, double f2, double f3, double st, int minnof, int maxnof, int minf1, int maxf1, int minf2, int maxf2, int minf3, int maxf3, int min_st, int max_st, HashMap<Enchantment, Integer> enchant) {
-        this.name = name;
-        this.nof = nof;
-        this.f1 = f1;
-        this.f2 = f2;
-        this.f3 = f3;
-        this.st = st;
-        this.minnof = minnof;
-        this.maxnof = maxnof;
-        this.minf1 = minf1;
-        this.maxf1 = maxf1;
-        this.minf2 = minf2;
-        this.maxf2 = maxf2;
-        this.minf3 = minf3;
-        this.maxf3 = maxf3;
-        this.min_st = min_st;
-        this.max_st = max_st;
-        this.enchant = enchant;
-    } */
 
     public int getMinLevel() {
         return minLevel;
@@ -104,12 +82,6 @@ public class DropChance {
         });
     }
 
-    /*public void setChance(int level, double val){
-        if (level == 0) this.nof = val;
-        else if (level == 1) this.f1 = val;
-        else if (level == 2) this.f2 = val;
-        else if (level == 3) this.f3 = val;
-    } */
 
     public void setSilkCahnce(int level, double val){
         if (level >= 1) this.st = val;
@@ -133,58 +105,11 @@ public class DropChance {
         return toReturn;
     }
 
-    /*public double getNof() {
-        return nof;
-    }
-
-    public double getF1() {
-        return f1;
-    }
-
-    public double getF2() {
-        return f2;
-    }
-
-    public double getF3() {
-        return f3;
-    }*/
 
     public double getST() {
         return st;
     }
 
-    /*public int getMinnof() {
-        return minnof;
-    }
-
-    public int getMaxnof() {
-        return maxnof;
-    }
-
-    public int getMinf1() {
-        return minf1;
-    }
-
-    public int getMaxf1() {
-        return maxf1;
-    }
-
-    public int getMinf2() {
-        return minf2;
-    }
-
-
-    public int getMaxf2() {
-        return maxf2;
-    }
-
-    public int getMinf3() {
-        return minf3;
-    }
-
-    public int getMaxf3() {
-        return maxf3;
-    }*/
 
     public int getMinST() {
         return min_st;
@@ -198,18 +123,7 @@ public class DropChance {
         this.name = name;
     }
 
-    /*public void setMinDrop(int level, int val){
-        if (level == 0) this.minnof = val;
-        else if (level == 1) this.minf1 = val;
-        else if (level == 2) this.minf2 = val;
-        else if (level == 3) this.minf3 = val;
-    }
-    public void setMaxDrop(int level, int val){
-        if (level == 0) this.maxnof = val;
-        else if (level == 1) this.maxf1 = val;
-        else if (level == 2) this.maxf2 = val;
-        else if (level == 3) this.maxf3 = val;
-    }*/
+
     public void setSilkMinDrop(int level, int val){
         if (level >= 1) this.min_st = val;
         else this.min_st = 0;

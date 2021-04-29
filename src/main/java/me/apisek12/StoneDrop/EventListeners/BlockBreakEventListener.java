@@ -140,22 +140,8 @@ public class BlockBreakEventListener implements Listener {
                 );
             }
 
-            /*for (int chestPlaceIndex=0,extraAdd=0;chestPlaceIndex<27;chestPlaceIndex++,extraAdd++){
-                if (extraAdd < extraSlotAmount ){
-                    chest.getInventory().setItem(chestPlaceIndex,
-                            new ItemStack(itemToChest.getType(), chestSlotAmount+1, itemToChest.getDurability())
-                    );
-                }
-                else {
-                    chest.getInventory().setItem(chestPlaceIndex,
-                            new ItemStack(itemToChest.getType(), chestSlotAmount, itemToChest.getDurability())
-                    );
-                }
-            }*/
-
             Bukkit.getServer().getPluginManager().callEvent(new BlockBreakEvent(location.getBlock(),player));
             location.getBlock().setType(Material.AIR);
-
         }
 
     }
