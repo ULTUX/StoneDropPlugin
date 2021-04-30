@@ -6,6 +6,7 @@ import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.PluginMain;
 import me.apisek12.StoneDrop.Utils.Chance;
 import org.bukkit.*;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
@@ -260,7 +261,6 @@ public class BlockBreakEventListener implements Listener {
                     } else {
                         int pickaxeLootLevel = getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
                         for (int i = 0; i < set.length; i++) {
-                            DropChance oreSettings = dropChances.get(set[i]);
                             if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
 
                                 DropChance oreSettings = dropChances.get(set[i]);
