@@ -29,6 +29,7 @@ import org.bukkit.material.Dye;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 
 
@@ -121,6 +122,7 @@ public class BlockBreakEventListener implements Listener {
         else{
             location.getBlock().setType(Material.TRAPPED_CHEST);
             Chest chest = (Chest) location.getBlock().getState();
+            ItemMeta meta = itemToChest.getItemMeta();
             int [] chestIndexesTable = new int [27];
             int chestSlotAmount = (itemToChest.getAmount()/27);
             Arrays.fill(chestIndexesTable,chestSlotAmount);
@@ -131,21 +133,21 @@ public class BlockBreakEventListener implements Listener {
                 chestIndexesTable[chestPlaceIndex]+=1;
             for(int chestPlaceIndex=0;chestPlaceIndex<27;chestPlaceIndex++){
                 if(chestIndexesTable[chestPlaceIndex]<=0) break;
-                chest.getInventory().setItem(chestPlaceIndex,
-                        new ItemStack(
-                                itemToChest.getType(),
-                                chestIndexesTable[chestPlaceIndex],
-                                itemToChest.getDurability()
-                        )
+                ItemStack stack = new ItemStack(
+                        itemToChest.getType(),
+                        chestIndexesTable[chestPlaceIndex],
+                        itemToChest.getDurability()
                 );
+                stack.setItemMeta(meta);
+                chest.getInventory().setItem(chestPlaceIndex, stack);
             }
 
             Bukkit.getServer().getPluginManager().callEvent(new BlockBreakEvent(location.getBlock(),player));
             location.getBlock().setType(Material.AIR);
+
         }
 
     }
-
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void blockBreak(BlockBreakEvent event) {
@@ -156,8 +158,7 @@ public class BlockBreakEventListener implements Listener {
                 Block block = event.getBlock();
                 Location location = block.getLocation();
                 World world = block.getWorld();
-                ItemStack itemStackInHand  = getItemInHand(event.getPlayer());
-                Material tool = itemStackInHand.getType();
+                Material tool = getItemInHand(event.getPlayer()).getType();
 
                 Material breakBlockName = event.getBlock().getType();
                 if (breakBlockName.toString().contains("ORE") || event.getBlock().getType().toString().equalsIgnoreCase("ancient_debris"))
@@ -218,6 +219,7 @@ public class BlockBreakEventListener implements Listener {
                     }
 
 
+
                     PluginMain.commands.forEach((s, aDouble) -> {
                         if (Chance.chance(aDouble)) {
                             String command = s.replace("@player", event.getPlayer().getName());
@@ -229,7 +231,12 @@ public class BlockBreakEventListener implements Listener {
                     if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.SILK_TOUCH) >= 1) {
                         for (int i = 0; i < set.length; i++) {
                             if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
+
                                 DropChance oreSettings = dropChances.get(set[i]);
+
+                                if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
+                                        && !Arrays.stream(oreSettings.getAcceptedBiomes()).anyMatch(biome -> event.getBlock().getBiome().equals(biome))) continue;
+
                                 if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
                                     if (Chance.chance(dropChances.get(set[i]).getST()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
                                         try {
@@ -255,6 +262,11 @@ public class BlockBreakEventListener implements Listener {
                         for (int i = 0; i < set.length; i++) {
                             DropChance oreSettings = dropChances.get(set[i]);
                             if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
+
+                                DropChance oreSettings = dropChances.get(set[i]);
+
+                                if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
+                                        && !Arrays.stream(oreSettings.getAcceptedBiomes()).anyMatch(biome -> event.getBlock().getBiome().equals(biome))) continue;
 
                                 if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
                                     if (Chance.chance(dropChances.get(set[i]).getFortuneChance(pickaxeLootLevel)) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
@@ -295,17 +307,15 @@ public class BlockBreakEventListener implements Listener {
         return new ItemStack(Material.getMaterial(itemName),dropAmount);
     }
 
-    private void applyEnchants(DropChance oreSettings, ItemStack itemToDrop) {
+    private static void applyEnchants(DropChance oreSettings, ItemStack itemToDrop) {
         if (oreSettings.getEnchant().size() > 0) {
-            ItemMeta itemMeta = itemToDrop.getItemMeta();
             oreSettings.getEnchant().forEach(((enchantment, level) -> {
-                itemMeta.addEnchant(enchantment, level, false);
+                System.out.println(enchantment.toString());
+                System.out.println(level);
+                if (enchantment != null && level > 0) itemToDrop.addUnsafeEnchantment(enchantment, level);
             }));
-            itemToDrop.setItemMeta(itemMeta);
-
         }
     }
-
     public static void applyCustomName(DropChance oreSettings, ItemStack itemToDrop){
         if (oreSettings.getCustomName() != null) {
             ItemMeta meta = itemToDrop.getItemMeta();

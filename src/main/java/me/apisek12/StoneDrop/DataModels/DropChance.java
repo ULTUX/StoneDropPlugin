@@ -4,6 +4,7 @@ package me.apisek12.StoneDrop.DataModels;
 import me.apisek12.StoneDrop.PluginMain;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Biome;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,6 +12,8 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,11 +28,32 @@ public class DropChance {
     private int min_st, max_st;
     private int minLevel = 0, maxLevel = 256;
     private String customName;
+    private Biome[] acceptedBiomes;
     private HashMap<Enchantment, Integer> enchant = new HashMap<>();
     public HashMap<Enchantment, Integer> getEnchant() {
         return enchant;
     }
 
+    public DropChance(String name, double nof, double f1, double f2, double f3, double st, int minnof, int maxnof, int minf1, int maxf1, int minf2, int maxf2, int minf3, int maxf3, int min_st, int max_st, HashMap<Enchantment, Integer> enchant) {
+        this.name = name;
+        this.st = st;
+        this.min_st = min_st;
+        this.max_st = max_st;
+        this.enchant = enchant;
+        this.setFortuneChance(0,nof);
+        this.setFortuneChance(1,f1);
+        this.setFortuneChance(2,f2);
+        this.setFortuneChance(3,f3);
+        this.setFortuneItemsAmountMax(0,maxnof);
+        this.setFortuneItemsAmountMax(1,maxf1);
+        this.setFortuneItemsAmountMax(2,maxf2);
+        this.setFortuneItemsAmountMax(3,maxf3);
+        this.setFortuneItemsAmountMin(0,minnof);
+        this.setFortuneItemsAmountMin(1,minf1);
+        this.setFortuneItemsAmountMin(2,minf2);
+        this.setFortuneItemsAmountMin(3,minf3);
+
+    }
 
     public int getMinLevel() {
         return minLevel;
@@ -62,19 +86,37 @@ public class DropChance {
         Arrays.fill(this.fortuneMins, 0);
     }
 
+    public void setAcceptedBiomes(Collection<String> biomes) {
+        ArrayList<Biome> acceptedBiomes1 = new ArrayList<>();
+        biomes.forEach(s -> {
+            try {
+                Biome biome;
+                 biome = Biome.valueOf(s.toUpperCase());
+                acceptedBiomes1.add(biome);
+            } catch (IllegalArgumentException ignored){}
+        });
+        acceptedBiomes = acceptedBiomes1.toArray(new Biome[0]);
+    }
+
+    public Biome[] getAcceptedBiomes() {
+        return acceptedBiomes;
+    }
+
     public void setEnchant(HashMap<String, Integer> enchant) {
         enchant.forEach((enchantName, level) ->{
             enchantName = enchantName.toLowerCase();
             if (PluginMain.plugin.versionCompatible(12)) {
                 try {
-                    this.enchant.put((Enchantment) Enchantment.class.getMethod("getByKey", NamespacedKey.class).invoke(Enchantment.class, NamespacedKey.minecraft(enchantName)), level);
+                    Enchantment ench = (Enchantment) Enchantment.class.getMethod("getByKey", NamespacedKey.class).invoke(Enchantment.class, NamespacedKey.minecraft(enchantName));
+                    if (ench != null) this.enchant.put(ench, level);
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                     e.printStackTrace();
                 }
             }
             else {
                 try {
-                    this.enchant.put((Enchantment) Enchantment.class.getMethod("getByName" , String.class).invoke(Enchantment.class, enchantName), level);
+                    Enchantment ench = (Enchantment) Enchantment.class.getMethod("getByName" , String.class).invoke(Enchantment.class, enchantName);
+                    if (ench != null) this.enchant.put(ench, level);
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                     e.printStackTrace();
                 }
