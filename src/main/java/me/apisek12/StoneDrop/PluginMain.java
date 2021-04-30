@@ -534,7 +534,7 @@ public class PluginMain extends JavaPlugin {
             DropChance oreObjectOptions = new DropChance();
             oreObjectOptions.setName(key);
             if (oreObject == null) continue;
-            if (oreObject.contains("biomes", true)){
+            if (oreObject.contains("biomes")){
                 List<String> biomes = oreObject.getStringList("biomes");
                 oreObjectOptions.setAcceptedBiomes(biomes);
             }
