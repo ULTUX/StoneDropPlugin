@@ -132,8 +132,8 @@ chances:
       min-amount: 1
     enchant:
       silk_touch: 1
-    biomes:
-      - Mountains
+    biomes:       #Drop only on following biomes
+ #     - Mountains
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #This is chance of getting a chest spawned
