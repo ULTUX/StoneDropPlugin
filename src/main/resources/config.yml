@@ -114,6 +114,8 @@ chances:
       max-amount: 6
       min-amount: 5
   DIAMOND_PICKAXE:
+    minLevel: 0   #Min Y level to drop this item
+    maxLevel: 256 #Max Y level to drop this item
     fortune-0:
       chance: 0.002
       max-amount: 1
@@ -130,7 +132,7 @@ chances:
       chance: 0.005
       max-amount: 1
       min-amount: 1
-    enchant:
+    enchant:      #List of all enchantments that should be applied
       silk_touch: 1
     biomes:       #Drop only on following biomes
  #     - Mountains
