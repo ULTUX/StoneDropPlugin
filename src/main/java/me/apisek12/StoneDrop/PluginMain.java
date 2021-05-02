@@ -8,7 +8,7 @@ import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Apis.Metrics;
 import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
 import me.apisek12.StoneDrop.InventorySelectors.InventorySelector;
-import me.apisek12.StoneDrop.InventorySelectors.InventorySelectorAdmin;
+import me.apisek12.StoneDrop.InventorySelectors.InventorySelectorAdvanced;
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -21,9 +21,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
 import java.util.*;
@@ -118,7 +116,7 @@ public class PluginMain extends JavaPlugin {
                 sender.sendMessage(ChatColor.GRAY + "Registering new event listeners");
                 getPluginManager().registerEvents(new BlockBreakEventListener(), this);
                 getPluginManager().registerEvents(new InventorySelector(), this);
-                getPluginManager().registerEvents(new InventorySelectorAdmin(), this);
+                getPluginManager().registerEvents(new InventorySelectorAdvanced(), this);
                 sender.sendMessage(ChatColor.GRAY + "Loading all config files...");
                 loadConfig();
                 loadPlayerData();
@@ -146,8 +144,8 @@ public class PluginMain extends JavaPlugin {
                     }
                     LinkedHashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
                     if (args.length == 0 || (args.length == 1 && args[0] == "info")) {
-                        if(player.hasPermission("stonedrop.drop.admin")){
-                            new InventorySelectorAdmin(player, setting);
+                        if(player.hasPermission("stonedrop.drop.advanced")){
+                            new InventorySelectorAdvanced(player, setting);
                             return true;
                         } else {
                             new InventorySelector(player,setting);
@@ -326,7 +324,7 @@ public class PluginMain extends JavaPlugin {
             e.printStackTrace();
         }
         getPluginManager().registerEvents(new BlockBreakEventListener(), this);
-        getPluginManager().registerEvents(new InventorySelectorAdmin(), this);
+        getPluginManager().registerEvents(new InventorySelectorAdvanced(), this);
         getPluginManager().registerEvents(new InventorySelector(), this);
         new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         new Metrics(this);

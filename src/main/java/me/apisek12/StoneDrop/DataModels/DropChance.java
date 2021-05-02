@@ -1,6 +1,7 @@
 package me.apisek12.StoneDrop.DataModels;
 
 
+import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.PluginMain;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
@@ -28,7 +29,7 @@ public class DropChance {
     private int min_st, max_st;
     private int minLevel = 0, maxLevel = 256;
     private String customName;
-    private Biome[] acceptedBiomes;
+    private Biome[] acceptedBiomes = null;
     private HashMap<Enchantment, Integer> enchant = new HashMap<>();
     public HashMap<Enchantment, Integer> getEnchant() {
         return enchant;
@@ -138,14 +139,43 @@ public class DropChance {
     public String toString() {
         DecimalFormat format = new DecimalFormat("##0.0##");
         String toReturn = ChatColor.GOLD+name;
-        for(int i=0; i<fortunesAmount;i++){
+        if(fortuneChances[0]>0){
+            toReturn+=": \n   "+ChatColor.GREEN+ Message.INFO_FORTUNE_0+ " : "
+                    +ChatColor.GRAY+" chance: "+format.format(fortuneChances[0]*100)
+                    +"%, drop amount: " +fortuneMins[0]+"-"+fortuneMaxs[0];
+        }
+        if(fortuneChances[1]>0){
+            toReturn+=": \n   "+ChatColor.GREEN+ Message.INFO_FORTUNE_1+ " : "
+                    +ChatColor.GRAY+" chance: "+format.format(fortuneChances[1]*100)
+                    +"%, drop amount: " +fortuneMins[1]+"-"+fortuneMaxs[1];
+        }
+        if(fortuneChances[2]>0){
+            toReturn+=": \n   "+ChatColor.GREEN+ Message.INFO_FORTUNE_2+ " : "
+                    +ChatColor.GRAY+" chance: "+format.format(fortuneChances[2]*100)
+                    +"%, drop amount: " +fortuneMins[2]+"-"+fortuneMaxs[2];
+        }
+        if(fortuneChances[3]>0){
+            toReturn+=": \n   "+ChatColor.GREEN+ Message.INFO_FORTUNE_3+ " : "
+                    +ChatColor.GRAY+" chance: "+format.format(fortuneChances[3]*100)
+                    +"%, drop amount: " +fortuneMins[0]+"-"+fortuneMaxs[3];
+        }
+        if(getST()>0){
+            toReturn +="\n   "+ChatColor.GREEN+Message.INFO_SILK_TOUCH+ " :"
+                    +ChatColor.GRAY+"chance: "+format.format(st*100)
+                    +"%, drop amount: "+min_st+"-"+max_st;
+
+        }
+
+        /*for(int i=0; i<fortunesAmount;i++){
+            if(fortuneChances[i]<)
             toReturn+=": \n   "+ChatColor.GREEN+"fortune " + i+ " : "
                     +ChatColor.GRAY+" chance: "+format.format(fortuneChances[i]*100)
                     +"%, drop amount: " +fortuneMins[i]+"-"+fortuneMaxs[i];
-        }
-        toReturn +="\n   "+ChatColor.GREEN+"silk touch: "+ChatColor.GRAY+"chance: "+format.format(st*100)+"%, drop amount: "+min_st+"-"+max_st;
+        }*/
+        //toReturn +="\n   "+ChatColor.GREEN+"silk touch: "+ChatColor.GRAY+"chance: "+format.format(st*100)+"%, drop amount: "+min_st+"-"+max_st;
         return toReturn;
     }
+
 
 
     public double getST() {

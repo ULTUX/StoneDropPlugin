@@ -23,10 +23,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class InventorySelectorAdmin extends InventorySelector{
+public class InventorySelectorAdvanced extends InventorySelector{
 
     protected Inventory secondaryWindow;
-    protected static HashMap<Player, InventorySelectorAdmin> objects = new HashMap<>();
+    protected static HashMap<Player, InventorySelectorAdvanced> objects = new HashMap<>();
     protected LinkedHashMap<ItemStack, ArrayList<ItemStack>> items = new LinkedHashMap<>();
 
     static{
@@ -40,11 +40,11 @@ public class InventorySelectorAdmin extends InventorySelector{
     }
 
 
-    public InventorySelectorAdmin(){
+    public InventorySelectorAdvanced(){
         super();
     }
 
-    public InventorySelectorAdmin(Player player, LinkedHashMap<String, Setting> settings) {
+    public InventorySelectorAdvanced(Player player, LinkedHashMap<String, Setting> settings) {
         this.player = player;
         this.settings = new LinkedHashMap<>();
         this.settings.putAll(settings);
@@ -213,7 +213,7 @@ public class InventorySelectorAdmin extends InventorySelector{
         if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).secondaryWindow) || event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) return;
-            InventorySelectorAdmin inventorySelector = objects.get(event.getWhoClicked());
+            InventorySelectorAdvanced inventorySelector = objects.get(event.getWhoClicked());
             Player player = inventorySelector.player;
             ItemStack clickedItem = event.getCurrentItem();
             if (event.isRightClick() && !event.getWhoClicked().getOpenInventory().getTopInventory().equals(secondaryWindow)) {

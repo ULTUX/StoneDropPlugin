@@ -43,6 +43,14 @@ public class InventorySelector implements Listener {
         exitMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         exit.setItemMeta(exitMeta);
+
+        back = new ItemStack(Material.ARROW);
+        ItemMeta backMeta = back.getItemMeta();
+
+        backMeta.setDisplayName(ChatColor.GREEN+Message.GUI_BACK_BUTTON.toString());
+        backMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+
+        back.setItemMeta(backMeta);
     }
 
     public InventorySelector() {}
@@ -62,8 +70,9 @@ public class InventorySelector implements Listener {
         player.openInventory(selector);
     }
 
-    protected String setLoreLine(String chance, String amount,String enchant){
-       return String.format("%s%-14s%s%10s%10s",ChatColor.GOLD,enchant,ChatColor.GRAY,chance,amount);
+    protected String setLoreLine(double chance, double minAmount, double maxAmount,String enchant){
+        String amount = String.valueOf((int)minAmount) + " - " + String.valueOf((int)maxAmount);
+       return String.format("%s%-14s%s%10s%10s",ChatColor.GOLD,enchant,ChatColor.GRAY,String.valueOf(chance)+"%",amount);
     }
 
     protected ArrayList<String> setDropItemLore(DropChance dropData, Setting setting){
@@ -75,38 +84,66 @@ public class InventorySelector implements Listener {
         lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
         lore.add("");
         DecimalFormat format = new DecimalFormat("##0.0##");
-        for(int f_num=0;f_num<=3;f_num++){
-            double chance = dropData.getFortuneChance(f_num);
-            if(chance>0){
-                String amountStr = String.valueOf((int)dropData.getFortuneItemsAmountMin(f_num))+ " - "+
-                        String.valueOf((int)dropData.getFortuneItemsAmountMax(f_num));
-                lore.add(setLoreLine(
-                        format.format(chance*100)+"%",
-                        amountStr,
-                        "fortune "+f_num+":"
-                        )
-                );
 
+        //lore.add(dropData.toString());
+        if(dropData.getFortuneChance(0)>0){
+            lore.add(setLoreLine(dropData.getFortuneChance(0),
+                    dropData.getFortuneItemsAmountMin(0),
+                    dropData.getFortuneItemsAmountMax(0),
+                    Message.INFO_FORTUNE_0.toString())
+            );
+        }
+        if(dropData.getFortuneChance(1)>0){
+            lore.add(setLoreLine(dropData.getFortuneChance(1),
+                    dropData.getFortuneItemsAmountMin(1),
+                    dropData.getFortuneItemsAmountMax(1),
+                    Message.INFO_FORTUNE_1.toString())
+            );
+        }
+        if(dropData.getFortuneChance(2)>0){
+            lore.add(setLoreLine(dropData.getFortuneChance(2),
+                    dropData.getFortuneItemsAmountMin(2),
+                    dropData.getFortuneItemsAmountMax(2),
+                    Message.INFO_FORTUNE_2.toString())
+            );
+        }
+        if(dropData.getFortuneChance(3)>0){
+            lore.add(setLoreLine(dropData.getFortuneChance(3),
+                    dropData.getFortuneItemsAmountMin(3),
+                    dropData.getFortuneItemsAmountMax(3),
+                    Message.INFO_FORTUNE_3.toString())
+            );
+        }
+        if(dropData.getST()>0){
+            lore.add(setLoreLine(dropData.getST(),
+                    dropData.getMinST(),
+                    dropData.getMaxST(),
+                    Message.INFO_SILK_TOUCH.toString())
+            );
+        }
+
+        lore.add("");
+        if(dropData.getAcceptedBiomes()!=null && dropData.getAcceptedBiomes().length>0){
+            lore.add(ChatColor.GOLD+"Biom:");
+            StringBuilder loreSB = new StringBuilder();
+            loreSB.setLength(0);
+            for(int b=0;b<dropData.getAcceptedBiomes().length;b++){
+                int currenLen=loreSB.length();
+                if(currenLen+dropData.getAcceptedBiomes()[b].toString().length()>40){
+                    lore.add(loreSB.toString());
+                    loreSB.setLength(0);
+                    loreSB.append(currenLen+dropData.getAcceptedBiomes()[b].toString() + ", ");
+                }
+                else{
+                    loreSB.append(currenLen+dropData.getAcceptedBiomes()[b].toString() + ", ");
+                }
+            }
+            if(loreSB.length()>0){
+                lore.add(loreSB.toString());
+                loreSB.setLength(0);
             }
         }
-        double silkChance = dropData.getST();
-        if(silkChance>0){
-            String amountStr = String.valueOf((int)dropData.getMinST())+ " - "+
-                    String.valueOf((int)dropData.getMaxST());
-            lore.add(setLoreLine(
-                    format.format(silkChance*100)+"%",
-                    amountStr,
-                    "silk_touch:"
-                    )
-            );
-            /*
-            String roundedPercent = format.format(silkChance*100);
-            lore.add(ChatColor.GOLD+  "silk touch"+ ":  " + ChatColor.GRAY+
-                    String.format("%1$8s",roundedPercent)+ "%   " +
-                    String.format("%1$8s",String.valueOf(amountStr))
-            );*/
-        }
-        lore.add("");
+
         return lore;
     }
 

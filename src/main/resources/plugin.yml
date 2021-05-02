@@ -22,8 +22,8 @@ permissions:
   stonedrop.drop:
       description: Allow players to use /drop command.
       default: true
-  stonedrop.drop.admin:
-      description: Allow admins to use /drop command.
+  stonedrop.drop.advanced:
+      description: advanced /drop command.
       default: op
   stonedrop.whatdrops:
     description: Allow players to use /whatdrops command.

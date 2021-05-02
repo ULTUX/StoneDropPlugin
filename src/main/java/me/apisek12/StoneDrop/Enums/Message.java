@@ -20,6 +20,7 @@ public enum Message {
     INFO_FORTUNE_1("Fortune 1"),
     INFO_FORTUNE_2("Fortune 2"),
     INFO_FORTUNE_3("Fortune 3"),
+    INFO_SILK_TOUCH("Silk touch"),
     INFO_DROP_CHANCE("Drop chance"),
     INFO_DROP_AMOUNT("Drop amount"),
     GUI_SECOND_TITLE("Drop information"),
