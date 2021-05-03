@@ -639,6 +639,13 @@ public class PluginMain extends JavaPlugin {
                 else if(itemName.contains("LAPIS_ORE")){
                     return new ItemStack(PluginMain.lapis_ore,dropAmount);
                 }
+                else if(itemName.contains("COBBLE")){
+                    return new ItemStack(Material.COBBLESTONE,1);
+                }
+                else if(itemName.contains("STACK")){
+                    return new ItemStack(Material.BOOK,1);
+                }
+
             }
             return new ItemStack(Material.getMaterial(itemName),dropAmount);
 

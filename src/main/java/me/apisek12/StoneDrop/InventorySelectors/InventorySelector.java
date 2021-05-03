@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 public class InventorySelector implements Listener {
     protected Player player;
@@ -151,30 +152,36 @@ public class InventorySelector implements Listener {
         this.refreshCobbleObject();
         items.clear();
         settings.forEach((materialName, setting) -> {
-            Material material;
-            ItemStack item = PluginMain.plugin.getItemStack(materialName,1);
-            //if ((material = Material.getMaterial(materialName)) != null)
-            if (item != null) {
-                DropChance dropData = PluginMain.dropChances.get(materialName);
-                if (dropData != null) {
-                    //ItemStack item = new ItemStack(material);
-                    BlockBreakEventListener.applyCustomName(dropData, item);
-                    ItemMeta itemMeta = item.getItemMeta();
-                    if (dropData.getEnchant() != null)
-                        dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
+            try {
+                Material material;
+                ItemStack item;
+                //if ((material = Material.getMaterial(materialName)) != null)
+                if ((item = PluginMain.plugin.getItemStack(materialName,1)) != null) {
+                    DropChance dropData = PluginMain.dropChances.get(materialName);
+                    if (dropData != null) {
+                        //ItemStack item = new ItemStack(material);
+                        BlockBreakEventListener.applyCustomName(dropData, item);
+                        ItemMeta itemMeta = item.getItemMeta();
+                        if (dropData.getEnchant() != null)
+                            dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
 
-                    ArrayList<String> lore = this.setDropItemLore(dropData,setting);
-
-
-                    itemMeta.setLore(lore);
-                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                    item.setItemMeta(itemMeta);
-
-                    this.putItemToItems(item,item.getType(),dropData);
+                        ArrayList<String> lore = this.setDropItemLore(dropData,setting);
 
 
+                        itemMeta.setLore(lore);
+                        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                        item.setItemMeta(itemMeta);
+
+                        this.putItemToItems(item,item.getType(),dropData);
+
+
+                    }
                 }
+            } catch (NullPointerException e){
+                PluginMain.plugin.getLogger().log(Level.WARNING, "Material: "+materialName+" does not exist in this minecraft version, something is probably not properly set in config.yml file.");
+
             }
+
         });
     }
 
