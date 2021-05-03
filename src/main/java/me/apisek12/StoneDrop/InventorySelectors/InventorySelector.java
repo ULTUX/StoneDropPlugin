@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -71,8 +72,9 @@ public class InventorySelector implements Listener {
     }
 
     protected String setLoreLine(double chance, double minAmount, double maxAmount,String enchant){
+        DecimalFormat format = new DecimalFormat("##0.0##");
         String amount = String.valueOf((int)minAmount) + " - " + String.valueOf((int)maxAmount);
-       return String.format("%s%-14s%s%10s%10s",ChatColor.GOLD,enchant,ChatColor.GRAY,String.valueOf(chance)+"%",amount);
+       return String.format("%s%-14s%s%10s%10s",ChatColor.GOLD,enchant,ChatColor.GRAY,format.format(chance*100)+"%",amount);
     }
 
     protected ArrayList<String> setDropItemLore(DropChance dropData, Setting setting){
@@ -83,15 +85,12 @@ public class InventorySelector implements Listener {
         lore.add(ChatColor.GRAY+ Message.GUI_ITEM_LEVEL_IN_RANGE.toString()+": "+ChatColor.GOLD+dropData.getMinLevel()+"-"+dropData.getMaxLevel());
         lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
         lore.add("");
-        DecimalFormat format = new DecimalFormat("##0.0##");
 
-        //lore.add(dropData.toString());
         if(dropData.getFortuneChance(0)>0){
             lore.add(setLoreLine(dropData.getFortuneChance(0),
                     dropData.getFortuneItemsAmountMin(0),
                     dropData.getFortuneItemsAmountMax(0),
-                    Message.INFO_FORTUNE_0.toString())
-            );
+                    Message.INFO_FORTUNE_0.toString()));
         }
         if(dropData.getFortuneChance(1)>0){
             lore.add(setLoreLine(dropData.getFortuneChance(1),
@@ -129,13 +128,14 @@ public class InventorySelector implements Listener {
             loreSB.setLength(0);
             for(int b=0;b<dropData.getAcceptedBiomes().length;b++){
                 int currenLen=loreSB.length();
-                if(currenLen+dropData.getAcceptedBiomes()[b].toString().length()>40){
+                if(currenLen+dropData.getAcceptedBiomes()[b].name().length()>30){
+
                     lore.add(loreSB.toString());
                     loreSB.setLength(0);
-                    loreSB.append(currenLen+dropData.getAcceptedBiomes()[b].toString() + ", ");
+                    loreSB.append(dropData.getAcceptedBiomes()[b].name() + ", ");
                 }
                 else{
-                    loreSB.append(currenLen+dropData.getAcceptedBiomes()[b].toString() + ", ");
+                    loreSB.append(dropData.getAcceptedBiomes()[b].name() + ", ");
                 }
             }
             if(loreSB.length()>0){
@@ -152,13 +152,15 @@ public class InventorySelector implements Listener {
         items.clear();
         settings.forEach((materialName, setting) -> {
             Material material;
-            if ((material = Material.getMaterial(materialName)) != null) {
+            ItemStack item = PluginMain.plugin.getItemStack(materialName,1);
+            //if ((material = Material.getMaterial(materialName)) != null)
+            if (item != null) {
                 DropChance dropData = PluginMain.dropChances.get(materialName);
                 if (dropData != null) {
-                    ItemStack item = new ItemStack(material);
+                    //ItemStack item = new ItemStack(material);
                     BlockBreakEventListener.applyCustomName(dropData, item);
                     ItemMeta itemMeta = item.getItemMeta();
-                    if (dropData != null && dropData.getEnchant() != null)
+                    if (dropData.getEnchant() != null)
                         dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
 
                     ArrayList<String> lore = this.setDropItemLore(dropData,setting);
@@ -168,7 +170,7 @@ public class InventorySelector implements Listener {
                     itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
                     item.setItemMeta(itemMeta);
 
-                    this.putItemToItems(item,material,dropData);
+                    this.putItemToItems(item,item.getType(),dropData);
 
 
                 }

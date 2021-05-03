@@ -21,6 +21,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.material.Dye;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
@@ -626,6 +627,20 @@ public class PluginMain extends JavaPlugin {
             player.sendMessage(message);
 
         }
+
+    }
+
+    public ItemStack getItemStack(String itemName, int dropAmount)  {
+            if(!this.versionCompatible(12)){
+                if(itemName.contains("LAPIS_LAZULI")){
+
+                    return new Dye(DyeColor.BLUE).toItemStack(dropAmount);
+                }
+                else if(itemName.contains("LAPIS_ORE")){
+                    return new ItemStack(PluginMain.lapis_ore,dropAmount);
+                }
+            }
+            return new ItemStack(Material.getMaterial(itemName),dropAmount);
 
     }
 }
