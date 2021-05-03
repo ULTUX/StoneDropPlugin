@@ -245,7 +245,7 @@ public class BlockBreakEventListener implements Listener {
                                                     dropChances.get(set[i]).getMinST(),
                                                     dropChances.get(set[i]).getMaxST()
                                             );
-                                            ItemStack itemToDrop = this.getItemStack(set[i],dropAmount);
+                                            ItemStack itemToDrop = PluginMain.plugin.getItemStack(set[i],dropAmount);
                                             applyEnchants(oreSettings, itemToDrop);
                                             applyCustomName(oreSettings, itemToDrop);
                                             dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
@@ -274,7 +274,7 @@ public class BlockBreakEventListener implements Listener {
                                             int dropAmount = Chance.randBetween(
                                                     (int) dropChances.get(set[i]).getFortuneItemsAmountMin(pickaxeLootLevel),
                                                     (int) dropChances.get(set[i]).getFortuneItemsAmountMax(pickaxeLootLevel));
-                                            ItemStack itemToDrop = this.getItemStack(set[i], dropAmount);
+                                            ItemStack itemToDrop = PluginMain.plugin.getItemStack(set[i],dropAmount);
                                             applyEnchants(oreSettings, itemToDrop);
                                             applyCustomName(oreSettings, itemToDrop);
                                             dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
@@ -294,7 +294,7 @@ public class BlockBreakEventListener implements Listener {
         }
     }
 
-    private ItemStack getItemStack(String itemName, int dropAmount)  {
+    /*private ItemStack getItemStack(String itemName, int dropAmount)  {
         if(!PluginMain.plugin.versionCompatible(12)){
             if(itemName.contains("LAPIS_LAZULI")){
 
@@ -305,7 +305,7 @@ public class BlockBreakEventListener implements Listener {
             }
         }
         return new ItemStack(Material.getMaterial(itemName),dropAmount);
-    }
+    }*/
 
     private static void applyEnchants(DropChance oreSettings, ItemStack itemToDrop) {
         if (oreSettings.getEnchant().size() > 0) {
