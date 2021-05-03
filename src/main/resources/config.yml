@@ -225,6 +225,7 @@ ore-drop: true
 ores-whitelist:
   - COAL_ORE
   - REDSTONE_ORE
+  - GLOWING_REDSTONE_ORE
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #If ore-drop is true -> whats the chance to drop item from ore when mining it

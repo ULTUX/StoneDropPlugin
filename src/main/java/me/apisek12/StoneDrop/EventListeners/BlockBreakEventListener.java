@@ -6,6 +6,7 @@ import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.PluginMain;
 import me.apisek12.StoneDrop.Utils.Chance;
 import org.bukkit.*;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
@@ -25,6 +26,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Dye;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Predicate;
@@ -111,29 +114,33 @@ public class BlockBreakEventListener implements Listener {
         }
     }
 
-    private static void spawnDropChest(ItemStack itemStack, Player player,Location location){
+    private static void spawnDropChest(ItemStack itemToChest, Player player,Location location){
         boolean isTrpChstNeighbour = hasTheSameNeighbour(location.getBlock(),Material.TRAPPED_CHEST);
 
         if (isTrpChstNeighbour){
-            location.getWorld().dropItemNaturally(location, itemStack);
+            location.getWorld().dropItemNaturally(location, itemToChest);
         }
         else{
             location.getBlock().setType(Material.TRAPPED_CHEST);
             Chest chest = (Chest) location.getBlock().getState();
-            int chestSlotAmount = (itemStack.getAmount()/27);
-            int extraSlotAmount = (chestSlotAmount < 64) ?  itemStack.getAmount() % 27 : 0;
-            ItemMeta meta = itemStack.getItemMeta();
-            for (int ci=0,extraAdd=0;ci<27;ci++,extraAdd++){
-                if (extraAdd < extraSlotAmount){
-                    ItemStack stack = new ItemStack(itemStack.getType(), chestSlotAmount+1);
-                    stack.setItemMeta(meta);
-                    chest.getInventory().setItem(ci, stack);
-                }
-                else {
-                    ItemStack stack = new ItemStack(itemStack.getType(), chestSlotAmount);
-                    stack.setItemMeta(meta);
-                    chest.getInventory().setItem(ci, stack);
-                }
+            ItemMeta meta = itemToChest.getItemMeta();
+            int [] chestIndexesTable = new int [27];
+            int chestSlotAmount = (itemToChest.getAmount()/27);
+            Arrays.fill(chestIndexesTable,chestSlotAmount);
+            //in these case is not possible to drop more than 27*64 the same item
+            //by the way its very huge drop
+            int extraSlotAmount = (chestSlotAmount < 64) ?  itemToChest.getAmount() % 27 : 0;
+            for(int chestPlaceIndex=0;chestPlaceIndex<extraSlotAmount;chestPlaceIndex++)
+                chestIndexesTable[chestPlaceIndex]+=1;
+            for(int chestPlaceIndex=0;chestPlaceIndex<27;chestPlaceIndex++){
+                if(chestIndexesTable[chestPlaceIndex]<=0) break;
+                ItemStack stack = new ItemStack(
+                        itemToChest.getType(),
+                        chestIndexesTable[chestPlaceIndex],
+                        itemToChest.getDurability()
+                );
+                stack.setItemMeta(meta);
+                chest.getInventory().setItem(chestPlaceIndex, stack);
             }
 
             Bukkit.getServer().getPluginManager().callEvent(new BlockBreakEvent(location.getBlock(),player));
@@ -212,10 +219,6 @@ public class BlockBreakEventListener implements Listener {
                         }, 4);
                     }
 
-                    /*if(!PluginMain.realisticDrop && Chance.chance(PluginMain.chestSpawnRate)){
-                        //when realistic drop is on, this method is call in drop function
-                        runTaskSpawnChest(event.getBlock().getLocation(),event.getPlayer());
-                    }*/
 
 
                     PluginMain.commands.forEach((s, aDouble) -> {
@@ -225,66 +228,11 @@ public class BlockBreakEventListener implements Listener {
                         }
                     });
 
-                    if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 1) {
+
+                    if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.SILK_TOUCH) >= 1) {
                         for (int i = 0; i < set.length; i++) {
                             if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
-                                DropChance oreSettings = dropChances.get(set[i]);
 
-                                if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
-                                    && !Arrays.stream(oreSettings.getAcceptedBiomes()).anyMatch(biome -> event.getBlock().getBiome().equals(biome))) continue;
-
-                                if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
-                                    if (Chance.chance(dropChances.get(set[i]).getF1()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
-                                        ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf1(), dropChances.get(set[i]).getMaxf1()));
-                                        applyEnchants(oreSettings, itemToDrop);
-                                        applyCustomName(oreSettings, itemToDrop);
-                                        dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
-                                    }
-                                }
-                            }
-                        }
-
-                    } else if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 2) {
-                        for (int i = 0; i < set.length; i++) {
-                            if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
-                                DropChance oreSettings = dropChances.get(set[i]);
-
-                                if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
-                                        && !Arrays.stream(oreSettings.getAcceptedBiomes()).anyMatch(biome -> event.getBlock().getBiome().equals(biome))) continue;
-
-                                if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
-                                    if (Chance.chance(dropChances.get(set[i]).getF2()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()){
-                                        ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf2(), dropChances.get(set[i]).getMaxf2()));
-                                        applyEnchants(oreSettings, itemToDrop);
-                                        applyCustomName(oreSettings, itemToDrop);
-                                        dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
-                                    }
-                                }
-                            }
-                        }
-
-                    } else if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) == 3) {
-                        for (int i = 0; i < set.length; i++) {
-                            if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
-                                DropChance oreSettings = dropChances.get(set[i]);
-
-                                if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
-                                        && !Arrays.stream(oreSettings.getAcceptedBiomes()).anyMatch(biome -> event.getBlock().getBiome().equals(biome))) continue;
-
-                                if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
-                                    if (Chance.chance(dropChances.get(set[i]).getF3()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()){
-                                        ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinf3(), dropChances.get(set[i]).getMaxf3()));
-                                        applyEnchants(oreSettings, itemToDrop);
-                                        applyCustomName(oreSettings, itemToDrop);
-                                        dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
-                                    }
-                                }
-                            }
-                        }
-
-                    } else if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.SILK_TOUCH) >= 1) {
-                        for (int i = 0; i < set.length; i++) {
-                            if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
                                 DropChance oreSettings = dropChances.get(set[i]);
 
                                 if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
@@ -293,7 +241,11 @@ public class BlockBreakEventListener implements Listener {
                                 if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
                                     if (Chance.chance(dropChances.get(set[i]).getST()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
                                         try {
-                                            ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinST(), dropChances.get(set[i]).getMaxST()));
+                                            int dropAmount = Chance.randBetween(
+                                                    dropChances.get(set[i]).getMinST(),
+                                                    dropChances.get(set[i]).getMaxST()
+                                            );
+                                            ItemStack itemToDrop = PluginMain.plugin.getItemStack(set[i],dropAmount);
                                             applyEnchants(oreSettings, itemToDrop);
                                             applyCustomName(oreSettings, itemToDrop);
                                             dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
@@ -307,36 +259,53 @@ public class BlockBreakEventListener implements Listener {
                             }
                         }
                     } else {
+                        int pickaxeLootLevel = getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
                         for (int i = 0; i < set.length; i++) {
                             if (!set[i].equals("COBBLE") && !set[i].equals("STACK")) {
+
                                 DropChance oreSettings = dropChances.get(set[i]);
 
                                 if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
                                         && !Arrays.stream(oreSettings.getAcceptedBiomes()).anyMatch(biome -> event.getBlock().getBiome().equals(biome))) continue;
 
                                 if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
-                                    if (Chance.chance(dropChances.get(set[i]).getNof()) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
+                                    if (Chance.chance(dropChances.get(set[i]).getFortuneChance(pickaxeLootLevel)) && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(set[i]).isOn()) {
                                         try {
-                                            ItemStack itemToDrop = new ItemStack(Material.getMaterial(set[i]), Chance.randBetween(dropChances.get(set[i]).getMinnof(), dropChances.get(set[i]).getMaxnof()));
+                                            int dropAmount = Chance.randBetween(
+                                                    (int) dropChances.get(set[i]).getFortuneItemsAmountMin(pickaxeLootLevel),
+                                                    (int) dropChances.get(set[i]).getFortuneItemsAmountMax(pickaxeLootLevel));
+                                            ItemStack itemToDrop = PluginMain.plugin.getItemStack(set[i],dropAmount);
                                             applyEnchants(oreSettings, itemToDrop);
                                             applyCustomName(oreSettings, itemToDrop);
                                             dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
-                                        }
-                                        catch (NullPointerException e){
+                                        } catch (NullPointerException e){
                                             PluginMain.plugin.getLogger().log(Level.WARNING, "Material: "+set[i]+" does not exist in this minecraft version, something is probably not properly set in config.yml file.");
                                         }
-
                                     }
                                 }
                             }
                         }
                     }
+
                     giveExp(event.getPlayer());
 
                 }
             }
         }
     }
+
+    /*private ItemStack getItemStack(String itemName, int dropAmount)  {
+        if(!PluginMain.plugin.versionCompatible(12)){
+            if(itemName.contains("LAPIS_LAZULI")){
+
+                return new Dye(DyeColor.BLUE).toItemStack(dropAmount);
+            }
+            else if(itemName.contains("LAPIS_ORE")){
+                return new ItemStack(PluginMain.lapis_ore,dropAmount);
+            }
+        }
+        return new ItemStack(Material.getMaterial(itemName),dropAmount);
+    }*/
 
     private static void applyEnchants(DropChance oreSettings, ItemStack itemToDrop) {
         if (oreSettings.getEnchant().size() > 0) {

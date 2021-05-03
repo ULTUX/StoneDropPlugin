@@ -7,6 +7,8 @@ import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Apis.Metrics;
 import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
+import me.apisek12.StoneDrop.InventorySelectors.InventorySelector;
+import me.apisek12.StoneDrop.InventorySelectors.InventorySelectorAdvanced;
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,6 +21,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.material.Dye;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
@@ -43,7 +46,7 @@ public class PluginMain extends JavaPlugin {
     public static ArrayList<Material> dropOresWhiteList = null;
     public static boolean dropIntoInventory = false;
     public static boolean displayUpdateMessage = true;
-    public static Material wooden = null, golden = null;
+    public static Material wooden = null, golden = null, lapis_ore = null;
     public static boolean isNetherite = false;
     public static HashMap<String, String> playerLastVersionPluginVersion = new HashMap<>();
     public static String currentPluginVersion;
@@ -54,6 +57,8 @@ public class PluginMain extends JavaPlugin {
     public static LinkedHashMap<String, Double> commands;
     public static boolean dropChestToInv = false;
     public static boolean realisticDrop = true;
+    public static String bukkitVersion;
+
 
 
     /**
@@ -66,6 +71,7 @@ public class PluginMain extends JavaPlugin {
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
         return Integer.parseInt(version[1]) > val;
     }
+
 
 
     @Override
@@ -111,6 +117,7 @@ public class PluginMain extends JavaPlugin {
                 sender.sendMessage(ChatColor.GRAY + "Registering new event listeners");
                 getPluginManager().registerEvents(new BlockBreakEventListener(), this);
                 getPluginManager().registerEvents(new InventorySelector(), this);
+                getPluginManager().registerEvents(new InventorySelectorAdvanced(), this);
                 sender.sendMessage(ChatColor.GRAY + "Loading all config files...");
                 loadConfig();
                 loadPlayerData();
@@ -137,9 +144,15 @@ public class PluginMain extends JavaPlugin {
                         return false;
                     }
                     LinkedHashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
-                    if (args.length == 0 || (args.length == 1 && args[0].equals("info"))) {
-                        new InventorySelector(player, setting);
-                        return true;
+                    if (args.length == 0 || (args.length == 1 && args[0] == "info")) {
+                        if(player.hasPermission("stonedrop.drop.advanced")){
+                            new InventorySelectorAdvanced(player, setting);
+                            return true;
+                        } else {
+                            new InventorySelector(player,setting);
+                            return true;
+                        }
+
                     } else {
                         if (args[0].equalsIgnoreCase("cobble")) {
                             setting.get("COBBLE").setOn(!setting.get("COBBLE").isOn());
@@ -155,7 +168,6 @@ public class PluginMain extends JavaPlugin {
                             else
                                 player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
                             return true;
-
                         } else {
                             for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
                                 if (!BlockBreakEventListener.set[i].equals("STACK") && !BlockBreakEventListener.set[i].equals("COBBLE")) {
@@ -288,6 +300,7 @@ public class PluginMain extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         currentPluginVersion = getDescription().getVersion();
+        bukkitVersion = Bukkit.getBukkitVersion();
         generateConfig();
         generateLang();
         loadConfig();
@@ -305,15 +318,19 @@ public class PluginMain extends JavaPlugin {
             } else {
                 golden = Material.getMaterial(Material.class.getField("GOLD_PICKAXE").getName());
                 wooden = Material.getMaterial(Material.class.getField("WOOD_PICKAXE").getName());
+                lapis_ore  = Material.getMaterial(Material.class.getField("LAPIS_ORE").getName());
+
             }
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
         getPluginManager().registerEvents(new BlockBreakEventListener(), this);
+        getPluginManager().registerEvents(new InventorySelectorAdvanced(), this);
         getPluginManager().registerEvents(new InventorySelector(), this);
         new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         new Metrics(this);
         reloadConfig();
+
         loadPlayerData();
         loadChances();
         loadChestChances();
@@ -450,6 +467,7 @@ public class PluginMain extends JavaPlugin {
         langData.getKeys(false).forEach(key -> {
             Message.valueOf(key).setDefaultMessage((String) langData.get(key));
         });
+        getLogger().info("config lang");
         commands = new LinkedHashMap<>();
         ConfigurationSection cs = getConfig().getConfigurationSection("executeCommands");
         Set<String> keys = null;
@@ -459,11 +477,12 @@ public class PluginMain extends JavaPlugin {
                 commands.put(s, cs.getDouble(s));
             });
         }
+        getLogger().info("config commands");
         //Check if plugin should drop items into inventory
         dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
         //Check if plugin should block item dropping from ores
         dropFromOres = getConfig().getBoolean("ore-drop");
-        if (dropFromOres == false) {
+        if(dropFromOres==false){
             dropOresWhiteList = new ArrayList<>();
             getConfig().getStringList("ores-whitelist").forEach(white_ore -> {
                 dropOresWhiteList.add(Material.getMaterial(white_ore));
@@ -478,6 +497,7 @@ public class PluginMain extends JavaPlugin {
         disabledWorlds = new ArrayList<>(getConfig().getStringList("disabled-worlds"));
         dropChestToInv = getConfig().getBoolean("drop-chest-to-inventory");
         realisticDrop = getConfig().getBoolean("realistic-drop");
+        getLogger().info("config loaded");
     }
 
     private void loadChestChances() {
@@ -500,13 +520,15 @@ public class PluginMain extends JavaPlugin {
     }
 
     private void loadChances() {
+        getLogger().info("Loading chances...");
         dropChances = new LinkedHashMap<>();
         dropBlocks = new ArrayList<>();
         getConfig().getStringList("dropBlocks").forEach(material -> {
             dropBlocks.add(Material.getMaterial(material));
         });
-
+        getLogger().info("Loaddrop blocks");
         for (String key : getConfig().getConfigurationSection("chances").getKeys(false)) {
+            getLogger().info("key" + key);
             ConfigurationSection oreObject = getConfig().getConfigurationSection("chances." + key);
             DropChance oreObjectOptions = new DropChance();
             oreObjectOptions.setName(key);
@@ -515,21 +537,22 @@ public class PluginMain extends JavaPlugin {
                 List<String> biomes = oreObject.getStringList("biomes");
                 oreObjectOptions.setAcceptedBiomes(biomes);
             }
-            for (String setting : oreObject.getKeys(false)) {
-                if (setting.split("-")[0].equals("fortune")) {
-                    int level = Integer.parseInt(setting.split(("-"))[1]);
-                    double chance = oreObject.getConfigurationSection(setting).getDouble("chance");
-                    int min = oreObject.getConfigurationSection(setting).getInt("min-amount");
-                    int max = oreObject.getConfigurationSection(setting).getInt("max-amount");
-                    oreObjectOptions.setChance(level, chance);
-                    oreObjectOptions.setMinDrop(level, min);
-                    oreObjectOptions.setMaxDrop(level, max);
-                } else if (setting.split("-")[0].equals("silk_touch")) {
-                    int level = Integer.parseInt(setting.split(("-"))[1]);
-                    double chance = oreObject.getConfigurationSection(setting).getDouble("chance");
-                    int min = oreObject.getConfigurationSection(setting).getInt("min-amount");
-                    int max = oreObject.getConfigurationSection(setting).getInt("max-amount");
-                    oreObjectOptions.setSilkChance(level, chance);
+            getLogger().info("loaded biomes");
+            for (String fortuneLevel : Objects.requireNonNull(oreObject).getKeys(false)) {
+                if (fortuneLevel.split("-")[0].equals("fortune")) {
+                    int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
+                    double chance = oreObject.getConfigurationSection(fortuneLevel).getDouble("chance");
+                    int min = oreObject.getConfigurationSection(fortuneLevel).getInt("min-amount");
+                    int max = oreObject.getConfigurationSection(fortuneLevel).getInt("max-amount");
+                    oreObjectOptions.setFortuneChance(level,chance);
+                    oreObjectOptions.setFortuneItemsAmountMin(level,min);
+                    oreObjectOptions.setFortuneItemsAmountMax(level,max);
+                } else if (fortuneLevel.split("-")[0].equals("silk_touch")) {
+                    int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
+                    double chance = oreObject.getConfigurationSection(fortuneLevel).getDouble("chance");
+                    int min = oreObject.getConfigurationSection(fortuneLevel).getInt("min-amount");
+                    int max = oreObject.getConfigurationSection(fortuneLevel).getInt("max-amount");
+                    oreObjectOptions.setSilkCahnce(level, chance);
                     oreObjectOptions.setSilkMinDrop(level, min);
                     oreObjectOptions.setSilkMaxDrop(level, max);
                 }
@@ -570,10 +593,11 @@ public class PluginMain extends JavaPlugin {
         for (int i = 0; i < dropChances.keySet().toArray().length; i++) {
             BlockBreakEventListener.set[i] = (String) dropChances.keySet().toArray()[i];
         }
+        getLogger().info("Loaded chances");
     }
 
 
-    public static void newPlayerJoined(Player player) {
+    public static void newPlayerJoined(Player player){
         String uid = player.getUniqueId().toString();
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data...");
         if (!playerSettings.containsKey(uid)) {
@@ -587,7 +611,7 @@ public class PluginMain extends JavaPlugin {
         }
         if (!playerLastVersionPluginVersion.containsKey(uid)) {
             playerLastVersionPluginVersion.put(uid, currentPluginVersion);
-            if (displayUpdateMessage) {
+            if (displayUpdateMessage){
                 displayUpdateMessage(player);
             }
         }
@@ -596,13 +620,34 @@ public class PluginMain extends JavaPlugin {
 
     public static void displayUpdateMessage(Player player) {
         Scanner reader;
-        InputStream inputStream = plugin.getResource("update.txt");
+        InputStream inputStream= plugin.getResource("update.txt");
         reader = new Scanner(inputStream, "utf-8");
-        while (reader.hasNextLine()) {
+        while (reader.hasNextLine()){
             String message = ChatColor.translateAlternateColorCodes('&', reader.nextLine());
             player.sendMessage(message);
 
         }
+
+    }
+
+    public ItemStack getItemStack(String itemName, int dropAmount)  {
+            if(!this.versionCompatible(12)){
+                if(itemName.contains("LAPIS_LAZULI")){
+
+                    return new Dye(DyeColor.BLUE).toItemStack(dropAmount);
+                }
+                else if(itemName.contains("LAPIS_ORE")){
+                    return new ItemStack(PluginMain.lapis_ore,dropAmount);
+                }
+                else if(itemName.contains("COBBLE")){
+                    return new ItemStack(Material.COBBLESTONE,1);
+                }
+                else if(itemName.contains("STACK")){
+                    return new ItemStack(Material.BOOK,1);
+                }
+
+            }
+            return new ItemStack(Material.getMaterial(itemName),dropAmount);
 
     }
 }

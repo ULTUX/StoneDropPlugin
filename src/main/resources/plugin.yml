@@ -20,11 +20,14 @@ commands:
 
 permissions:
   stonedrop.drop:
-    description: Allow players to use /drop command.
-    default: op
+      description: Allow players to use /drop command.
+      default: true
+  stonedrop.drop.advanced:
+      description: advanced /drop command.
+      default: op
   stonedrop.whatdrops:
     description: Allow players to use /whatdrops command.
-    default: op
+    default: true
   stonedrop.reload:
     description: Allow players to reload the plugin.
     default: op
