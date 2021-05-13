@@ -37,6 +37,13 @@ public class InventorySelectorAdvanced extends InventorySelector{
         backMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         back.setItemMeta(backMeta);
+
+        if (!PluginMain.versionCompatible(13)) {
+            glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+            ItemMeta meta = glassFiller.getItemMeta();
+            meta.setDisplayName(" ");
+            glassFiller.setItemMeta(meta);
+        }
     }
 
 
@@ -49,7 +56,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
         this.settings = new LinkedHashMap<>();
         this.settings.putAll(settings);
         objects.put(player, this);
-        selector = Bukkit.createInventory(null, PluginMain.dropChances.size() + (9 - PluginMain.dropChances.size() % 9) + 2 * 9, title);
+        selector = Bukkit.createInventory(null, PluginMain.dropChances.size() + (9 - PluginMain.dropChances.size() % 9) + 2 * 9, getTitle());
 
         this.cobble = new ItemStack(Material.COBBLESTONE);
 
@@ -74,6 +81,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
         selector.setItem(index.getAndIncrement(), cobble);
         items.forEach((itemStack, itemStacks) -> selector.setItem(index.getAndIncrement(), itemStack));
         selector.setItem(selector.getSize()-5, exit);
+        fillWithGlass(selector);
     }
 
     @Override
@@ -202,6 +210,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
         items.forEach(item -> secondaryWindow.setItem(i.getAndAdd(2), item));
         secondaryWindow.setItem(secondaryWindow.getSize()-5, exit);
         secondaryWindow.setItem(secondaryWindow.getSize()-6, back);
+        fillWithGlass(secondaryWindow);
         player.openInventory(secondaryWindow);
     }
 

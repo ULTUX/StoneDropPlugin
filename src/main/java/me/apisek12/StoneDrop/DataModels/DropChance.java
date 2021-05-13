@@ -29,6 +29,7 @@ public class DropChance {
     public HashMap<Enchantment, Integer> getEnchant() {
         return enchant;
     }
+    private boolean isEnabled = true;
 
     public DropChance(String name, double nof, double f1, double f2, double f3, double st, int minnof, int maxnof, int minf1, int maxf1, int minf2, int maxf2, int minf3, int maxf3, int min_st, int max_st, HashMap<Enchantment, Integer> enchant) {
         this.name = name;
@@ -50,6 +51,12 @@ public class DropChance {
         this.setFortuneItemsAmountMin(3,minf3);
 
     }
+
+    public void setEnabled(boolean enable) {
+        this.isEnabled = enable;
+    }
+
+    public boolean isEnabled() {return this.isEnabled;}
 
     public int getMinLevel() {
         return minLevel;

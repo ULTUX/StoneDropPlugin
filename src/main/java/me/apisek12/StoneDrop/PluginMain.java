@@ -8,6 +8,7 @@ import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Apis.Metrics;
 import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
+import me.apisek12.StoneDrop.InventorySelectors.AdminPanel;
 import me.apisek12.StoneDrop.InventorySelectors.InventorySelector;
 import me.apisek12.StoneDrop.InventorySelectors.InventorySelectorAdvanced;
 import org.bukkit.*;
@@ -56,7 +57,7 @@ public class PluginMain extends JavaPlugin {
     public static boolean treasureChestBroadcast = true;
     public static double oreDropChance = 1.0f;
     public static double volume = 0.3d;
-    public static ArrayList<ExecuteCommands> commands = new ArrayList<>();
+    public static ArrayList<ExecuteCommands> commands;
     public static boolean dropChestToInv = false;
     public static boolean realisticDrop = true;
     public static String bukkitVersion;
@@ -69,7 +70,7 @@ public class PluginMain extends JavaPlugin {
      * @param val A version to compare with.
      * @return true if plugin verison is greater or equal than given value.
      */
-    public boolean versionCompatible(int val) {
+    public static boolean versionCompatible(int val) {
         String[] version = Bukkit.getBukkitVersion().replace(".", ",").replace("-", ",").split(",");
         return Integer.parseInt(version[1]) > val;
     }
@@ -120,6 +121,7 @@ public class PluginMain extends JavaPlugin {
                 getPluginManager().registerEvents(new BlockBreakEventListener(), this);
                 getPluginManager().registerEvents(new InventorySelector(), this);
                 getPluginManager().registerEvents(new InventorySelectorAdvanced(), this);
+                getPluginManager().registerEvents(new AdminPanel(), this);
                 sender.sendMessage(ChatColor.GRAY + "Loading all config files...");
                 loadConfig();
                 loadPlayerData();
@@ -146,16 +148,19 @@ public class PluginMain extends JavaPlugin {
                         return false;
                     }
                     LinkedHashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
-                    if (args.length == 0 || (args.length == 1 && args[0] == "info")) {
+                    if (args.length == 0 || args[0].equals("info")) {
                         if(player.hasPermission("stonedrop.drop.advanced")){
                             new InventorySelectorAdvanced(player, setting);
-                            return true;
                         } else {
                             new InventorySelector(player,setting);
-                            return true;
                         }
+                        return true;
 
                     } else {
+                        if (args[0].equalsIgnoreCase("admin") && player.isOp()){
+                            AdminPanel.createAdminPanel(player);
+                            return true;
+                        }
                         if (args[0].equalsIgnoreCase("cobble")) {
                             setting.get("COBBLE").setOn(!setting.get("COBBLE").isOn());
                             if (!setting.get("COBBLE").isOn())
@@ -329,6 +334,7 @@ public class PluginMain extends JavaPlugin {
         getPluginManager().registerEvents(new BlockBreakEventListener(), this);
         getPluginManager().registerEvents(new InventorySelectorAdvanced(), this);
         getPluginManager().registerEvents(new InventorySelector(), this);
+        getPluginManager().registerEvents(new AdminPanel(), this);
         new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         new Metrics(this);
         reloadConfig();
@@ -341,17 +347,27 @@ public class PluginMain extends JavaPlugin {
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] " + ChatColor.GREEN + "Configuration Loaded, Plugin enabled!");
         startStackScheduler();
         fixPlayerData();
+        setGlobalSettings();
         BlockBreakEventListener.initialize();
     }
 
+    private void setGlobalSettings() {
+        playerSettings.get("9999-9999").forEach((s, setting) -> {
+            if (dropChances.containsKey(s)) dropChances.get(s).setEnabled(setting.isOn());
+        });
+    }
+
     private void fixPlayerData() {
-        getServer().getOnlinePlayers().forEach(PluginMain::newPlayerJoined);
+        getServer().getOnlinePlayers().forEach(PluginMain::generateNewPlayerData);
         playerSettings.forEach((name, settings) -> {
             for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
                 if (!settings.containsKey(BlockBreakEventListener.set[i]))
                     settings.put(BlockBreakEventListener.set[i], new Setting(true, BlockBreakEventListener.set[i]));
             }
         });
+        if (!playerSettings.containsKey("9999-9999")) { //Global config
+            generateNewPlayerData("9999-9999");
+        }
     }
 
     private void startStackScheduler() {
@@ -471,6 +487,7 @@ public class PluginMain extends JavaPlugin {
         });
         ConfigurationSection cs = getConfig().getConfigurationSection("executeCommands");
         Set<String> keys = null;
+        commands = new ArrayList<>();
         if (cs != null) {
             keys = cs.getKeys(false);
             keys.forEach(s -> {
@@ -601,8 +618,11 @@ public class PluginMain extends JavaPlugin {
     }
 
 
-    public static void newPlayerJoined(Player player){
+    public static void generateNewPlayerData(Player player){
         String uid = player.getUniqueId().toString();
+        generateNewPlayerData(uid);
+    }
+    public static void generateNewPlayerData(String uid){
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data...");
         if (!playerSettings.containsKey(uid)) {
             LinkedHashMap<String, Setting> settings = new LinkedHashMap<>();
@@ -616,10 +636,11 @@ public class PluginMain extends JavaPlugin {
         if (!playerLastVersionPluginVersion.containsKey(uid)) {
             playerLastVersionPluginVersion.put(uid, currentPluginVersion);
             if (displayUpdateMessage){
-                displayUpdateMessage(player);
+                Player fplayer = Bukkit.getServer().getOnlinePlayers().stream().filter(player -> player.getUniqueId()
+                        .toString().equals(uid)).findAny().orElse(null);
+                if (fplayer != null) displayUpdateMessage(fplayer);
             }
         }
-
     }
 
     public static void displayUpdateMessage(Player player) {
@@ -648,8 +669,8 @@ public class PluginMain extends JavaPlugin {
                 else if(itemName.contains("STACK")){
                     return new ItemStack(Material.BOOK,1);
                 }
-
             }
+            if (Material.getMaterial(itemName) == null) return null;
             return new ItemStack(Material.getMaterial(itemName),dropAmount);
 
     }

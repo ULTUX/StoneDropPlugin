@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,8 +18,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -30,18 +29,19 @@ import java.util.logging.Level;
 public class InventorySelector implements Listener {
     protected Player player;
     protected LinkedHashMap<String, Setting> settings;
-    protected static String title = ChatColor.DARK_AQUA + Message.GUI_TITLE.toString();
     protected Inventory selector;
     protected static HashMap<Player, InventorySelector> objects = new HashMap<>();
     protected boolean willBeUsed = false;
     protected static ItemStack exit, back;
-    protected ItemStack cobble;
+    protected ItemStack cobble = null;
     protected ArrayList<ItemStack> items = new ArrayList<>();
+    protected static ItemStack glassFiller = null;
+
     static {
         exit = new ItemStack(Material.BARRIER);
         ItemMeta exitMeta = exit.getItemMeta();
 
-        exitMeta.setDisplayName(ChatColor.RED+Message.GUI_EXIT_BUTTON.toString());
+        exitMeta.setDisplayName(ChatColor.RED + Message.GUI_EXIT_BUTTON.toString());
         exitMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         exit.setItemMeta(exitMeta);
@@ -49,106 +49,132 @@ public class InventorySelector implements Listener {
         back = new ItemStack(Material.ARROW);
         ItemMeta backMeta = back.getItemMeta();
 
-        backMeta.setDisplayName(ChatColor.GREEN+Message.GUI_BACK_BUTTON.toString());
+        backMeta.setDisplayName(ChatColor.GREEN + Message.GUI_BACK_BUTTON.toString());
         backMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         back.setItemMeta(backMeta);
+
+        if (PluginMain.versionCompatible(13)) {
+            glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+            ItemMeta meta = glassFiller.getItemMeta();
+            meta.setDisplayName(" ");
+            glassFiller.setItemMeta(meta);
+        }
     }
 
-    public InventorySelector() {}
+    public InventorySelector() {
+    }
 
     public InventorySelector(Player player, LinkedHashMap<String, Setting> settings) {
         this.player = player;
         this.settings = new LinkedHashMap<>();
         this.settings.putAll(settings);
         objects.put(player, this);
-        selector = Bukkit.createInventory(null, PluginMain.dropChances.size() + (9 - PluginMain.dropChances.size() % 9) + 2 * 9, title);
-        
-        this.cobble = new ItemStack(Material.COBBLESTONE);
+        selector = Bukkit.createInventory(null, PluginMain.dropChances.size() + (9 - PluginMain.dropChances.size() % 9) + 2 * 9, getTitle());
 
-        this.refreshCobbleObject();
+        if (!(this instanceof AdminPanel)) this.cobble = new ItemStack(Material.COBBLESTONE);
+
+        if (cobble != null) this.refreshCobbleObject();
         reloadInventory();
-        if (PluginMain.plugin.versionCompatible(12)) player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, (float)PluginMain.volume, 0);
+        if (PluginMain.plugin.versionCompatible(12))
+            player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, (float) PluginMain.volume, 0);
         player.openInventory(selector);
     }
 
-    protected String setLoreLine(double chance, double minAmount, double maxAmount,String enchant){
-        DecimalFormat format = new DecimalFormat("##0.0##");
-        String amount = String.valueOf((int)minAmount) + " - " + String.valueOf((int)maxAmount);
-       return String.format("%s%-14s%s%10s%10s",ChatColor.GOLD,enchant,ChatColor.GRAY,format.format(chance*100)+"%",amount);
+    protected String getTitle() {
+        return ChatColor.DARK_GREEN + ChatColor.BOLD.toString() + ChatColor.translateAlternateColorCodes('&', Message.GUI_TITLE.toString());
     }
 
-    protected ArrayList<String> setDropItemLore(DropChance dropData, Setting setting){
+
+    protected void setLoreLine(ArrayList<String> lore, double chance, double minAmount, double maxAmount, String enchant) {
+        int min = (int) minAmount;
+        int max = (int) maxAmount;
+        chance *= 100;
+        NumberFormat format = new DecimalFormat("#0.00");
+        lore.add(ChatColor.BLUE+ChatColor.BOLD.toString() + enchant+":");
+        lore.add(ChatColor.GRAY+"    \u00BB " + Message.CHANCE + ": " + format.format(chance)+"%");
+        if (min == max) {
+            lore.add(ChatColor.GRAY+"    \u00BB " + Message.AMOUNT + ": " + min);
+            return;
+        }
+        lore.add(ChatColor.GRAY+"    \u00BB " + Message.AMOUNT + ": " + min+"-"+max);
+    }
+
+    protected ArrayList<String> setDropItemLore(DropChance dropData, Setting setting) {
         ArrayList<String> lore = new ArrayList<>();
         String onOff;
         if (setting.isOn()) onOff = ChatColor.GREEN + Message.INFO_ENABLED.toString();
         else onOff = ChatColor.RED + Message.INFO_DISABLED.toString();
-        lore.add(ChatColor.GRAY+ Message.GUI_ITEM_LEVEL_IN_RANGE.toString()+": "+ChatColor.GOLD+dropData.getMinLevel()+"-"+dropData.getMaxLevel());
-        lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
+        lore.add(ChatColor.GRAY + Message.GUI_ITEM_LEVEL_IN_RANGE.toString() + ": " + ChatColor.GOLD + dropData.getMinLevel() + "-" + dropData.getMaxLevel());
+        lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString() + " " + onOff + ".");
         lore.add("");
 
-        if(dropData.getFortuneChance(0)>0){
-            lore.add(setLoreLine(dropData.getFortuneChance(0),
+        if (dropData.getFortuneChance(0) > 0) {
+            setLoreLine(lore, dropData.getFortuneChance(0),
                     dropData.getFortuneItemsAmountMin(0),
                     dropData.getFortuneItemsAmountMax(0),
-                    Message.INFO_FORTUNE_0.toString()));
+                    Message.INFO_FORTUNE_0.toString());
         }
-        if(dropData.getFortuneChance(1)>0){
-            lore.add(setLoreLine(dropData.getFortuneChance(1),
+        if (dropData.getFortuneChance(1) > 0) {
+            setLoreLine(lore, dropData.getFortuneChance(1),
                     dropData.getFortuneItemsAmountMin(1),
                     dropData.getFortuneItemsAmountMax(1),
-                    Message.INFO_FORTUNE_1.toString())
-            );
+                    Message.INFO_FORTUNE_1.toString());
+
         }
-        if(dropData.getFortuneChance(2)>0){
-            lore.add(setLoreLine(dropData.getFortuneChance(2),
+        if (dropData.getFortuneChance(2) > 0) {
+            setLoreLine(lore, dropData.getFortuneChance(2),
                     dropData.getFortuneItemsAmountMin(2),
                     dropData.getFortuneItemsAmountMax(2),
-                    Message.INFO_FORTUNE_2.toString())
-            );
+                    Message.INFO_FORTUNE_2.toString());
+
         }
-        if(dropData.getFortuneChance(3)>0){
-            lore.add(setLoreLine(dropData.getFortuneChance(3),
+        if (dropData.getFortuneChance(3) > 0) {
+            setLoreLine(lore, dropData.getFortuneChance(3),
                     dropData.getFortuneItemsAmountMin(3),
                     dropData.getFortuneItemsAmountMax(3),
-                    Message.INFO_FORTUNE_3.toString())
-            );
+                    Message.INFO_FORTUNE_3.toString());
+
         }
-        if(dropData.getST()>0){
-            lore.add(setLoreLine(dropData.getST(),
+        if (dropData.getST() > 0) {
+            setLoreLine(lore, dropData.getST(),
                     dropData.getMinST(),
                     dropData.getMaxST(),
-                    Message.INFO_SILK_TOUCH.toString())
-            );
+                    Message.INFO_SILK_TOUCH.toString());
+
         }
 
         lore.add("");
-        if(dropData.getAcceptedBiomes()!=null && dropData.getAcceptedBiomes().length>0){
-            lore.add(ChatColor.GOLD+"Biom:");
+        if (dropData.getAcceptedBiomes() != null && dropData.getAcceptedBiomes().length > 0) {
+            lore.add(ChatColor.BLUE+ChatColor.BOLD.toString()+Message.GUI_ALLOWED_BIOMES + ":");
             StringBuilder loreSB = new StringBuilder();
             loreSB.setLength(0);
-            for(int b=0;b<dropData.getAcceptedBiomes().length;b++){
-                int currenLen=loreSB.length();
-                if(currenLen+dropData.getAcceptedBiomes()[b].name().length()>30){
+            for (int b = 0; b < dropData.getAcceptedBiomes().length; b++) {
+                int currenLen = loreSB.length();
+                if (currenLen + dropData.getAcceptedBiomes()[b].name().length() > 30) {
 
                     lore.add(loreSB.toString());
                     loreSB.setLength(0);
                     loreSB.append(dropData.getAcceptedBiomes()[b].name() + ", ");
-                }
-                else{
+                } else {
                     loreSB.append(dropData.getAcceptedBiomes()[b].name() + ", ");
                 }
             }
-            if(loreSB.length()>0){
+            if (loreSB.length() > 0) {
                 lore.add(loreSB.toString());
                 loreSB.setLength(0);
             }
         }
 
+        if (!dropData.isEnabled()){
+            lore.add("");
+            lore.add(ChatColor.RED+ChatColor.BOLD.toString()+Message.ITEM_DROP_DISABLED_BY_ADMIN);
+        }
+
         return lore;
     }
 
-    protected void refreshSettings(){
+    protected void refreshSettings() {
         this.refreshCobbleObject();
         items.clear();
         settings.forEach((materialName, setting) -> {
@@ -156,7 +182,7 @@ public class InventorySelector implements Listener {
                 Material material;
                 ItemStack item;
                 //if ((material = Material.getMaterial(materialName)) != null)
-                if ((item = PluginMain.plugin.getItemStack(materialName,1)) != null) {
+                if ((item = PluginMain.plugin.getItemStack(materialName, 1)) != null) {
                     DropChance dropData = PluginMain.dropChances.get(materialName);
                     if (dropData != null) {
                         //ItemStack item = new ItemStack(material);
@@ -165,20 +191,20 @@ public class InventorySelector implements Listener {
                         if (dropData.getEnchant() != null)
                             dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
 
-                        ArrayList<String> lore = this.setDropItemLore(dropData,setting);
+                        ArrayList<String> lore = this.setDropItemLore(dropData, setting);
 
 
                         itemMeta.setLore(lore);
                         itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
                         item.setItemMeta(itemMeta);
 
-                        this.putItemToItems(item,item.getType(),dropData);
+                        this.putItemToItems(item, item.getType(), dropData);
 
 
                     }
                 }
-            } catch (NullPointerException e){
-                PluginMain.plugin.getLogger().log(Level.WARNING, "Material: "+materialName+" does not exist in this minecraft version, something is probably not properly set in config.yml file.");
+            } catch (NullPointerException e) {
+                PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + materialName + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
 
             }
 
@@ -186,31 +212,31 @@ public class InventorySelector implements Listener {
     }
 
 
-    protected void putItemToItems(ItemStack item, Material material, DropChance dropData){
+    protected void putItemToItems(ItemStack item, Material material, DropChance dropData) {
 
         items.add(item);
     }
 
 
-    protected ArrayList<String> setCobbleLore(){
+    protected ArrayList<String> setCobbleLore() {
         ArrayList<String> lore = new ArrayList<>();
         String onOff;
         if (!settings.get("COBBLE").isOn()) onOff = ChatColor.GREEN + Message.INFO_ENABLED.toString();
         else onOff = ChatColor.RED + Message.INFO_DISABLED.toString();
         lore.add("");
-        lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString()+ " " + onOff + ".");
+        lore.add(ChatColor.GRAY + Message.GUI_ITEM_DESCRIPTION_THIS_ITEM_DROP_IS.toString() + " " + onOff + ".");
         return lore;
     }
 
-    protected void refreshCobbleObject(){
+    protected void refreshCobbleObject() {
+        if (cobble == null) return;
         ItemMeta cobbleMeta = cobble.getItemMeta();
         ArrayList<String> lore = setCobbleLore();
         cobbleMeta.setLore(lore);
-        cobbleMeta.setDisplayName(ChatColor.RESET.toString()+ChatColor.AQUA.toString()+Message.COBBLE_TOGGLE_BUTTON_NAME);
+        cobbleMeta.setDisplayName(ChatColor.RESET.toString() + ChatColor.AQUA.toString() + Message.COBBLE_TOGGLE_BUTTON_NAME);
         cobbleMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         cobble.setItemMeta(cobbleMeta);
     }
-
 
 
     protected void reloadInventory() {
@@ -218,17 +244,30 @@ public class InventorySelector implements Listener {
         selector.clear();
         AtomicInteger index = new AtomicInteger(9);
 
-        selector.setItem(index.getAndIncrement(), cobble);
+        if (cobble != null) selector.setItem(index.getAndIncrement(), cobble);
         items.forEach((itemStack) -> selector.setItem(index.getAndIncrement(), itemStack));
-        selector.setItem(selector.getSize()-5, exit);
+        selector.setItem(selector.getSize() - 5, exit);
+        fillWithGlass(selector);
+    }
+
+    protected void fillWithGlass(Inventory selector) {
+        if (glassFiller != null) {
+            ItemStack[] items =  selector.getContents();
+
+            for (int i = 0; i < items.length; i++){
+                if (items[i] == null) items[i] = glassFiller;
+            }
+            selector.setContents(items);
+        }
     }
 
 
     @EventHandler
     public void InventoryCloseEvent(InventoryCloseEvent event) {
         if (objects.containsKey(event.getPlayer())) {
-            if (PluginMain.plugin.versionCompatible(14)) ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, (float)PluginMain.volume, 1);
-            if (event.getInventory().equals(objects.get(event.getPlayer()).selector)){
+            if (PluginMain.plugin.versionCompatible(14))
+                ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, (float) PluginMain.volume, 1);
+            if (event.getInventory().equals(objects.get(event.getPlayer()).selector)) {
                 if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
             }
         }
@@ -238,16 +277,16 @@ public class InventorySelector implements Listener {
     public void InventoryClickEvent(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;
         if (event.getCurrentItem() == null) return;
-        if (objects.containsKey(event.getWhoClicked()) && ( event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
+        if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) return;
 
         }
     }
 
-    protected boolean checkForFuncButtonsPressed(InventoryClickEvent event){
+    protected boolean checkForFuncButtonsPressed(InventoryClickEvent event) {
 
-        if (event.getCurrentItem() != null){
+        if (event.getCurrentItem() != null) {
             if (event.getCurrentItem().equals(exit)) {
                 objects.get(event.getWhoClicked()).willBeUsed = false;
                 event.getWhoClicked().closeInventory();

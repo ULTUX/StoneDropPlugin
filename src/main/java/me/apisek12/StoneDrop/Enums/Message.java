@@ -1,5 +1,6 @@
 package me.apisek12.StoneDrop.Enums;
 
+import me.apisek12.StoneDrop.DataModels.DropChance;
 import org.bukkit.ChatColor;
 
 public enum Message {
@@ -29,8 +30,12 @@ public enum Message {
     TREASURE_CHEST_SECONDARY("&bI wonder what's inside..."),
     TREASURE_CHEST_BROADCAST("&7>> &b@name &7just found a treasure chest!"),
     RELOADED_SUCCESSFULLY("Plugin reloaded successfully"),
-    CHEST_CANT_BE_SPAWNED("Chest could not be spawned, dropping items into your inventory.");
-
+    CHEST_CANT_BE_SPAWNED("Chest could not be spawned, dropping items into your inventory."),
+    GUI_ADMIN_TITLE("&cStoneDrop admin panel"),
+    CHANCE("Chance"),
+    AMOUNT("Amount"),
+    GUI_ALLOWED_BIOMES("Allowed biomes"),
+    ITEM_DROP_DISABLED_BY_ADMIN("Drop of this item has been disabled by server admin.");
 
 
     private String defaultMessage;
