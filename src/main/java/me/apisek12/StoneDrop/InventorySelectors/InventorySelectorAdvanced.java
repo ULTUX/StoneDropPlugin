@@ -16,7 +16,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +61,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
 
         this.refreshCobbleObject();
         reloadInventory();
-        if (PluginMain.plugin.versionCompatible(12)) player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, (float)PluginMain.volume, 0);
+        if (PluginMain.versionCompatible(12)) player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, (float)PluginMain.volume, 0);
         player.openInventory(selector);
     }
 
@@ -78,7 +77,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
         selector.clear();
         AtomicInteger index = new AtomicInteger(9);
 
-        selector.setItem(index.getAndIncrement(), cobble);
+        if (player.hasPermission("stonedrop.toggle-cobble")) selector.setItem(index.getAndIncrement(), cobble);
         items.forEach((itemStack, itemStacks) -> selector.setItem(index.getAndIncrement(), itemStack));
         selector.setItem(selector.getSize()-5, exit);
         fillWithGlass(selector);
@@ -204,7 +203,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
 
     protected void openSecondaryWindow(ArrayList<ItemStack> items){
         willBeUsed = false;
-        if (PluginMain.plugin.versionCompatible(14)) player.playSound(player.getLocation(), Sound.UI_LOOM_TAKE_RESULT, (float)PluginMain.volume, 1);
+        if (PluginMain.versionCompatible(14)) player.playSound(player.getLocation(), Sound.UI_LOOM_TAKE_RESULT, (float)PluginMain.volume, 1);
         secondaryWindow = Bukkit.createInventory(null, 27, ChatColor.DARK_AQUA+Message.GUI_SECOND_TITLE.toString());
         AtomicInteger i = new AtomicInteger(10);
         items.forEach(item -> secondaryWindow.setItem(i.getAndAdd(2), item));
@@ -231,7 +230,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
                     inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
                 }
                 inventorySelector.reloadInventory();
-                if (PluginMain.plugin.versionCompatible(14)) player.playSound(player.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, (float)PluginMain.volume, 1);
+                if (PluginMain.versionCompatible(14)) player.playSound(player.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, (float)PluginMain.volume, 1);
             } else if (event.isLeftClick()) {
                 if (event.getCurrentItem() != null && inventorySelector.items.containsKey(clickedItem)){
                     inventorySelector.willBeUsed = true;
@@ -243,7 +242,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
         if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).secondaryWindow) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) return;
-            if (PluginMain.plugin.versionCompatible(12)) ((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Sound.ENTITY_CHICKEN_EGG, (float)PluginMain.volume, 1);
+            if (PluginMain.versionCompatible(12)) ((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Sound.ENTITY_CHICKEN_EGG, (float)PluginMain.volume, 1);
             checkForFuncButtonsPressed(event);
         }
     }
@@ -275,7 +274,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
     @EventHandler
     public void InventoryCloseEvent(InventoryCloseEvent event) {
         if (objects.containsKey(event.getPlayer())) {
-            if (PluginMain.plugin.versionCompatible(14)) ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, (float)PluginMain.volume, 1);
+            if (PluginMain.versionCompatible(14)) ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, (float)PluginMain.volume, 1);
             if (event.getInventory().equals(objects.get(event.getPlayer()).selector)){
                 if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
             }

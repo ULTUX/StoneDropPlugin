@@ -76,7 +76,7 @@ public class InventorySelector implements Listener {
 
         if (cobble != null) this.refreshCobbleObject();
         reloadInventory();
-        if (PluginMain.plugin.versionCompatible(12))
+        if (PluginMain.versionCompatible(12))
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, (float) PluginMain.volume, 0);
         player.openInventory(selector);
     }
@@ -233,7 +233,7 @@ public class InventorySelector implements Listener {
         ItemMeta cobbleMeta = cobble.getItemMeta();
         ArrayList<String> lore = setCobbleLore();
         cobbleMeta.setLore(lore);
-        cobbleMeta.setDisplayName(ChatColor.RESET.toString() + ChatColor.AQUA.toString() + Message.COBBLE_TOGGLE_BUTTON_NAME);
+        cobbleMeta.setDisplayName(ChatColor.RESET.toString() + ChatColor.AQUA + Message.COBBLE_TOGGLE_BUTTON_NAME);
         cobbleMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         cobble.setItemMeta(cobbleMeta);
     }
@@ -265,7 +265,7 @@ public class InventorySelector implements Listener {
     @EventHandler
     public void InventoryCloseEvent(InventoryCloseEvent event) {
         if (objects.containsKey(event.getPlayer())) {
-            if (PluginMain.plugin.versionCompatible(14))
+            if (PluginMain.versionCompatible(14))
                 ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, (float) PluginMain.volume, 1);
             if (event.getInventory().equals(objects.get(event.getPlayer()).selector)) {
                 if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
@@ -279,13 +279,13 @@ public class InventorySelector implements Listener {
         if (event.getCurrentItem() == null) return;
         if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
-            if (checkForFuncButtonsPressed(event)) return;
+            if (checkForFuncButtonsPressed(event)) {
+            }
 
         }
     }
 
     protected boolean checkForFuncButtonsPressed(InventoryClickEvent event) {
-
         if (event.getCurrentItem() != null) {
             if (event.getCurrentItem().equals(exit)) {
                 objects.get(event.getWhoClicked()).willBeUsed = false;

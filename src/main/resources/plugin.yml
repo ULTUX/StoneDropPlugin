@@ -37,3 +37,6 @@ permissions:
   stonedrop-exec-commands:
     description: This permission allows players to execute drop commands that require permission.
     default: op
+  stonedrop.toggle-cobble:
+    description: Toggle drop of cobblestone drop stone.
+    default: op
