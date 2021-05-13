@@ -160,14 +160,6 @@ public class PluginMain extends JavaPlugin {
                         if (args[0].equalsIgnoreCase("admin") && player.isOp()){
                             AdminPanel.createAdminPanel(player);
                             return true;
-                        }
-                        if (args[0].equalsIgnoreCase("cobble")) {
-                            setting.get("COBBLE").setOn(!setting.get("COBBLE").isOn());
-                            if (!setting.get("COBBLE").isOn())
-                                player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now " + ChatColor.GREEN + "enabled");
-                            else
-                                player.sendMessage(ChatColor.GOLD + "Drop " + ChatColor.AQUA + "of cobble" + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
-                            return true;
                         } else if (args[0].equalsIgnoreCase("stack")) {
                             setting.get("STACK").setOn(!setting.get("STACK").isOn());
                             if (setting.get("STACK").isOn())
@@ -175,20 +167,6 @@ public class PluginMain extends JavaPlugin {
                             else
                                 player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
                             return true;
-                        } else {
-                            for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
-                                if (!BlockBreakEventListener.set[i].equals("STACK") && !BlockBreakEventListener.set[i].equals("COBBLE")) {
-                                    if (args[0].equalsIgnoreCase(BlockBreakEventListener.set[i])) {
-                                        setting.get(BlockBreakEventListener.set[i]).setOn(!setting.get(BlockBreakEventListener.set[i]).isOn());
-                                        if (setting.get(BlockBreakEventListener.set[i]).isOn()) {
-                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + BlockBreakEventListener.set[i] + ChatColor.GOLD + " is now " + ChatColor.GREEN + "enabled");
-                                        } else {
-                                            player.sendMessage(ChatColor.GOLD + "Drop of " + ChatColor.AQUA + BlockBreakEventListener.set[i] + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
-                                        }
-                                        return true;
-                                    }
-                                }
-                            }
                         }
                     }
                     player.sendMessage(ChatColor.GRAY + Message.COMMAND_ARGUMENT_UNKNOWN.toString());
