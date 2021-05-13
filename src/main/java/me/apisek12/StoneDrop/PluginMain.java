@@ -606,6 +606,3 @@ public class PluginMain extends JavaPlugin {
 
     }
 }
-
-
-
