@@ -31,3 +31,9 @@ permissions:
   stonedrop.reload:
     description: Allow players to reload the plugin.
     default: op
+  stonedrop.chest.to-inventory:
+    description: This permission applies when drop-chest-to-inventory-global is set to false. More info here https://bit.ly/3fe3eN9
+    default: op
+  stonedrop-exec-commands:
+    description: This permission allows players to execute drop commands that require permission.
+    default: op

@@ -3,6 +3,7 @@ package me.apisek12.StoneDrop;
 import me.apisek12.StoneDrop.Apis.Updater;
 import me.apisek12.StoneDrop.DataModels.ChestItemsInfo;
 import me.apisek12.StoneDrop.DataModels.DropChance;
+import me.apisek12.StoneDrop.DataModels.ExecuteCommands;
 import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Apis.Metrics;
@@ -26,6 +27,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 
 import static org.bukkit.Bukkit.getConsoleSender;
 import static org.bukkit.Bukkit.getPluginManager;
@@ -54,7 +56,7 @@ public class PluginMain extends JavaPlugin {
     public static boolean treasureChestBroadcast = true;
     public static double oreDropChance = 1.0f;
     public static double volume = 0.3d;
-    public static LinkedHashMap<String, Double> commands;
+    public static ArrayList<ExecuteCommands> commands = new ArrayList<>();
     public static boolean dropChestToInv = false;
     public static boolean realisticDrop = true;
     public static String bukkitVersion;
@@ -467,17 +469,24 @@ public class PluginMain extends JavaPlugin {
         langData.getKeys(false).forEach(key -> {
             Message.valueOf(key).setDefaultMessage((String) langData.get(key));
         });
-        getLogger().info("config lang");
-        commands = new LinkedHashMap<>();
         ConfigurationSection cs = getConfig().getConfigurationSection("executeCommands");
         Set<String> keys = null;
         if (cs != null) {
             keys = cs.getKeys(false);
             keys.forEach(s -> {
-                commands.put(s, cs.getDouble(s));
+                ConfigurationSection commandSection = cs.getConfigurationSection(s);
+                if (commandSection != null){
+                    float chance = (float) commandSection.getDouble("chance");
+                    boolean reqPer = commandSection.getBoolean("requires-permission");
+                    ExecuteCommands commands1 = new ExecuteCommands(s, chance, reqPer);
+                    commands.add(commands1);
+                    getLogger().log(Level.INFO, commands1.toString());
+                }
+                else {
+                    getLogger().log(Level.WARNING, "You've typed something wrong in config.yml (executeCommands section).");
+                }
             });
         }
-        getLogger().info("config commands");
         //Check if plugin should drop items into inventory
         dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
         //Check if plugin should block item dropping from ores
@@ -495,9 +504,8 @@ public class PluginMain extends JavaPlugin {
         volume = getConfig().getDouble("volume");
         experienceToDrop = (float) ((double) getConfig().get("experience"));
         disabledWorlds = new ArrayList<>(getConfig().getStringList("disabled-worlds"));
-        dropChestToInv = getConfig().getBoolean("drop-chest-to-inventory");
+        dropChestToInv = getConfig().getBoolean("drop-chest-to-inventory-global");
         realisticDrop = getConfig().getBoolean("realistic-drop");
-        getLogger().info("config loaded");
     }
 
     private void loadChestChances() {
@@ -526,9 +534,7 @@ public class PluginMain extends JavaPlugin {
         getConfig().getStringList("dropBlocks").forEach(material -> {
             dropBlocks.add(Material.getMaterial(material));
         });
-        getLogger().info("Loaddrop blocks");
         for (String key : getConfig().getConfigurationSection("chances").getKeys(false)) {
-            getLogger().info("key" + key);
             ConfigurationSection oreObject = getConfig().getConfigurationSection("chances." + key);
             DropChance oreObjectOptions = new DropChance();
             oreObjectOptions.setName(key);
@@ -537,7 +543,6 @@ public class PluginMain extends JavaPlugin {
                 List<String> biomes = oreObject.getStringList("biomes");
                 oreObjectOptions.setAcceptedBiomes(biomes);
             }
-            getLogger().info("loaded biomes");
             for (String fortuneLevel : Objects.requireNonNull(oreObject).getKeys(false)) {
                 if (fortuneLevel.split("-")[0].equals("fortune")) {
                     int level = Integer.parseInt(fortuneLevel.split(("-"))[1]);
@@ -593,7 +598,6 @@ public class PluginMain extends JavaPlugin {
         for (int i = 0; i < dropChances.keySet().toArray().length; i++) {
             BlockBreakEventListener.set[i] = (String) dropChances.keySet().toArray()[i];
         }
-        getLogger().info("Loaded chances");
     }
 
 

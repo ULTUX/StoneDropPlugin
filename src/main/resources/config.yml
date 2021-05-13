@@ -196,7 +196,9 @@ chest:
 #List of commands that could be executed (use @name for player name)
 #In this example: 1% chance of executing command give on player.
 executeCommands:
-  "give @player stick 2": 0.01
+  "give @player stick 2":
+    chance: 0.01
+    requires-permission: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #List of blocks that the plugin should work on. The list of all possible blocks is listed here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
 dropBlocks:
@@ -246,8 +248,8 @@ treasure-broadcast: true
 #Volume of all sounds used in the plugin
 volume: 0.3
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Drop chest contents to inventory
-drop-chest-to-inventory: false
+#Global drop chest contents to inventory
+drop-chest-to-inventory-global: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #realistic multi direction drop spread
 realistic-drop: true
