@@ -326,7 +326,7 @@ public class BlockBreakEventListener implements Listener {
             PluginMain.generateNewPlayerData(e.getPlayer());
 
         }
-        if (e.getPlayer().isOp() && isNewToUpdate(e.getPlayer().getUniqueId().toString())) {
+        if (e.getPlayer().hasPermission("stonedrop.display-message") && isNewToUpdate(e.getPlayer().getUniqueId().toString())) {
             PluginMain.displayUpdateMessage(e.getPlayer());
             PluginMain.playerLastVersionPluginVersion.remove(e.getPlayer().getUniqueId().toString());
             PluginMain.playerLastVersionPluginVersion.put(e.getPlayer().getUniqueId().toString(), PluginMain.currentPluginVersion);

@@ -40,7 +40,6 @@ public class PluginMain extends JavaPlugin {
     public static HashMap<Material, ChestItemsInfo> chestContent;
     public static float experienceToDrop;
     public static double chestSpawnRate = 0;
-    private static BukkitTask shutdownThread = null;
     public static ArrayList<String> disabledWorlds = null;
     private static FileConfiguration playerData = null;
     private static FileConfiguration langData = null;
@@ -148,7 +147,7 @@ public class PluginMain extends JavaPlugin {
                         return false;
                     }
                     LinkedHashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
-                    if (args.length == 0 || args[0].equalsIgnoreCase("info")) {
+                    if (args.length == 0 || args[0].equalsIgnoreCase("manage")) {
                         if(player.hasPermission("stonedrop.drop.advanced")){
                             new InventorySelectorAdvanced(player, setting);
                         } else {
@@ -159,6 +158,10 @@ public class PluginMain extends JavaPlugin {
                     }
                     else if (args[0].equalsIgnoreCase("basic")){
                         new InventorySelector(player, setting);
+                        return true;
+                    }
+                    else if (args[0].equalsIgnoreCase("version")){
+                        player.sendMessage(ChatColor.AQUA+"v"+getDescription().getVersion());
                         return true;
                     }
                     else {
@@ -186,59 +189,33 @@ public class PluginMain extends JavaPlugin {
                 }
             }
         }
-        if (sender instanceof ConsoleCommandSender || sender.isOp()) {
-            if (command.getName().equalsIgnoreCase("shutdown") && args.length == 1) {
-                long time = Long.parseLong(args[0]) * 1000;
-                long timeToStop = System.currentTimeMillis() + time;
-                final long[] lastDisplayedTime = {System.currentTimeMillis() - 60000}; // Last time when remaining minutes were displayed
-                long startTime = System.currentTimeMillis(); //Moment in time of starting this command
-                final long[] timer = {System.currentTimeMillis()}; //This is a timer that will count seconds untill 10 then reset
+        return false;
 
-                Runnable thread = () -> {
-                    if (System.currentTimeMillis() > timer[0] + 1000) {
-                        timer[0] = System.currentTimeMillis();
-                        Object[] players = plugin.getServer().getOnlinePlayers().toArray();
+    }
 
-                        if (System.currentTimeMillis() >= timeToStop) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "save-all");
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop");
-                        } else if (timeToStop - System.currentTimeMillis() >= 60000) {
-                            if (System.currentTimeMillis() - lastDisplayedTime[0] >= 60000) {
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> list = new ArrayList<>();
+        if (command.getName().equalsIgnoreCase("drop") && args.length >= 0) {
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
 
-                                for (Object o : players) {
-                                    Player player = (Player) o;
-                                    player.sendTitle(ChatColor.RED + "Server shut down in " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minutes", null, 10, 80, 10);
-                                }
-                                getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 60000) - (System.currentTimeMillis() - startTime) / 60000) + " minutes");
-                                timer[0] = System.currentTimeMillis();
-                                lastDisplayedTime[0] = System.currentTimeMillis();
-                            }
-                        } else {
-                            for (Object o : players) {
-                                Player player = (Player) o;
-                                player.sendTitle(ChatColor.RED + "Server shut down in: " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds", null, 0, 40, 0);
-                            }
-                            getServer().getConsoleSender().sendMessage(ChatColor.RED + "Server shut down in " + (int) ((time / 1000) - (System.currentTimeMillis() - startTime) / 1000) + " seconds");
-                        }
+                if (player.hasPermission("stonedrop.drop")) {
+                    if (player.hasPermission("stonedrop.drop.advanced")) {
+                        list.add("basic");
+                        list.add("manage");
                     }
+                }
+                if (player.hasPermission("stonedrop.reload")){
+                    list.add("reload");
 
-                };
-                shutdownThread = Bukkit.getScheduler().runTaskTimer(plugin, thread, 0, 1);
-                return true;
-            } else if (command.getName().equalsIgnoreCase("cancelShutdown")) {
-                if (shutdownThread != null && !shutdownThread.isCancelled()) {
-                    shutdownThread.cancel();
-                    sender.sendMessage(ChatColor.GREEN + "Server shut down cancelled.");
-                    getServer().getOnlinePlayers().forEach((player) -> player.sendTitle(ChatColor.GREEN + "Server shut down cancelled.", null, 10, 80, 10));
-                    return true;
-                } else {
-                    sender.sendMessage(ChatColor.DARK_RED + "Server shut down has not been initialized yet. To initialize use command /shutdown <time_in_seconds>");
-                    return false;
+                }
+                if (player.hasPermission("admin")){
+                    list.add("admin");
                 }
             }
         }
-        return false;
-
+        return list;
     }
 
     boolean checkForSpace(Material material, Inventory inventory) {
@@ -624,11 +601,6 @@ public class PluginMain extends JavaPlugin {
         }
         if (!playerLastVersionPluginVersion.containsKey(uid)) {
             playerLastVersionPluginVersion.put(uid, currentPluginVersion);
-            if (displayUpdateMessage){
-                Player fplayer = Bukkit.getServer().getOnlinePlayers().stream().filter(player -> player.getUniqueId()
-                        .toString().equals(uid)).findAny().orElse(null);
-                if (fplayer != null) displayUpdateMessage(fplayer);
-            }
         }
     }
 
