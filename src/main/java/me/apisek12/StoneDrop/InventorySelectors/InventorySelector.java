@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,7 +93,7 @@ public class InventorySelector implements Listener {
         int min = (int) minAmount;
         int max = (int) maxAmount;
         chance *= 100;
-        NumberFormat format = new DecimalFormat("#0.00");
+        NumberFormat format = new DecimalFormat("#0.00", new DecimalFormatSymbols(Locale.ENGLISH));
         lore.add(ChatColor.BLUE + ChatColor.BOLD.toString() + enchant + ":");
         lore.add(ChatColor.GRAY + ChatColor.BOLD.toString() + "    \u00BB " + ChatColor.RESET + ChatColor.GRAY + Message.CHANCE + ": " + format.format(chance) + "%");
         if (min == max) {
