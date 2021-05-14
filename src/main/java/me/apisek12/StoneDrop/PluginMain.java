@@ -157,9 +157,15 @@ public class PluginMain extends JavaPlugin {
                         return true;
 
                     } else {
-                        if (args[0].equalsIgnoreCase("admin") && player.isOp()){
-                            AdminPanel.createAdminPanel(player);
-                            return true;
+                        if (args[0].equalsIgnoreCase("admin")){
+                            if ((player.isOp() ||  player.hasPermission("stonedrop.admin"))) {
+                                AdminPanel.createAdminPanel(player);
+                                return true;
+                            }
+                            else {
+                                player.sendMessage(ChatColor.RED+Message.PERMISSION_MISSING.toString());
+                                return false;
+                            }
                         } else if (args[0].equalsIgnoreCase("stack")) {
                             setting.get("STACK").setOn(!setting.get("STACK").isOn());
                             if (setting.get("STACK").isOn())

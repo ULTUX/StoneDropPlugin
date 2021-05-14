@@ -1,7 +1,7 @@
 name: StoneDrop
 description: This plugin makes mining stone way more fun and addictive. What it does is it enables players to have additional loot dropped from stone, not just this boring cobblestone.
 api-version: 1.13
-version: 1.9.9
+version: 2.1.0
 main: me.apisek12.StoneDrop.PluginMain
 commands:
   shutdown:
@@ -30,6 +30,9 @@ permissions:
     default: true
   stonedrop.reload:
     description: Allow players to reload the plugin.
+    default: op
+  stonedrop.admin:
+    description: Allow players to use /drop admin command.
     default: op
   stonedrop.chest.to-inventory:
     description: This permission applies when drop-chest-to-inventory-global is set to false. More info here https://bit.ly/3fe3eN9

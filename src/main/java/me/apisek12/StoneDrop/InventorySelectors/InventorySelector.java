@@ -92,12 +92,12 @@ public class InventorySelector implements Listener {
         chance *= 100;
         NumberFormat format = new DecimalFormat("#0.00");
         lore.add(ChatColor.BLUE+ChatColor.BOLD.toString() + enchant+":");
-        lore.add(ChatColor.GRAY+"    \u00BB " + Message.CHANCE + ": " + format.format(chance)+"%");
+        lore.add(ChatColor.GRAY+ChatColor.BOLD.toString()+"    \u00BB " +ChatColor.RESET+ChatColor.GRAY + Message.CHANCE + ": " + format.format(chance)+"%");
         if (min == max) {
-            lore.add(ChatColor.GRAY+"    \u00BB " + Message.AMOUNT + ": " + min);
+            lore.add(ChatColor.GRAY+ChatColor.BOLD.toString()+"    \u00BB " + ChatColor.RESET+ChatColor.GRAY + Message.AMOUNT + ": " + min);
             return;
         }
-        lore.add(ChatColor.GRAY+"    \u00BB " + Message.AMOUNT + ": " + min+"-"+max);
+        lore.add(ChatColor.GRAY+ChatColor.BOLD.toString()+"    \u00BB " + ChatColor.RESET+ChatColor.GRAY + Message.AMOUNT + ": " + min+"-"+max);
     }
 
     protected ArrayList<String> setDropItemLore(DropChance dropData, Setting setting) {
@@ -264,11 +264,12 @@ public class InventorySelector implements Listener {
 
     @EventHandler
     public void InventoryCloseEvent(InventoryCloseEvent event) {
-        if (objects.containsKey(event.getPlayer())) {
+        Player player = (Player) event.getPlayer();
+        if (objects.containsKey(player)) {
             if (PluginMain.versionCompatible(14))
                 ((Player) event.getPlayer()).playSound(event.getPlayer().getLocation(), Sound.UI_LOOM_TAKE_RESULT, (float) PluginMain.volume, 1);
-            if (event.getInventory().equals(objects.get(event.getPlayer()).selector)) {
-                if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
+            if (event.getInventory().equals(objects.get(player).selector)) {
+                if (!objects.get(player).willBeUsed) objects.remove(player);
             }
         }
     }
@@ -277,7 +278,8 @@ public class InventorySelector implements Listener {
     public void InventoryClickEvent(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;
         if (event.getCurrentItem() == null) return;
-        if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).selector) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
+        Player player = (Player) event.getWhoClicked();
+        if (objects.containsKey(player) && (event.getClickedInventory().equals(objects.get(player).selector) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) {
             }
@@ -288,7 +290,8 @@ public class InventorySelector implements Listener {
     protected boolean checkForFuncButtonsPressed(InventoryClickEvent event) {
         if (event.getCurrentItem() != null) {
             if (event.getCurrentItem().equals(exit)) {
-                objects.get(event.getWhoClicked()).willBeUsed = false;
+                Player player = (Player) event.getWhoClicked();
+                objects.get(player).willBeUsed = false;
                 event.getWhoClicked().closeInventory();
                 return true;
             }
