@@ -42,7 +42,9 @@ Everything can be configured and changed to meet server requirements.
 -   Set items drop **directly to inventory**.
 -   Set **exp orbs** to be spawned *(Mending support)*.
 -   Configurable required **Y level range** for an item to spawn.
--   **Treasure chest** while mining stone. \
+-   **Treasure chest** while mining stone. 
+-   Admin panel for managing drop
+-   Configurable item biome conditions \
 **And many more!**
 ## How to use GUI
 - Menu can be opened by typing /drop *(or /d)*.
@@ -73,12 +75,7 @@ Everything can be configured and changed to meet server requirements.
 ![](https://camo.githubusercontent.com/946825fe14ce81ad8e796658cfc952be26adfa7238e8bbc3b9c23d85486cd8c4/68747470733a2f2f692e696d6775722e636f6d2f41624d737736752e706e67) \
 ![](https://camo.githubusercontent.com/638a63c374a7b461bae422892c248bca7872ae6aadb9c653519f653d0c2107bf/68747470733a2f2f692e696d6775722e636f6d2f454b4d6c38384d2e706e67)
 
-## Permissions
-
-
--   `stonedrop.drop` - Permission to use `/drop` command.
-- `stonedrop.reload` - Permission to reload the plugin.
--   `stonedrop.whatdrops` - Permission to to use `/whatdrops` command.
+## [Permissions](https://github.com/ULTUX/StoneDropPlugin/wiki/Permissions)
 
 ## Looking for answers? Visit [StoneDrop Wiki](https://github.com/ULTUX/StoneDropPlugin/wiki/Config-file).
 
