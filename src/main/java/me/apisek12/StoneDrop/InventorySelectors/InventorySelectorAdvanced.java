@@ -4,10 +4,7 @@ import me.apisek12.StoneDrop.DataModels.DropChance;
 import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.PluginMain;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -16,6 +13,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Dye;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,25 +93,25 @@ public class InventorySelectorAdvanced extends InventorySelector{
 
 
 
-    protected ArrayList<ItemStack> getItemDetailedData(DropChance dropData, Material dropMaterial) {
+    protected ArrayList<ItemStack> getItemDetailedData(ItemStack item, DropChance dropChance) {
         ArrayList<ItemStack> items = new ArrayList<>();
         ItemStack f0, f1, f2, f3;
 
-        f0 = new ItemStack(dropMaterial);
-        f1 = new ItemStack(dropMaterial);
-        f2 = new ItemStack(dropMaterial);
-        f3 = new ItemStack(dropMaterial);
+        f0 = item.clone();
+        f1 = item.clone();
+        f2 = item.clone();
+        f3 = item.clone();
 
         items.add(f0);
         items.add(f1);
         items.add(f2);
         items.add(f3);
 
-        if (dropData != null && dropData.getEnchant() != null) {
-            f0.addEnchantments(dropData.getEnchant());
-            f1.addEnchantments(dropData.getEnchant());
-            f2.addEnchantments(dropData.getEnchant());
-            f3.addEnchantments(dropData.getEnchant());
+        if (dropChance != null && dropChance.getEnchant() != null) {
+            f0.addEnchantments(dropChance.getEnchant());
+            f1.addEnchantments(dropChance.getEnchant());
+            f2.addEnchantments(dropChance.getEnchant());
+            f3.addEnchantments(dropChance.getEnchant());
         }
 
         ItemMeta f0Meta = f0.getItemMeta();
@@ -125,10 +124,10 @@ public class InventorySelectorAdvanced extends InventorySelector{
         f2Meta.setDisplayName(ChatColor.GREEN + Message.INFO_FORTUNE_2.toString());
         f3Meta.setDisplayName(ChatColor.GREEN + Message.INFO_FORTUNE_3.toString());
 
-        f0Meta.setLore(generateItemLore(dropData, 0));
-        f1Meta.setLore(generateItemLore(dropData, 1));
-        f2Meta.setLore(generateItemLore(dropData, 2));
-        f3Meta.setLore(generateItemLore(dropData, 3));
+        f0Meta.setLore(generateItemLore(dropChance, 0));
+        f1Meta.setLore(generateItemLore(dropChance, 1));
+        f2Meta.setLore(generateItemLore(dropChance, 2));
+        f3Meta.setLore(generateItemLore(dropChance, 3));
 
         f0Meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         f1Meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -184,8 +183,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
     @Override
     protected void putItemToItems(ItemStack item, Material material, DropChance dropData){
 
-        ArrayList<ItemStack> dropChances = getItemDetailedData(dropData, material);
-
+        ArrayList<ItemStack> dropChances = getItemDetailedData(item, dropData);
         items.put(item, dropChances);
     }
 
@@ -227,10 +225,27 @@ public class InventorySelectorAdvanced extends InventorySelector{
             if (event.isRightClick() && !event.getWhoClicked().getOpenInventory().getTopInventory().equals(secondaryWindow)) {
                 if (event.getCurrentItem().equals(inventorySelector.cobble)) inventorySelector.settings.get("COBBLE").toggle();
                 else if (event.getClickedInventory().equals(inventorySelector.selector)){
-                    inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
+                    if (PluginMain.versionCompatible(12) ){
+                        if (inventorySelector.settings.containsKey(clickedItem.getType().toString())) {
+                            inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
+                            if (PluginMain.versionCompatible(14)) player.playSound(player.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, (float)PluginMain.volume, 1);
+                        }
+                    }
+                    else{
+                        ItemStack dye = new Dye(DyeColor.BLUE).toItemStack();
+                        if (clickedItem.getType().equals(dye.getType())){
+                            Dye dyeColor = (Dye) clickedItem.getData();
+                            if (dyeColor != null && dyeColor.getColor() != null && dyeColor.getColor().equals(DyeColor.BLUE)){
+                                inventorySelector.settings.get("LAPIS_LAZULI").toggle();
+                            }
+                        }
+                        else {
+                            if (inventorySelector.settings.containsKey(clickedItem.getType().toString())) inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
+                        }
+                    }
+
                 }
                 inventorySelector.reloadInventory();
-                if (PluginMain.versionCompatible(14)) player.playSound(player.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, (float)PluginMain.volume, 1);
             } else if (event.isLeftClick()) {
                 if (event.getCurrentItem() != null && inventorySelector.items.containsKey(clickedItem)){
                     inventorySelector.willBeUsed = true;

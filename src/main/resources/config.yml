@@ -196,7 +196,7 @@ chest:
 #List of commands that could be executed (use @name for player name)
 #In this example: 1% chance of executing command give on player.
 executeCommands:
-  "give @player stick 2 & kick @player":
+  "give @player stick 2 & give @player apple 3":
     chance: 0.01
     requires-permission: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

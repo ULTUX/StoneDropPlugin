@@ -186,7 +186,6 @@ public class InventorySelector implements Listener {
             try {
                 Material material;
                 ItemStack item;
-                //if ((material = Material.getMaterial(materialName)) != null)
                 if ((item = PluginMain.plugin.getItemStack(materialName, 1)) != null) {
                     DropChance dropData = PluginMain.dropChances.get(materialName);
                     if (dropData != null) {
@@ -218,7 +217,6 @@ public class InventorySelector implements Listener {
 
 
     protected void putItemToItems(ItemStack item, Material material, DropChance dropData) {
-
         items.add(item);
     }
 

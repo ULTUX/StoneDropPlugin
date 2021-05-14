@@ -25,9 +25,9 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.material.Dye;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import static org.bukkit.Bukkit.getConsoleSender;
@@ -123,9 +123,11 @@ public class PluginMain extends JavaPlugin {
                 getPluginManager().registerEvents(new AdminPanel(), this);
                 sender.sendMessage(ChatColor.GRAY + "Loading all config files...");
                 loadConfig();
-                loadPlayerData();
                 loadChances();
                 loadChestChances();
+                loadPlayerData();
+                sender.sendMessage(ChatColor.GRAY + "Fixing player data...");
+                fixPlayerData();
                 BlockBreakEventListener.initialize();
                 sender.sendMessage(ChatColor.GREEN + Message.RELOADED_SUCCESSFULLY.toString());
                 return true;
@@ -327,8 +329,9 @@ public class PluginMain extends JavaPlugin {
         getServer().getOnlinePlayers().forEach(PluginMain::generateNewPlayerData);
         playerSettings.forEach((name, settings) -> {
             for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
-                if (!settings.containsKey(BlockBreakEventListener.set[i]))
+                if (!settings.containsKey(BlockBreakEventListener.set[i])) {
                     settings.put(BlockBreakEventListener.set[i], new Setting(true, BlockBreakEventListener.set[i]));
+                }
             }
         });
         if (!playerSettings.containsKey("9999-9999")) { //Global config
@@ -463,7 +466,6 @@ public class PluginMain extends JavaPlugin {
                     boolean reqPer = commandSection.getBoolean("requires-permission");
                     ExecuteCommands commands1 = new ExecuteCommands(s, chance, reqPer);
                     commands.add(commands1);
-                    getLogger().log(Level.INFO, commands1.toString());
                 }
                 else {
                     getLogger().log(Level.WARNING, "You've typed something wrong in config.yml (executeCommands section).");
@@ -474,7 +476,7 @@ public class PluginMain extends JavaPlugin {
         dropIntoInventory = getConfig().getBoolean("drop-to-inventory");
         //Check if plugin should block item dropping from ores
         dropFromOres = getConfig().getBoolean("ore-drop");
-        if(dropFromOres==false){
+        if(!dropFromOres){
             dropOresWhiteList = new ArrayList<>();
             getConfig().getStringList("ores-whitelist").forEach(white_ore -> {
                 dropOresWhiteList.add(Material.getMaterial(white_ore));
@@ -618,7 +620,6 @@ public class PluginMain extends JavaPlugin {
     public ItemStack getItemStack(String itemName, int dropAmount)  {
             if(!this.versionCompatible(12)){
                 if(itemName.contains("LAPIS_LAZULI")){
-
                     return new Dye(DyeColor.BLUE).toItemStack(dropAmount);
                 }
                 else if(itemName.contains("LAPIS_ORE")){

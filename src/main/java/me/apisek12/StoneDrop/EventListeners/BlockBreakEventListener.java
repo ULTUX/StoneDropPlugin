@@ -252,34 +252,34 @@ public class BlockBreakEventListener implements Listener {
                                 }
                             }
                         }
-                    } else {
-                        int pickaxeLootLevel = getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
-                        for (String s : set) {
-                            if (!s.equals("COBBLE") && !s.equals("STACK")) {
+                    }
+                    int pickaxeLootLevel = getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
+                    for (String s : set) {
+                        if (!s.equals("COBBLE") && !s.equals("STACK")) {
 
-                                DropChance oreSettings = dropChances.get(s);
+                            DropChance oreSettings = dropChances.get(s);
 
-                                if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
-                                        && !Arrays.stream(oreSettings.getAcceptedBiomes()).anyMatch(biome -> event.getBlock().getBiome().equals(biome)))
-                                    continue;
+                            if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
+                                    && !Arrays.stream(oreSettings.getAcceptedBiomes()).anyMatch(biome -> event.getBlock().getBiome().equals(biome)))
+                                continue;
 
-                                if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
-                                    if (Chance.chance(dropChances.get(s).getFortuneChance(pickaxeLootLevel)) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(s).isOn()) {
-                                        try {
-                                            int dropAmount = Chance.randBetween(
-                                                    (int) dropChances.get(s).getFortuneItemsAmountMin(pickaxeLootLevel),
-                                                    (int) dropChances.get(s).getFortuneItemsAmountMax(pickaxeLootLevel));
-                                            ItemStack itemToDrop = PluginMain.plugin.getItemStack(s, dropAmount);
-                                            applyEnchants(oreSettings, itemToDrop);
-                                            applyCustomName(oreSettings, itemToDrop);
-                                            dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
-                                        } catch (NullPointerException e) {
-                                            PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + s + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
-                                        }
+                            if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
+                                if (Chance.chance(dropChances.get(s).getFortuneChance(pickaxeLootLevel)) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(s).isOn()) {
+                                    try {
+                                        int dropAmount = Chance.randBetween(
+                                                (int) dropChances.get(s).getFortuneItemsAmountMin(pickaxeLootLevel),
+                                                (int) dropChances.get(s).getFortuneItemsAmountMax(pickaxeLootLevel));
+                                        ItemStack itemToDrop = PluginMain.plugin.getItemStack(s, dropAmount);
+                                        applyEnchants(oreSettings, itemToDrop);
+                                        applyCustomName(oreSettings, itemToDrop);
+                                        dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
+                                    } catch (NullPointerException e) {
+                                        PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + s + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
                                     }
                                 }
                             }
                         }
+
                     }
 
                     giveExp(event.getPlayer());
