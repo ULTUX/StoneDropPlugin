@@ -37,12 +37,6 @@ public class InventorySelectorAdvanced extends InventorySelector{
 
         back.setItemMeta(backMeta);
 
-        if (!PluginMain.versionCompatible(13)) {
-            glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-            ItemMeta meta = glassFiller.getItemMeta();
-            meta.setDisplayName(" ");
-            glassFiller.setItemMeta(meta);
-        }
     }
 
 
@@ -51,6 +45,12 @@ public class InventorySelectorAdvanced extends InventorySelector{
     }
 
     public InventorySelectorAdvanced(Player player, LinkedHashMap<String, Setting> settings) {
+        if (PluginMain.versionCompatible(13)) {
+            glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+            ItemMeta meta = glassFiller.getItemMeta();
+            meta.setDisplayName(" ");
+            glassFiller.setItemMeta(meta);
+        }
         this.player = player;
         this.settings = new LinkedHashMap<>();
         this.settings.putAll(settings);
