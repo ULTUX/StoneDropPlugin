@@ -148,7 +148,7 @@ public class PluginMain extends JavaPlugin {
                         return false;
                     }
                     LinkedHashMap<String, Setting> setting = playerSettings.get(player.getUniqueId().toString());
-                    if (args.length == 0 || args[0].equals("info")) {
+                    if (args.length == 0 || args[0].equalsIgnoreCase("info")) {
                         if(player.hasPermission("stonedrop.drop.advanced")){
                             new InventorySelectorAdvanced(player, setting);
                         } else {
@@ -156,7 +156,12 @@ public class PluginMain extends JavaPlugin {
                         }
                         return true;
 
-                    } else {
+                    }
+                    else if (args[0].equalsIgnoreCase("basic")){
+                        new InventorySelector(player, setting);
+                        return true;
+                    }
+                    else {
                         if (args[0].equalsIgnoreCase("admin")){
                             if ((player.isOp() ||  player.hasPermission("stonedrop.admin"))) {
                                 AdminPanel.createAdminPanel(player);

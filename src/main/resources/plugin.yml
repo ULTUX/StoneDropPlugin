@@ -12,7 +12,6 @@ commands:
     aliases:
       - d
     description: Plugin's base command.
-
   whatdrops:
     description: Displays list of items that can drop, their chances and ammounts.
   emergencyDisable:
@@ -41,5 +40,5 @@ permissions:
     description: This permission allows players to execute drop commands that require permission.
     default: op
   stonedrop.toggle-cobble:
-    description: Toggle drop of cobblestone drop stone.
+    description: Toggle drop of cobblestone.
     default: op

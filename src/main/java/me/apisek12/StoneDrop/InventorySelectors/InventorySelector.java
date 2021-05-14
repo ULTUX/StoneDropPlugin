@@ -18,11 +18,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
@@ -91,13 +93,13 @@ public class InventorySelector implements Listener {
         int max = (int) maxAmount;
         chance *= 100;
         NumberFormat format = new DecimalFormat("#0.00");
-        lore.add(ChatColor.BLUE+ChatColor.BOLD.toString() + enchant+":");
-        lore.add(ChatColor.GRAY+ChatColor.BOLD.toString()+"    \u00BB " +ChatColor.RESET+ChatColor.GRAY + Message.CHANCE + ": " + format.format(chance)+"%");
+        lore.add(ChatColor.BLUE + ChatColor.BOLD.toString() + enchant + ":");
+        lore.add(ChatColor.GRAY + ChatColor.BOLD.toString() + "    \u00BB " + ChatColor.RESET + ChatColor.GRAY + Message.CHANCE + ": " + format.format(chance) + "%");
         if (min == max) {
-            lore.add(ChatColor.GRAY+ChatColor.BOLD.toString()+"    \u00BB " + ChatColor.RESET+ChatColor.GRAY + Message.AMOUNT + ": " + min);
+            lore.add(ChatColor.GRAY + ChatColor.BOLD.toString() + "    \u00BB " + ChatColor.RESET + ChatColor.GRAY + Message.AMOUNT + ": " + min);
             return;
         }
-        lore.add(ChatColor.GRAY+ChatColor.BOLD.toString()+"    \u00BB " + ChatColor.RESET+ChatColor.GRAY + Message.AMOUNT + ": " + min+"-"+max);
+        lore.add(ChatColor.GRAY + ChatColor.BOLD.toString() + "    \u00BB " + ChatColor.RESET + ChatColor.GRAY + Message.AMOUNT + ": " + min + "-" + max);
     }
 
     protected ArrayList<String> setDropItemLore(DropChance dropData, Setting setting) {
@@ -146,19 +148,21 @@ public class InventorySelector implements Listener {
 
         lore.add("");
         if (dropData.getAcceptedBiomes() != null && dropData.getAcceptedBiomes().length > 0) {
-            lore.add(ChatColor.BLUE+ChatColor.BOLD.toString()+Message.GUI_ALLOWED_BIOMES + ":");
+            lore.add(ChatColor.BLUE + ChatColor.BOLD.toString() + Message.GUI_ALLOWED_BIOMES + ":");
             StringBuilder loreSB = new StringBuilder();
             loreSB.setLength(0);
-            for (int b = 0; b < dropData.getAcceptedBiomes().length; b++) {
+            int length = dropData.getAcceptedBiomes().length;
+            for (int b = 0; b < length; b++) {
+                String biomeName =  dropData.getAcceptedBiomes()[b].name();
+                String formattedName = biomeName.substring(1).toLowerCase(Locale.ROOT).replace('_', ' ');
                 int currenLen = loreSB.length();
                 if (currenLen + dropData.getAcceptedBiomes()[b].name().length() > 30) {
 
                     lore.add(loreSB.toString());
                     loreSB.setLength(0);
-                    loreSB.append(dropData.getAcceptedBiomes()[b].name() + ", ");
-                } else {
-                    loreSB.append(dropData.getAcceptedBiomes()[b].name() + ", ");
                 }
+                loreSB.append(biomeName.charAt(0)).append(formattedName);
+                if (b < length - 1) loreSB.append(", ");
             }
             if (loreSB.length() > 0) {
                 lore.add(loreSB.toString());
@@ -166,9 +170,9 @@ public class InventorySelector implements Listener {
             }
         }
 
-        if (!dropData.isEnabled()){
+        if (!dropData.isEnabled()) {
             lore.add("");
-            lore.add(ChatColor.RED+ChatColor.BOLD.toString()+Message.ITEM_DROP_DISABLED_BY_ADMIN);
+            lore.add(ChatColor.RED + ChatColor.BOLD.toString() + Message.ITEM_DROP_DISABLED_BY_ADMIN);
         }
 
         return lore;
@@ -252,9 +256,9 @@ public class InventorySelector implements Listener {
 
     protected void fillWithGlass(Inventory selector) {
         if (glassFiller != null) {
-            ItemStack[] items =  selector.getContents();
+            ItemStack[] items = selector.getContents();
 
-            for (int i = 0; i < items.length; i++){
+            for (int i = 0; i < items.length; i++) {
                 if (items[i] == null) items[i] = glassFiller;
             }
             selector.setContents(items);

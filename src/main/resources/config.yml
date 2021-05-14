@@ -222,7 +222,7 @@ disabled-worlds:
 #Should ores drop items
 ore-drop: true
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#If ore-drop is False, some specific ores can drop anyway. This is white list drop ores.
+#If ore-drop is false, some specific ores can drop anyway. This is white list drop ores.
 #If there is no, type []
 ores-whitelist:
   - COAL_ORE
