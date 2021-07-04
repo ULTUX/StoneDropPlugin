@@ -6,7 +6,7 @@
 ![](https://img.shields.io/github/release-date/ULTUX/StoneDropPlugin)
 ![Build](https://github.com/ULTUX/StoneDropPlugin/workflows/Java%20CI%20with%20Maven/badge.svg?branch=master)
 
-# <ins>Thanks for over 50k downloads!</ins>
+# <ins>Version 2.0 finally released!</ins>
 
 
 ## What is Stone Drop?
@@ -72,10 +72,14 @@ Everything can be configured and changed to meet server requirements.
 ### [Permissions](https://github.com/ULTUX/StoneDropPlugin/wiki/Permissions)
 
 ## Example Images:
+Bellow are example images of GUI (layout may be different depending on Minecraft version)
 
-
-![](https://camo.githubusercontent.com/946825fe14ce81ad8e796658cfc952be26adfa7238e8bbc3b9c23d85486cd8c4/68747470733a2f2f692e696d6775722e636f6d2f41624d737736752e706e67) \
-![](https://camo.githubusercontent.com/638a63c374a7b461bae422892c248bca7872ae6aadb9c653519f653d0c2107bf/68747470733a2f2f692e696d6775722e636f6d2f454b4d6c38384d2e706e67)
+### Item description
+![](https://camo.githubusercontent.com/452558732644c4a2baf7381ddf88079d65e81cb8a41db19f3eb0dbfda65f4908/68747470733a2f2f692e696d6775722e636f6d2f5a4168646f456c2e706e67) \
+### Item details
+![](https://camo.githubusercontent.com/638a63c374a7b461bae422892c248bca7872ae6aadb9c653519f653d0c2107bf/68747470733a2f2f692e696d6775722e636f6d2f454b4d6c38384d2e706e67) \
+### Item disabled by admin
+![](https://camo.githubusercontent.com/39be50dcaf0f42e18c38ecd0d6d5018d2bdc5e9ce5e9785d0ac01b823dfb17d7/68747470733a2f2f692e696d6775722e636f6d2f354c6c786b67562e706e67)
 
 ## Looking for answers? Visit [StoneDrop Wiki](https://github.com/ULTUX/StoneDropPlugin/wiki/Config-file).
 
