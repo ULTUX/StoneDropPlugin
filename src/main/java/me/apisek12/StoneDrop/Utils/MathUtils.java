@@ -1,10 +1,9 @@
 package me.apisek12.StoneDrop.Utils;
 
-public class Chance {
+public class MathUtils {
 
     public static boolean chance(double prec){
-        if (Math.random() <= prec) return true;
-        return false;
+        return Math.random() <= prec;
     }
 
     public static int randBetween(int a, int b){
