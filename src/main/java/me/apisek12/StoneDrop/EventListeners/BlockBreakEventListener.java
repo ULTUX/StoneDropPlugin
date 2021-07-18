@@ -123,8 +123,7 @@ public class BlockBreakEventListener implements Listener {
             int[] chestIndexesTable = new int[27];
             int chestSlotAmount = (itemToChest.getAmount() / 27);
             Arrays.fill(chestIndexesTable, chestSlotAmount);
-            //in these case is not possible to drop more than 27*64 the same item
-            //by the way its very huge drop
+            //in this case it is not possible to drop more than 27*64 the same item
             int extraSlotAmount = (chestSlotAmount < 64) ? itemToChest.getAmount() % 27 : 0;
             for (int chestPlaceIndex = 0; chestPlaceIndex < extraSlotAmount; chestPlaceIndex++)
                 chestIndexesTable[chestPlaceIndex] += 1;
@@ -185,7 +184,7 @@ public class BlockBreakEventListener implements Listener {
                         event.setCancelled(true);
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> event.getBlock().setType(Material.AIR), 1L);
                         Player player = event.getPlayer();
-                        if (PluginMain.plugin.versionCompatible(12)) {
+                        if (PluginMain.versionCompatible(12)) {
                             Damageable itemMeta = (Damageable) player.getInventory().getItemInMainHand().getItemMeta();
                             if (((ItemMeta) itemMeta).hasEnchant(Enchantment.DURABILITY)) {
                                 if (Chance.chance(1f / (((ItemMeta) itemMeta).getEnchantLevel(Enchantment.DURABILITY) + 1))) {
@@ -291,19 +290,6 @@ public class BlockBreakEventListener implements Listener {
             }
         }
     }
-
-    /*private ItemStack getItemStack(String itemName, int dropAmount)  {
-        if(!PluginMain.plugin.versionCompatible(12)){
-            if(itemName.contains("LAPIS_LAZULI")){
-
-                return new Dye(DyeColor.BLUE).toItemStack(dropAmount);
-            }
-            else if(itemName.contains("LAPIS_ORE")){
-                return new ItemStack(PluginMain.lapis_ore,dropAmount);
-            }
-        }
-        return new ItemStack(Material.getMaterial(itemName),dropAmount);
-    }*/
 
     private static void applyEnchants(DropChance oreSettings, ItemStack itemToDrop) {
         if (oreSettings.getEnchant().size() > 0) {
