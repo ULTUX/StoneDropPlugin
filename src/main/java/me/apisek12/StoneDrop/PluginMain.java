@@ -176,13 +176,6 @@ public class PluginMain extends JavaPlugin {
                                 player.sendMessage(ChatColor.RED+Message.PERMISSION_MISSING.toString());
                                 return false;
                             }
-                        } else if (args[0].equalsIgnoreCase("stack")) {
-                            setting.get("STACK").setOn(!setting.get("STACK").isOn());
-                            if (setting.get("STACK").isOn())
-                                player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now " + ChatColor.GREEN + "enabled");
-                            else
-                                player.sendMessage(ChatColor.RED + "Stacking" + ChatColor.GOLD + " is now " + ChatColor.RED + "disabled");
-                            return true;
                         }
                     }
                     player.sendMessage(ChatColor.GRAY + Message.COMMAND_ARGUMENT_UNKNOWN.toString());
@@ -313,7 +306,6 @@ public class PluginMain extends JavaPlugin {
         BlockBreakEventListener.initialize();
 
         Bukkit.getServer().getConsoleSender().sendMessage("[StoneDrop] " + ChatColor.GREEN + "Configuration Loaded, Plugin enabled!");
-        startStackScheduler();
         fixPlayerData();
         setGlobalSettings();
         BlockBreakEventListener.initialize();
@@ -337,86 +329,6 @@ public class PluginMain extends JavaPlugin {
         if (!playerSettings.containsKey("9999-9999")) { //Global config
             generateNewPlayerData("9999-9999");
         }
-    }
-
-    private void startStackScheduler() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            if (Bukkit.getServer().getOnlinePlayers().size() > 0) {
-                for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().toArray().length; i++) {
-                    Player player = (Player) Bukkit.getServer().getOnlinePlayers().toArray()[i];
-                    if (playerSettings.get(player.getUniqueId().toString()) != null && playerSettings.get(player.getUniqueId().toString()).get("STACK").isOn()) {
-                        boolean tak = true;
-                        while (tak) {
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.REDSTONE), 9)
-                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.REDSTONE_BLOCK, player.getInventory())))) {
-                                player.getInventory().removeItem(new ItemStack(Material.REDSTONE, 9));
-                                player.getInventory().addItem(new ItemStack(Material.REDSTONE_BLOCK));
-                            } else tak = false;
-                        }
-                        if (versionCompatible(12)) {
-                            tak = true;
-                            while (tak) {
-                                try {
-                                    if (player.getInventory().containsAtLeast(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName()))), 9)
-                                            && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.LAPIS_BLOCK, player.getInventory())))) {
-                                        player.getInventory().removeItem(new ItemStack(Objects.requireNonNull(Material.getMaterial(Material.class.getField("LAPIS_LAZULI").getName())), 9));
-                                        player.getInventory().addItem(new ItemStack(Material.LAPIS_BLOCK));
-
-                                    } else tak = false;
-                                } catch (NoSuchFieldException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                        tak = true;
-                        while (tak) {
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.COAL), 9)
-                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.COAL_BLOCK, player.getInventory())))) {
-                                player.getInventory().removeItem(new ItemStack(Material.COAL, 9));
-                                player.getInventory().addItem(new ItemStack(Material.COAL_BLOCK));
-
-                            } else tak = false;
-                        }
-                        tak = true;
-                        while (tak) {
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.IRON_INGOT), 9)
-                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.IRON_BLOCK, player.getInventory())))) {
-                                player.getInventory().removeItem(new ItemStack(Material.IRON_INGOT, 9));
-                                player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK));
-
-                            } else tak = false;
-                        }
-                        tak = true;
-                        while (tak) {
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.DIAMOND), 9)
-                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.DIAMOND_BLOCK, player.getInventory())))) {
-                                player.getInventory().removeItem(new ItemStack(Material.DIAMOND, 9));
-                                player.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK));
-
-                            } else tak = false;
-                        }
-                        tak = true;
-                        while (tak) {
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.GOLD_INGOT), 9)
-                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.GOLD_BLOCK, player.getInventory())))) {
-                                player.getInventory().removeItem(new ItemStack(Material.GOLD_INGOT, 9));
-                                player.getInventory().addItem(new ItemStack(Material.GOLD_BLOCK));
-
-                            } else tak = false;
-                        }
-                        tak = true;
-                        while (tak) {
-                            if (player.getInventory().containsAtLeast(new ItemStack(Material.EMERALD), 9)
-                                    && (player.getInventory().firstEmpty() != -1 || (player.getInventory().firstEmpty() == -1 && checkForSpace(Material.EMERALD_BLOCK, player.getInventory())))) {
-                                player.getInventory().removeItem(new ItemStack(Material.EMERALD, 9));
-                                player.getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK));
-
-                            } else tak = false;
-                        }
-                    }
-                }
-            }
-        }, 40L, 80L);
     }
 
     private void loadPlayerData() {
@@ -598,7 +510,6 @@ public class PluginMain extends JavaPlugin {
                 settings.put(BlockBreakEventListener.set[i], new Setting(true, BlockBreakEventListener.set[i]));
             }
             settings.put("COBBLE", new Setting(false, "COBBLE"));
-            settings.put("STACK", new Setting(false, "STACK"));
             playerSettings.put(uid, settings);
         }
         if (!playerLastVersionPluginVersion.containsKey(uid)) {
