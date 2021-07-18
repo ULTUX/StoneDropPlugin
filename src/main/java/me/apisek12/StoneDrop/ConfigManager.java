@@ -5,11 +5,13 @@ import me.apisek12.StoneDrop.DataModels.DropChance;
 import me.apisek12.StoneDrop.DataModels.ExecuteCommands;
 import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Enums.Message;
-import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
+import me.apisek12.StoneDrop.EventListeners.BlockListener;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -31,11 +33,36 @@ public class ConfigManager {
         loadPlayerData();
         loadChances();
         loadChestChances();
-        BlockBreakEventListener.initialize();
+        BlockListener.initialize();
 
         fixPlayerData();
         setGlobalSettings();
-        BlockBreakEventListener.initialize();
+        BlockListener.initialize();
+    }
+
+    public void unloadConfig() {
+        PluginMain.playerSettings.forEach((player, settings) -> settings.forEach((material, setting) -> {
+            PluginMain.playerData.set("users." + player + "." + material, setting.isOn());
+        }));
+
+        PluginMain.playerLastVersionPluginVersion.forEach((user, version) -> {
+            PluginMain.playerData.set("userVersion." + user, version);
+        });
+
+        try {
+            PluginMain.playerData.save(new File(parentPlugin.getDataFolder(), "playerData.yml"));
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY + "[StoneDrop] Config file saved!");
+
+        } catch (IOException e) {
+            getServer().getConsoleSender().sendMessage("[StoneDrop] Player data file not found, creating a new one...");
+            try {
+                PluginMain.playerData.save(new File(parentPlugin.getDataFolder(), "playerData.yml"));
+                Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY + "[StoneDrop] Config file saved!");
+            } catch (IOException ex) {
+                getServer().getConsoleSender().sendMessage("[StoneDrop] Could not create player data file!");
+
+            }
+        }
     }
 
     public void reloadConfig() {
@@ -207,24 +234,24 @@ public class ConfigManager {
             }
             PluginMain.dropChances.put(oreObjectOptions.getName(), oreObjectOptions);
         }
-        BlockBreakEventListener.set = new String[PluginMain.dropChances.keySet().toArray().length];
+        BlockListener.set = new String[PluginMain.dropChances.keySet().toArray().length];
 
         for (int i = 0; i < PluginMain.dropChances.keySet().toArray().length; i++) {
-            BlockBreakEventListener.set[i] = (String) PluginMain.dropChances.keySet().toArray()[i];
+            BlockListener.set[i] = (String) PluginMain.dropChances.keySet().toArray()[i];
         }
     }
 
     private void fixPlayerData() {
-        getServer().getOnlinePlayers().forEach(PluginMain::generateNewPlayerData);
+        getServer().getOnlinePlayers().forEach(ConfigManager::generateNewPlayerData);
         PluginMain.playerSettings.forEach((name, settings) -> {
-            for (int i = 0; i < BlockBreakEventListener.set.length; i++) {
-                if (!settings.containsKey(BlockBreakEventListener.set[i])) {
-                    settings.put(BlockBreakEventListener.set[i], new Setting(true, BlockBreakEventListener.set[i]));
+            for (int i = 0; i < BlockListener.set.length; i++) {
+                if (!settings.containsKey(BlockListener.set[i])) {
+                    settings.put(BlockListener.set[i], new Setting(true, BlockListener.set[i]));
                 }
             }
         });
         if (!PluginMain.playerSettings.containsKey("9999-9999")) { //Global config
-            PluginMain.generateNewPlayerData("9999-9999");
+            generateNewPlayerData("9999-9999");
         }
     }
     private void loadChestChances() {
@@ -292,5 +319,25 @@ public class ConfigManager {
         PluginMain.disabledWorlds = new ArrayList<>(parentPlugin.getConfig().getStringList("disabled-worlds"));
         PluginMain.dropChestToInv = parentPlugin.getConfig().getBoolean("drop-chest-to-inventory-global");
         PluginMain.realisticDrop = parentPlugin.getConfig().getBoolean("realistic-drop");
+    }
+
+    public static void generateNewPlayerData(String uid){
+        getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data...");
+        if (!PluginMain.playerSettings.containsKey(uid)) {
+            LinkedHashMap<String, Setting> settings = new LinkedHashMap<>();
+            for (int i = 0; i < BlockListener.set.length; i++) {
+                settings.put(BlockListener.set[i], new Setting(true, BlockListener.set[i]));
+            }
+            settings.put("COBBLE", new Setting(false, "COBBLE"));
+            PluginMain.playerSettings.put(uid, settings);
+        }
+        if (!PluginMain.playerLastVersionPluginVersion.containsKey(uid)) {
+            PluginMain.playerLastVersionPluginVersion.put(uid, PluginMain.currentPluginVersion);
+        }
+    }
+
+    public static void generateNewPlayerData(Player player){
+        String uid = player.getUniqueId().toString();
+        generateNewPlayerData(uid);
     }
 }

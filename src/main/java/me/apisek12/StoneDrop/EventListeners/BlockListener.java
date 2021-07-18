@@ -4,7 +4,9 @@ package me.apisek12.StoneDrop.EventListeners;
 import me.apisek12.StoneDrop.DataModels.DropChance;
 import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.PluginMain;
-import me.apisek12.StoneDrop.Utils.Chance;
+import me.apisek12.StoneDrop.Utils.BlockUtils;
+import me.apisek12.StoneDrop.Utils.MathUtils;
+import me.apisek12.StoneDrop.Utils.ItemUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -16,29 +18,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Level;
 
 
-public class BlockBreakEventListener implements Listener {
+public class BlockListener implements Listener {
 
-    private static LinkedHashMap<String, DropChance> dropChances;
-    public static String[] set; //Ore names
     static final Map<Player, Long> messageTimestamp = new HashMap<>();
     private static final long ORE_MESSAGE_DELAY = 10000;
-    private ArrayList<Inventory> openedChests = new ArrayList<>();
-    private ArrayList<Location> chestLocations = new ArrayList<>();
+    public static String[] set; //Ore names
+    private static LinkedHashMap<String, DropChance> dropChances;
 
     public static void initialize() {
         dropChances = PluginMain.dropChances;
@@ -78,73 +71,6 @@ public class BlockBreakEventListener implements Listener {
 
     }
 
-    ItemStack getItemInHand(Player player) {
-        ItemStack tool = null;
-        if (PluginMain.plugin.versionCompatible(12)) {
-            try {
-                tool = ((ItemStack) PlayerInventory.class.getMethod("getItemInMainHand").invoke(player.getInventory()));
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                tool = ((ItemStack) PlayerInventory.class.getMethod("getItemInHand").invoke(player.getInventory()));
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-        }
-        return tool;
-    }
-
-    private static void dropItems(ItemStack itemStack, Player player, Location location) {
-        if (PluginMain.dropIntoInventory) {
-            HashMap<Integer, ItemStack> remainingItems = player.getInventory().addItem(itemStack);
-            for (Map.Entry<Integer, ItemStack> entry : remainingItems.entrySet()) {
-                location.getWorld().dropItem(location, entry.getValue());
-            }
-        } else {
-            if (PluginMain.realisticDrop) {
-                spawnDropChest(itemStack, player, location);
-            } else {
-                location.getWorld().dropItem(location, itemStack);
-            }
-        }
-    }
-
-    private static void spawnDropChest(ItemStack itemToChest, Player player, Location location) {
-        boolean isTrpChstNeighbour = hasTheSameNeighbour(location.getBlock(), Material.TRAPPED_CHEST);
-
-        if (isTrpChstNeighbour) {
-            location.getWorld().dropItemNaturally(location, itemToChest);
-        } else {
-            location.getBlock().setType(Material.TRAPPED_CHEST);
-            Chest chest = (Chest) location.getBlock().getState();
-            ItemMeta meta = itemToChest.getItemMeta();
-            int[] chestIndexesTable = new int[27];
-            int chestSlotAmount = (itemToChest.getAmount() / 27);
-            Arrays.fill(chestIndexesTable, chestSlotAmount);
-            //in this case it is not possible to drop more than 27*64 the same item
-            int extraSlotAmount = (chestSlotAmount < 64) ? itemToChest.getAmount() % 27 : 0;
-            for (int chestPlaceIndex = 0; chestPlaceIndex < extraSlotAmount; chestPlaceIndex++)
-                chestIndexesTable[chestPlaceIndex] += 1;
-            for (int chestPlaceIndex = 0; chestPlaceIndex < 27; chestPlaceIndex++) {
-                if (chestIndexesTable[chestPlaceIndex] <= 0) break;
-                ItemStack stack = new ItemStack(
-                        itemToChest.getType(),
-                        chestIndexesTable[chestPlaceIndex],
-                        itemToChest.getDurability()
-                );
-                stack.setItemMeta(meta);
-                chest.getInventory().setItem(chestPlaceIndex, stack);
-            }
-
-            Bukkit.getServer().getPluginManager().callEvent(new BlockBreakEvent(location.getBlock(), player));
-            location.getBlock().setType(Material.AIR);
-
-        }
-
-    }
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void blockBreak(BlockBreakEvent event) {
 
@@ -154,11 +80,11 @@ public class BlockBreakEventListener implements Listener {
                 Block block = event.getBlock();
                 Location location = block.getLocation();
                 World world = block.getWorld();
-                Material tool = getItemInHand(event.getPlayer()).getType();
+                Material tool = ItemUtils.getItemInHand(event.getPlayer()).getType();
 
                 Material breakBlockName = event.getBlock().getType();
                 if (breakBlockName.toString().contains("ORE") || event.getBlock().getType().toString().equalsIgnoreCase("ancient_debris")) {
-                    if (PluginMain.dropFromOres && Chance.chance(PluginMain.oreDropChance)) return;
+                    if (PluginMain.dropFromOres && MathUtils.chance(PluginMain.oreDropChance)) return;
                     if (!PluginMain.dropFromOres) {
                         if (PluginMain.dropOresWhiteList != null &&
                                 PluginMain.dropOresWhiteList.contains(breakBlockName)) {
@@ -187,7 +113,7 @@ public class BlockBreakEventListener implements Listener {
                         if (PluginMain.versionCompatible(12)) {
                             Damageable itemMeta = (Damageable) player.getInventory().getItemInMainHand().getItemMeta();
                             if (((ItemMeta) itemMeta).hasEnchant(Enchantment.DURABILITY)) {
-                                if (Chance.chance(1f / (((ItemMeta) itemMeta).getEnchantLevel(Enchantment.DURABILITY) + 1))) {
+                                if (MathUtils.chance(1f / (((ItemMeta) itemMeta).getEnchantLevel(Enchantment.DURABILITY) + 1))) {
                                     itemMeta.setDamage(itemMeta.getDamage() + 1);
                                 }
                             } else {
@@ -198,7 +124,7 @@ public class BlockBreakEventListener implements Listener {
                             else player.getInventory().getItemInMainHand().setItemMeta((ItemMeta) itemMeta);
                         } else {
                             if (player.getItemInHand().containsEnchantment(Enchantment.DURABILITY)) {
-                                if (Chance.chance(1f / (player.getItemInHand().getEnchantmentLevel(Enchantment.DURABILITY) + 1))) {
+                                if (MathUtils.chance(1f / (player.getItemInHand().getEnchantmentLevel(Enchantment.DURABILITY) + 1))) {
                                     player.getItemInHand().setDurability((short) (player.getItemInHand().getDurability() + 1));
                                 }
                             } else {
@@ -209,7 +135,7 @@ public class BlockBreakEventListener implements Listener {
                         }
                         player.updateInventory();
                     }
-                    if (Chance.chance(PluginMain.chestSpawnRate)) {
+                    if (MathUtils.chance(PluginMain.chestSpawnRate)) {
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
                             spawnChest(event.getBlock().getLocation(), event.getPlayer());
                         }, 4);
@@ -218,14 +144,14 @@ public class BlockBreakEventListener implements Listener {
 
                     PluginMain.commands.forEach((executeCommands) -> {
                         if (!executeCommands.isRequiredPermission() || event.getPlayer().hasPermission("stonedrop.exec-commands"))
-                            if (Chance.chance(executeCommands.getChance())) {
+                            if (MathUtils.chance(executeCommands.getChance())) {
                                 String[] commands = executeCommands.getCommands().toArray(new String[0]);
                                 Arrays.stream(commands).map(command -> command.replaceAll("@player", event.getPlayer().getName())).forEach(command -> Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), command));
                             }
                     });
 
 
-                    if (getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.SILK_TOUCH) >= 1) {
+                    if (ItemUtils.getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.SILK_TOUCH) >= 1) {
                         for (String s : set) {
                             if (!s.equals("COBBLE") && !s.equals("STACK")) {
 
@@ -236,16 +162,16 @@ public class BlockBreakEventListener implements Listener {
                                     continue;
 
                                 if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
-                                    if (Chance.chance(dropChances.get(s).getST()) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(s).isOn()) {
+                                    if (MathUtils.chance(dropChances.get(s).getST()) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(s).isOn()) {
                                         try {
-                                            int dropAmount = Chance.randBetween(
+                                            int dropAmount = MathUtils.randBetween(
                                                     dropChances.get(s).getMinST(),
                                                     dropChances.get(s).getMaxST()
                                             );
-                                            ItemStack itemToDrop = PluginMain.plugin.getItemStack(s, dropAmount);
-                                            applyEnchants(oreSettings, itemToDrop);
-                                            applyCustomName(oreSettings, itemToDrop);
-                                            dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
+                                            ItemStack itemToDrop = ItemUtils.getItemStack(s, dropAmount);
+                                            ItemUtils.applyEnchants(oreSettings, itemToDrop);
+                                            ItemUtils.applyCustomName(oreSettings, itemToDrop);
+                                            ItemUtils.dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
                                         } catch (NullPointerException e) {
                                             PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + s + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
                                         }
@@ -255,7 +181,7 @@ public class BlockBreakEventListener implements Listener {
                             }
                         }
                     }
-                    int pickaxeLootLevel = getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
+                    int pickaxeLootLevel = ItemUtils.getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
                     for (String s : set) {
                         if (!s.equals("COBBLE") && !s.equals("STACK")) {
 
@@ -266,15 +192,15 @@ public class BlockBreakEventListener implements Listener {
                                 continue;
 
                             if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
-                                if (Chance.chance(dropChances.get(s).getFortuneChance(pickaxeLootLevel)) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(s).isOn()) {
+                                if (MathUtils.chance(dropChances.get(s).getFortuneChance(pickaxeLootLevel)) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(s).isOn()) {
                                     try {
-                                        int dropAmount = Chance.randBetween(
+                                        int dropAmount = MathUtils.randBetween(
                                                 (int) dropChances.get(s).getFortuneItemsAmountMin(pickaxeLootLevel),
                                                 (int) dropChances.get(s).getFortuneItemsAmountMax(pickaxeLootLevel));
-                                        ItemStack itemToDrop = PluginMain.plugin.getItemStack(s, dropAmount);
-                                        applyEnchants(oreSettings, itemToDrop);
-                                        applyCustomName(oreSettings, itemToDrop);
-                                        dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
+                                        ItemStack itemToDrop = ItemUtils.getItemStack(s, dropAmount);
+                                        ItemUtils.applyEnchants(oreSettings, itemToDrop);
+                                        ItemUtils.applyCustomName(oreSettings, itemToDrop);
+                                        ItemUtils.dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
                                     } catch (NullPointerException e) {
                                         PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + s + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
                                     }
@@ -291,56 +217,6 @@ public class BlockBreakEventListener implements Listener {
         }
     }
 
-    private static void applyEnchants(DropChance oreSettings, ItemStack itemToDrop) {
-        if (oreSettings.getEnchant().size() > 0) {
-            oreSettings.getEnchant().forEach(((enchantment, level) -> {
-                if (enchantment != null && level > 0) itemToDrop.addUnsafeEnchantment(enchantment, level);
-            }));
-        }
-    }
-
-    public static void applyCustomName(DropChance oreSettings, ItemStack itemToDrop) {
-        if (oreSettings.getCustomName() != null) {
-            ItemMeta meta = itemToDrop.getItemMeta();
-            meta.setDisplayName(oreSettings.getCustomName());
-            itemToDrop.setItemMeta(meta);
-        }
-    }
-
-
-    @EventHandler
-    public void PlayerJoinEvent(PlayerJoinEvent e) {
-        if (!PluginMain.playerSettings.containsKey(e.getPlayer().getUniqueId().toString())
-                || !PluginMain.playerLastVersionPluginVersion.containsKey(e.getPlayer().getUniqueId().toString())) {
-            PluginMain.generateNewPlayerData(e.getPlayer());
-
-        }
-        if (e.getPlayer().hasPermission("stonedrop.display-message") && isNewToUpdate(e.getPlayer().getUniqueId().toString())) {
-            PluginMain.displayUpdateMessage(e.getPlayer());
-            PluginMain.playerLastVersionPluginVersion.remove(e.getPlayer().getUniqueId().toString());
-            PluginMain.playerLastVersionPluginVersion.put(e.getPlayer().getUniqueId().toString(), PluginMain.currentPluginVersion);
-        }
-
-    }
-
-    @EventHandler
-    public void InventoryOpenEvent(InventoryOpenEvent event) {
-        if (event.getInventory().getHolder() instanceof Chest && chestLocations.contains(((Chest) (event.getInventory().getHolder())).getLocation())) {
-            openedChests.add(event.getInventory());
-        }
-    }
-
-
-    public static boolean hasTheSameNeighbour(Block block, Material material) {
-        for (int xi = -1; xi < 2; xi++) {
-            for (int zi = -1; zi < 2; zi++) {
-                if (xi * xi + zi * zi == 2) continue;
-                if (block.getRelative(xi, 0, zi).getType().equals(material)) return true;
-            }
-        }
-        return false;
-    }
-
     public void spawnChest(Location location, Player player) {
         Block block = location.getBlock();
         if (PluginMain.treasureChestBroadcast)
@@ -353,9 +229,9 @@ public class BlockBreakEventListener implements Listener {
 
         ArrayList<ItemStack> chestInv = new ArrayList<>();
         for (Material material : PluginMain.chestContent.keySet()) {
-            if (Chance.chance(PluginMain.chestContent.get(material).getChance())) {
+            if (MathUtils.chance(PluginMain.chestContent.get(material).getChance())) {
                 if (PluginMain.chestContent.get(material).getEnchantment() != null) {
-                    ItemStack item = new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax()));
+                    ItemStack item = new ItemStack(material, MathUtils.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax()));
                     ItemMeta meta = item.getItemMeta();
                     PluginMain.chestContent.get(material).getEnchantment().forEach((whatToEnchant, level) -> {
                         if (whatToEnchant != null) meta.addEnchant(whatToEnchant, level, true);
@@ -363,14 +239,14 @@ public class BlockBreakEventListener implements Listener {
                     item.setItemMeta(meta);
                     chestInv.add(item);
                 } else
-                    chestInv.add(new ItemStack(material, Chance.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
+                    chestInv.add(new ItemStack(material, MathUtils.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax())));
             }
         }
-        boolean isChestNeighbour = hasTheSameNeighbour(block, Material.CHEST);
+        boolean isChestNeighbour = BlockUtils.hasTheSameNeighbour(block, Material.CHEST);
 
         if (!isChestNeighbour && !PluginMain.dropChestToInv || player.hasPermission("stonedrop.chest.to-inventory")) {
             block.setType(Material.CHEST);
-            chestLocations.add(block.getLocation());
+            PluginMain.chestLocations.add(block.getLocation());
 
             Chest chest = (Chest) block.getState();
 
@@ -378,74 +254,13 @@ public class BlockBreakEventListener implements Listener {
                 Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
 
             chestInv.forEach(itemStack -> {
-                int freeSlot = getRandomFreeSlot(chest.getBlockInventory());
+                int freeSlot = ItemUtils.getRandomFreeSlot(chest.getBlockInventory());
                 if (freeSlot >= 0) chest.getBlockInventory().setItem(freeSlot, itemStack);
             });
         } else {
             if (isChestNeighbour) player.sendMessage(ChatColor.RED + Message.CHEST_CANT_BE_SPAWNED.toString());
             HashMap<Integer, ItemStack> items = player.getInventory().addItem(chestInv.toArray(new ItemStack[0]));
             items.forEach((integer, itemStack1) -> location.getWorld().dropItemNaturally(location, itemStack1));
-        }
-    }
-
-
-    @EventHandler
-    public void InventoryCloseEvent(InventoryCloseEvent event) {
-        if (openedChests.contains(event.getInventory())) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(PluginMain.plugin, () -> {
-                if (PluginMain.plugin.versionCompatible(12))
-                    ((Player) event.getPlayer()).playSound(Objects.requireNonNull(event.getInventory().getLocation()), Sound.ENTITY_ENDERMAN_TELEPORT, (float) PluginMain.volume, 0.1f);
-                event.getInventory().clear();
-                chestLocations.remove(((Chest) event.getInventory().getHolder()).getLocation());
-                if (openedChests.contains(event.getInventory())) openedChests.remove(event.getInventory());
-                if (event.getInventory().getHolder() instanceof Chest)
-                    ((Chest) event.getInventory().getHolder()).getLocation().getBlock().setType(Material.AIR);
-                if (PluginMain.plugin.versionCompatible(12))
-                    event.getInventory().getLocation().getWorld().spawnParticle(Particle.CLOUD, event.getInventory().getLocation(), 500, 0, 0, 0);
-            }, 20);
-        }
-    }
-
-    private boolean isNewToUpdate(String uid) {
-        if (PluginMain.playerLastVersionPluginVersion.get(uid) == null) {
-            return true;
-        }
-        String playerVersion = PluginMain.playerLastVersionPluginVersion.get(uid);
-        String serverVersion = PluginMain.currentPluginVersion;
-        String[] playerVersionArray = playerVersion.replace(".", ",").split(",");
-        String[] serverVersionArray = serverVersion.replace(".", ",").split(",");
-        int min = Math.min(playerVersionArray.length, serverVersionArray.length);
-        for (int i = 0; i < min; i++) {
-            int serverVersionPart = Integer.parseInt(serverVersionArray[i]);
-            int playerVersionPart = Integer.parseInt(playerVersionArray[i]);
-            if (serverVersionPart > playerVersionPart) return true;
-        }
-        return playerVersionArray.length < serverVersionArray.length;
-    }
-
-
-    private int getRandomFreeSlot(Inventory inv) {
-        ArrayList<Integer> possibleInv = new ArrayList<>();
-        for (int i = 0; i < 27; i++) if (inv.getItem(i) == null) possibleInv.add(i);
-        if (possibleInv.size() == 0) return -1;
-        int random = Chance.randBetween(0, possibleInv.size() - 1);
-        return possibleInv.get(random);
-    }
-
-
-    @EventHandler
-    public void onEntityExplode(EntityExplodeEvent e) {
-        if (PluginMain.dropFromOres && Chance.chance(PluginMain.oreDropChance)) return;
-        for (Block b : e.blockList()) {
-            if (b.getType().toString().contains("ORE")) {
-                if (PluginMain.dropOresWhiteList != null &&
-                        PluginMain.dropOresWhiteList.contains(b.getType())) {
-                    continue;
-                }
-
-                b.setType(Material.AIR); // Stop item drops from spawning
-            }
-
         }
     }
 
