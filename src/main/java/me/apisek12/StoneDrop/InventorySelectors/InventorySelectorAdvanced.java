@@ -211,6 +211,11 @@ public class InventorySelectorAdvanced extends InventorySelector{
         player.openInventory(secondaryWindow);
     }
 
+    private void playSound(Player player, Sound sound){
+        if (PluginMain.versionCompatible(14))
+            player.playSound(player.getLocation(), sound, (float)PluginMain.volume, 1);
+    }
+
     @Override
     @EventHandler
     public void InventoryClickEvent(InventoryClickEvent event) {
@@ -223,15 +228,18 @@ public class InventorySelectorAdvanced extends InventorySelector{
             Player player = inventorySelector.player;
             ItemStack clickedItem = event.getCurrentItem();
             if (event.isRightClick() && !event.getWhoClicked().getOpenInventory().getTopInventory().equals(secondaryWindow)) {
-                if (event.getCurrentItem().equals(inventorySelector.cobble)) inventorySelector.settings.get("COBBLE").toggle();
-                else if (event.getClickedInventory().equals(inventorySelector.selector)){
+                if (event.getClickedInventory().equals(inventorySelector.selector)){
+                    if (event.getCurrentItem().equals(inventorySelector.cobble)) {
+                        inventorySelector.settings.get("COBBLE").toggle();
+                        playSound(player, Sound.UI_STONECUTTER_SELECT_RECIPE);
+                    }
                     if (PluginMain.versionCompatible(12) ){
                         if (inventorySelector.settings.containsKey(clickedItem.getType().toString())) {
                             inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
-                            if (PluginMain.versionCompatible(14)) player.playSound(player.getLocation(), Sound.UI_STONECUTTER_SELECT_RECIPE, (float)PluginMain.volume, 1);
+                            playSound(player, Sound.UI_STONECUTTER_SELECT_RECIPE);
                         }
                     }
-                    else{
+                    else {
                         ItemStack dye = new Dye(DyeColor.BLUE).toItemStack();
                         if (clickedItem.getType().equals(dye.getType())){
                             Dye dyeColor = (Dye) clickedItem.getData();
