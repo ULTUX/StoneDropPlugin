@@ -68,8 +68,6 @@ public class ConfigManager {
                     outputStream.write(buffer, 0, length);
                 }
                 is.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -82,7 +80,23 @@ public class ConfigManager {
         if (!file.exists()) {
             if (!folderFile.isDirectory()) folderFile.mkdir();
             getConsoleSender().sendMessage("lang.yml file has not been found, generating a new one...");
+
+            // Copy all comments from template lang.yml
+            try (OutputStream outputStream = new FileOutputStream(file.toPath().toString())) {
+                InputStream is = parentPlugin.getResource("lang.yml");
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = is.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //Save messages to yml file
             YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
+
             for (Message message : Message.values()) {
                 configuration.set(message.name(), message.toString());
             }

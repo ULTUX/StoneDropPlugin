@@ -1,0 +1,4 @@
+# If you are customizing messages then make sure you are quoting them!
+# Example:
+#     EXAMPLE_MESSAGE: "&6This is example that is properly quoted."
+# Without this plugin won't be able to read any special characters like color chars.

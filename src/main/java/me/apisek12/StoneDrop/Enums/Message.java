@@ -6,7 +6,7 @@ import org.bukkit.ChatColor;
 public enum Message {
 
     PERMISSION_MISSING("You don't have permission to use that command!"),
-    COMMAND_ARGUMENT_UNKNOWN("Unknown argument!\nCommand should look like:\n &6/drop <info, stack, DROPPABLE_NAME>"),
+    COMMAND_ARGUMENT_UNKNOWN("Unknown command argument."),
     GUI_TITLE("Item Drop Chances"),
     GUI_EXIT_BUTTON("Exit"),
     GUI_BACK_BUTTON("Back"),
