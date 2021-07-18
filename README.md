@@ -66,8 +66,6 @@ Everything can be configured and changed to meet server requirements.
 | /drop reload | reload the plugin                                                                                   |
 | /drop stack | toggle (for command sender) automatic crafting of diamonds, gold, etc. into their block equivalents. |
 | /whatdrops | displays a list of items that can drop, their chances and amounts.                                    |
-| /shutdown | op/console-only command. It schedules a server shut down and informs all players about it.             |
-| /cancelshutdown | op/console-only command. Cancels shut down if it's been initialized.                             |
 
 ### [Permissions](https://github.com/ULTUX/StoneDropPlugin/wiki/Permissions)
 
