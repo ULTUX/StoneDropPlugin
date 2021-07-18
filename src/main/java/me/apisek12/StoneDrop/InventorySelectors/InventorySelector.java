@@ -3,8 +3,8 @@ package me.apisek12.StoneDrop.InventorySelectors;
 import me.apisek12.StoneDrop.DataModels.DropChance;
 import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.DataModels.Setting;
-import me.apisek12.StoneDrop.EventListeners.BlockBreakEventListener;
 import me.apisek12.StoneDrop.PluginMain;
+import me.apisek12.StoneDrop.Utils.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -186,11 +186,11 @@ public class InventorySelector implements Listener {
             try {
                 Material material;
                 ItemStack item;
-                if ((item = PluginMain.plugin.getItemStack(materialName, 1)) != null) {
+                if ((item = ItemUtils.getItemStack(materialName, 1)) != null) {
                     DropChance dropData = PluginMain.dropChances.get(materialName);
                     if (dropData != null) {
                         //ItemStack item = new ItemStack(material);
-                        BlockBreakEventListener.applyCustomName(dropData, item);
+                        ItemUtils.applyCustomName(dropData, item);
                         ItemMeta itemMeta = item.getItemMeta();
                         if (dropData.getEnchant() != null)
                             dropData.getEnchant().forEach((enchantment, integer) -> itemMeta.addEnchant(enchantment, integer, false));
