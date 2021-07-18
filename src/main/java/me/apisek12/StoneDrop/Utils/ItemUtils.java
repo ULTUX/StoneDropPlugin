@@ -35,9 +35,6 @@ public class ItemUtils {
                 else if(itemName.contains("COBBLE")){
                     return new ItemStack(Material.COBBLESTONE,1);
                 }
-                else if(itemName.contains("STACK")){
-                    return new ItemStack(Material.BOOK,1);
-                }
             }
             if (Material.getMaterial(itemName) == null) return null;
             return new ItemStack(Material.getMaterial(itemName),dropAmount);

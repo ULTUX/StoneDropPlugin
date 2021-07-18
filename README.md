@@ -64,7 +64,6 @@ Everything can be configured and changed to meet server requirements.
 | ----------------|--------------------------------------------------------------------------------------------------|
 | /drop (*or /d*) | base command - shows a menu                                                                      |
 | /drop reload | reload the plugin                                                                                   |
-| /drop stack | toggle (for command sender) automatic crafting of diamonds, gold, etc. into their block equivalents. |
 | /whatdrops | displays a list of items that can drop, their chances and amounts.                                    |
 
 ### [Permissions](https://github.com/ULTUX/StoneDropPlugin/wiki/Permissions)

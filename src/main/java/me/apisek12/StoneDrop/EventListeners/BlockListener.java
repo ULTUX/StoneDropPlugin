@@ -183,8 +183,7 @@ public class BlockListener implements Listener {
                     }
                     int pickaxeLootLevel = ItemUtils.getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
                     for (String s : set) {
-                        if (!s.equals("COBBLE") && !s.equals("STACK")) {
-
+                        if (!s.equals("COBBLE")) {
                             DropChance oreSettings = dropChances.get(s);
 
                             if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
