@@ -1,4 +1,6 @@
-#These are chances of drop from STONE
+# These are chances of drop from STONE
+# More info about config: https://github.com/ULTUX/StoneDropPlugin/wiki/Config-file
+# Permissions: https://github.com/ULTUX/StoneDropPlugin/wiki/Permissions
 chances:
   COAL:
     fortune-0:
@@ -138,12 +140,12 @@ chances:
  #     - Mountains
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#This is chance of getting a chest spawned
+# This is chance of getting a chest spawned
 chest-spawn-chance: 5.0E-4
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#And these are possible contents of the chest
+# And these are possible contents of the chest
 chest:
   DIAMOND:
     chance: 0.8
@@ -193,14 +195,14 @@ chest:
       luck_of_the_sea: 3
       mending: 1
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#List of commands that could be executed (use @name for player name)
-#In this example: 1% chance of executing command give on player.
+# List of commands that could be executed (use @name for player name)
+# In this example: 1% chance of executing command give on player.
 executeCommands:
   "give @player stick 2 & give @player apple 3":
     chance: 0.01
     requires-permission: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#List of blocks that the plugin should work on. The list of all possible blocks is listed here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+# List of blocks that the plugin should work on. The list of all possible blocks is listed here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
 dropBlocks:
   - STONE
   - ANDESITE
@@ -208,48 +210,48 @@ dropBlocks:
   - DIORITE
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#experience dropped from stone:
-experience: 0.3
+# Experience dropped from stone:
+experience: 0.1
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#put here all world that you would like to have disabled:
+# Put here all world that you would like to have disabled
 disabled-worlds:
   - world_nether
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#Should ores drop items
+# Should ores drop items
 ore-drop: true
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#If ore-drop is false, some specific ores can drop anyway. This is white list drop ores.
-#If there is no, type []
+# If ore-drop is false, some specific ores can drop anyway. This is white list drop ores.
+# If there is no, type []
 ores-whitelist:
   - COAL_ORE
   - REDSTONE_ORE
   - GLOWING_REDSTONE_ORE
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#If ore-drop is true -> whats the chance to drop item from ore when mining it
+# If ore-drop is true -> whats the chance to drop item from ore when mining it
 ore-drop-chance: 1.0
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Should the items ne dropped directly into the inventory
+# Should the items ne dropped directly into the inventory
 drop-to-inventory: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Should display "The plugin has been updated" message
+# Should display "The plugin has been updated" message
 display-update-message: true
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Should exp be added to player stats or dropped as exp orb - WARNING: in that case experience value has to be >= 1.0
+# Should exp be added to player stats or dropped as exp orb - WARNING: in that case experience value has to be >= 1.0
 drop-exp-orb: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Should a message be broadcast when a player finds a chest
+# Should a message be broadcast when a player finds a chest
 treasure-broadcast: true
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Volume of all sounds used in the plugin
+# Volume of all sounds used in the plugin
 volume: 0.3
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Global drop chest contents to inventory
+# Global drop chest contents to inventory
 drop-chest-to-inventory-global: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#realistic multi direction drop spread
+# Realistic multi direction drop spread
 realistic-drop: true
