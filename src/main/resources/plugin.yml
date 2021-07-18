@@ -4,10 +4,6 @@ api-version: 1.13
 version: 2.0.0
 main: me.apisek12.StoneDrop.PluginMain
 commands:
-  shutdown:
-    description: Op/console-only command. cancels shutdown if it has been initialized.
-  cancelShutdown:
-    description: Op/console-only command. cancels shutdown if it has been initialized.
   drop:
     aliases:
       - d
