@@ -22,19 +22,17 @@ public class ConfigManager {
         this.parentPlugin = parentPlugin;
     }
 
-    public void loadConfig(PluginMain instance) {
+    public void loadConfig() {
         generateConfig();
         generateLang();
         if (!PluginMain.dropFromOres)
             getServer().getConsoleSender().sendMessage("[" + parentPlugin.getName() + "] Drop from ores is now disabled");
-
-        parentPlugin.reloadConfig();
+        loadFromConfig();
         loadPlayerData();
         loadChances();
         loadChestChances();
         BlockBreakEventListener.initialize();
 
-        getServer().getConsoleSender().sendMessage("[StoneDrop] " + ChatColor.GREEN + "Configuration Loaded, Plugin enabled!");
         fixPlayerData();
         setGlobalSettings();
         BlockBreakEventListener.initialize();
@@ -44,7 +42,7 @@ public class ConfigManager {
         parentPlugin.reloadConfig();
         generateConfig();
         generateLang();
-        loadConfig();
+        loadFromConfig();
         loadChances();
         loadChestChances();
         loadPlayerData();
@@ -135,6 +133,10 @@ public class ConfigManager {
         for (String key : parentPlugin.getConfig().getConfigurationSection("chances").getKeys(false)) {
             ConfigurationSection oreObject = parentPlugin.getConfig().getConfigurationSection("chances." + key);
             DropChance oreObjectOptions = new DropChance();
+            if (Material.getMaterial(key) == null) {
+                getLogger().warning("Possible mistype of material "+key+" in config file."+ChatColor.RED+"Please check config file for errors.");
+                continue;
+            }
             oreObjectOptions.setName(key);
             if (oreObject == null) continue;
             if (oreObject.contains("biomes")){
@@ -233,7 +235,7 @@ public class ConfigManager {
             }
         }
     }
-    private void loadConfig() {
+    private void loadFromConfig() {
         getLogger().info("Loading config...");
         PluginMain.langData = YamlConfiguration.loadConfiguration(new File(parentPlugin.getDataFolder(), "lang.yml"));
         PluginMain.langData.getKeys(false).forEach(key -> {

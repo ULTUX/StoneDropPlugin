@@ -26,6 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.*;
 import java.util.*;
 import static org.bukkit.Bukkit.getPluginManager;
+import static org.bukkit.Bukkit.getServer;
 
 public class PluginMain extends JavaPlugin {
     public static PluginMain plugin = null;
@@ -107,11 +108,12 @@ public class PluginMain extends JavaPlugin {
                 sender.sendMessage(ChatColor.GRAY + "Starting reload...");
                 sender.sendMessage(ChatColor.GRAY + "Unregistering all event listeners...");
                 HandlerList.unregisterAll(plugin);
-                sender.sendMessage(ChatColor.GRAY + "Generating config files...");
                 sender.sendMessage(ChatColor.GRAY + "Registering new event listeners");
                 registerEvents();
-                sender.sendMessage(ChatColor.GRAY + "Reloading config files...");
                 BlockBreakEventListener.initialize();
+                sender.sendMessage(ChatColor.GRAY + "Reloading config files...");
+                sender.sendMessage(ChatColor.GRAY + "Generating config files...");
+                configManager.reloadConfig();
                 sender.sendMessage(ChatColor.GREEN + Message.RELOADED_SUCCESSFULLY.toString());
                 return true;
             } else sender.sendMessage(ChatColor.RED + Message.PERMISSION_MISSING.toString());
@@ -214,6 +216,7 @@ public class PluginMain extends JavaPlugin {
         plugin = this;
         currentPluginVersion = getDescription().getVersion();
         bukkitVersion = Bukkit.getBukkitVersion();
+        configManager = new ConfigManager(this);
 
         //Check if version is < 1.8.9
         try {
@@ -232,11 +235,12 @@ public class PluginMain extends JavaPlugin {
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
-
         registerEvents();
+        configManager.loadConfig();
 
         new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         new Metrics(this);
+        getServer().getConsoleSender().sendMessage("[StoneDrop] " + ChatColor.GREEN + "Configuration Loaded, Plugin enabled!");
     }
 
     public static void generateNewPlayerData(Player player){
