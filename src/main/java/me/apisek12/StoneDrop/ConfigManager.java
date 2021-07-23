@@ -175,7 +175,7 @@ public class ConfigManager {
             ConfigurationSection oreObject = parentPlugin.getConfig().getConfigurationSection("chances." + key);
             DropChance oreObjectOptions = new DropChance();
             if (Material.getMaterial(key) == null) {
-                getLogger().warning("Possible mistype of material "+key+" in config file."+ChatColor.RED+"Please check config file for errors.");
+                getLogger().warning("Possible mistype of material "+key+" in config file. Please check config file for errors.");
                 continue;
             }
             oreObjectOptions.setName(key);

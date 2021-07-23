@@ -36,18 +36,14 @@ public class BlockListener implements Listener {
     public static void initialize() {
         dropChances = PluginMain.dropChances;
         Bukkit.getServer().getConsoleSender().sendMessage("[" + PluginMain.plugin.getName() + "] Starting internal scheduler...");
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(PluginMain.plugin, new Runnable() {
-            @Override
-            public void run() {
-                synchronized (messageTimestamp) {
-                    Iterator iterator = messageTimestamp.entrySet().iterator();
-                    while (iterator.hasNext()) {
-                        Map.Entry entry = (Map.Entry) iterator.next();
-                        Player player = (Player) entry.getKey();
-                        Long timeStamp = (Long) entry.getValue();
-                        if (System.currentTimeMillis() > timeStamp + 10000) {
-                            iterator.remove();
-                        }
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(PluginMain.plugin, () -> {
+            synchronized (messageTimestamp) {
+                Iterator<Map.Entry<Player, Long>> iterator = messageTimestamp.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<Player, Long> entry = iterator.next();
+                    Long timeStamp = entry.getValue();
+                    if (System.currentTimeMillis() > timeStamp + 10000) {
+                        iterator.remove();
                     }
                 }
             }
@@ -64,8 +60,10 @@ public class BlockListener implements Listener {
                 player.setExp(player.getExp() + experienceToGive);
             }
         } else {
-            ExperienceOrb experienceOrb = (ExperienceOrb) player.getLocation().getWorld().spawnEntity(player.getLocation(), EntityType.EXPERIENCE_ORB);
-            experienceOrb.setExperience((int) PluginMain.experienceToDrop);
+            if (player.getLocation().getWorld() != null) {
+                ExperienceOrb experienceOrb = (ExperienceOrb) player.getLocation().getWorld().spawnEntity(player.getLocation(), EntityType.EXPERIENCE_ORB);
+                experienceOrb.setExperience((int) PluginMain.experienceToDrop);
+            }
         }
 
 
@@ -78,8 +76,6 @@ public class BlockListener implements Listener {
 
             if (!event.isCancelled()) {
                 Block block = event.getBlock();
-                Location location = block.getLocation();
-                World world = block.getWorld();
                 Material tool = ItemUtils.getItemInHand(event.getPlayer()).getType();
 
                 Material breakBlockName = event.getBlock().getType();
@@ -112,16 +108,20 @@ public class BlockListener implements Listener {
                         Player player = event.getPlayer();
                         if (PluginMain.versionCompatible(12)) {
                             Damageable itemMeta = (Damageable) player.getInventory().getItemInMainHand().getItemMeta();
-                            if (((ItemMeta) itemMeta).hasEnchant(Enchantment.DURABILITY)) {
-                                if (MathUtils.chance(1f / (((ItemMeta) itemMeta).getEnchantLevel(Enchantment.DURABILITY) + 1))) {
+                            if (itemMeta != null) {
+                                if (((ItemMeta) itemMeta).hasEnchant(Enchantment.DURABILITY)) {
+                                    if (MathUtils.chance(1f / (((ItemMeta) itemMeta).getEnchantLevel(Enchantment.DURABILITY) + 1))) {
+                                        itemMeta.setDamage(itemMeta.getDamage() + 1);
+                                    }
+                                } else {
                                     itemMeta.setDamage(itemMeta.getDamage() + 1);
                                 }
-                            } else {
-                                itemMeta.setDamage(itemMeta.getDamage() + 1);
                             }
-                            if (itemMeta.getDamage() > player.getInventory().getItemInMainHand().getType().getMaxDurability())
-                                player.getInventory().setItemInMainHand(null);
-                            else player.getInventory().getItemInMainHand().setItemMeta((ItemMeta) itemMeta);
+                            if (itemMeta != null) {
+                                if (itemMeta.getDamage() > player.getInventory().getItemInMainHand().getType().getMaxDurability())
+                                    player.getInventory().setItemInMainHand(null);
+                                else player.getInventory().getItemInMainHand().setItemMeta((ItemMeta) itemMeta);
+                            }
                         } else {
                             if (player.getItemInHand().containsEnchantment(Enchantment.DURABILITY)) {
                                 if (MathUtils.chance(1f / (player.getItemInHand().getEnchantmentLevel(Enchantment.DURABILITY) + 1))) {
@@ -136,9 +136,7 @@ public class BlockListener implements Listener {
                         player.updateInventory();
                     }
                     if (MathUtils.chance(PluginMain.chestSpawnRate)) {
-                        Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> {
-                            spawnChest(event.getBlock().getLocation(), event.getPlayer());
-                        }, 4);
+                        Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> spawnChest(event.getBlock().getLocation(), event.getPlayer()), 4);
                     }
 
 
@@ -158,7 +156,7 @@ public class BlockListener implements Listener {
                                 DropChance oreSettings = dropChances.get(s);
 
                                 if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
-                                        && !Arrays.stream(oreSettings.getAcceptedBiomes()).anyMatch(biome -> event.getBlock().getBiome().equals(biome)))
+                                        && Arrays.stream(oreSettings.getAcceptedBiomes()).noneMatch(biome -> event.getBlock().getBiome().equals(biome)))
                                     continue;
 
                                 if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
@@ -187,7 +185,7 @@ public class BlockListener implements Listener {
                             DropChance oreSettings = dropChances.get(s);
 
                             if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
-                                    && !Arrays.stream(oreSettings.getAcceptedBiomes()).anyMatch(biome -> event.getBlock().getBiome().equals(biome)))
+                                    && Arrays.stream(oreSettings.getAcceptedBiomes()).noneMatch(biome -> event.getBlock().getBiome().equals(biome)))
                                 continue;
 
                             if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
@@ -220,9 +218,9 @@ public class BlockListener implements Listener {
         Block block = location.getBlock();
         if (PluginMain.treasureChestBroadcast)
             player.getServer().broadcastMessage(ChatColor.GOLD + ChatColor.translateAlternateColorCodes('&', Message.TREASURE_CHEST_BROADCAST.toString().replace("@name", player.getName())));
-        if (PluginMain.plugin.versionCompatible(12))
+        if (PluginMain.versionCompatible(12))
             player.sendTitle(ChatColor.GOLD + Message.TREASURE_CHEST_PRIMARY.toString(), ChatColor.AQUA + Message.TREASURE_CHEST_SECONDARY.toString(), 20, 20, 15);
-        if (PluginMain.plugin.versionCompatible(12))
+        if (PluginMain.versionCompatible(12))
             player.playSound(location, Sound.UI_TOAST_CHALLENGE_COMPLETE, (float) PluginMain.volume, 1f);
 
 
@@ -233,7 +231,9 @@ public class BlockListener implements Listener {
                     ItemStack item = new ItemStack(material, MathUtils.randBetween(PluginMain.chestContent.get(material).getMin(), PluginMain.chestContent.get(material).getMax()));
                     ItemMeta meta = item.getItemMeta();
                     PluginMain.chestContent.get(material).getEnchantment().forEach((whatToEnchant, level) -> {
-                        if (whatToEnchant != null) meta.addEnchant(whatToEnchant, level, true);
+                        if (whatToEnchant != null) if (meta != null) {
+                            meta.addEnchant(whatToEnchant, level, true);
+                        }
                     });
                     item.setItemMeta(meta);
                     chestInv.add(item);
@@ -249,7 +249,7 @@ public class BlockListener implements Listener {
 
             Chest chest = (Chest) block.getState();
 
-            if (PluginMain.plugin.versionCompatible(12))
+            if (PluginMain.versionCompatible(12))
                 Objects.requireNonNull(location.getWorld()).spawnParticle(Particle.TOTEM, location, 100, 0, 0, 0);
 
             chestInv.forEach(itemStack -> {
@@ -259,7 +259,7 @@ public class BlockListener implements Listener {
         } else {
             if (isChestNeighbour) player.sendMessage(ChatColor.RED + Message.CHEST_CANT_BE_SPAWNED.toString());
             HashMap<Integer, ItemStack> items = player.getInventory().addItem(chestInv.toArray(new ItemStack[0]));
-            items.forEach((integer, itemStack1) -> location.getWorld().dropItemNaturally(location, itemStack1));
+            if (location.getWorld() != null) items.forEach((integer, itemStack1) -> location.getWorld().dropItemNaturally(location, itemStack1));
         }
     }
 
