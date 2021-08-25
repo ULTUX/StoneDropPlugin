@@ -1,8 +1,2 @@
-&7StoneDrop plugin has been updated to &6v2.1.0. &7Changelog:
-    &7- Fixed bug where sometimes it was possible to get item drop from any block using netherite pickaxe
-    &7- Improved performance
-    &7- Removed shutdown command
-    &7- Removed redundant permissions
-    &7- Fixed sound problems
-    &7- Added comments in lang.yml file
-    &7- Made error handing more user-friendly
+&7StoneDrop plugin has been updated to &6v2.1.1. &7Changelog:
+    &7- Fixed bug that on older minecraft versions prevented players from using /drop command.

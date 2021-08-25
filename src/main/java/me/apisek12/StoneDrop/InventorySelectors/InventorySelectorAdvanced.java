@@ -60,7 +60,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
 
         this.refreshCobbleObject();
         reloadInventory();
-        SoundUtils.playSound(player, org.bukkit.Sound.ENTITY_ENDERMAN_TELEPORT);
+        SoundUtils.playSound(player, "ENTITY_ENDERMAN_TELEPORT");
         player.openInventory(selector);
     }
 
@@ -201,7 +201,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
 
     protected void openSecondaryWindow(ArrayList<ItemStack> items){
         willBeUsed = false;
-        SoundUtils.playSound(player, org.bukkit.Sound.UI_LOOM_TAKE_RESULT);
+        SoundUtils.playSound(player, "UI_LOOM_TAKE_RESULT");
         secondaryWindow = Bukkit.createInventory(null, 27, ChatColor.DARK_AQUA+Message.GUI_SECOND_TITLE.toString());
         AtomicInteger i = new AtomicInteger(10);
         items.forEach(item -> secondaryWindow.setItem(i.getAndAdd(2), item));
@@ -226,12 +226,12 @@ public class InventorySelectorAdvanced extends InventorySelector{
                 if (event.getClickedInventory().equals(inventorySelector.selector)){
                     if (event.getCurrentItem().equals(inventorySelector.cobble)) {
                         inventorySelector.settings.get("COBBLE").toggle();
-                        SoundUtils.playSound(player, org.bukkit.Sound.UI_STONECUTTER_SELECT_RECIPE);
+                        SoundUtils.playSound(player, "UI_STONECUTTER_SELECT_RECIPE");
                     }
                     if (PluginMain.versionCompatible(12) ){
                         if (inventorySelector.settings.containsKey(clickedItem.getType().toString())) {
                             inventorySelector.settings.get(clickedItem.getType().toString()).toggle();
-                            SoundUtils.playSound(player, org.bukkit.Sound.UI_STONECUTTER_SELECT_RECIPE);
+                            SoundUtils.playSound(player, "UI_STONECUTTER_SELECT_RECIPE");
                         }
                     }
                     else {
@@ -260,7 +260,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
         if (objects.containsKey(event.getWhoClicked()) && (event.getClickedInventory().equals(objects.get(event.getWhoClicked()).secondaryWindow) || event.getClickedInventory().equals(event.getWhoClicked().getInventory()))) {
             event.setCancelled(true);
             if (checkForFuncButtonsPressed(event)) return;
-            SoundUtils.playSound((Player) event.getWhoClicked(), org.bukkit.Sound.ENTITY_CHICKEN_EGG);
+            SoundUtils.playSound((Player) event.getWhoClicked(), "ENTITY_CHICKEN_EGG");
             checkForFuncButtonsPressed(event);
         }
     }
@@ -292,7 +292,7 @@ public class InventorySelectorAdvanced extends InventorySelector{
     @EventHandler
     public void InventoryCloseEvent(InventoryCloseEvent event) {
         if (objects.containsKey(event.getPlayer())) {
-            SoundUtils.playSound((Player) event.getPlayer(), org.bukkit.Sound.UI_LOOM_TAKE_RESULT);
+            SoundUtils.playSound((Player) event.getPlayer(), "UI_LOOM_TAKE_RESULT");
             if (event.getInventory().equals(objects.get(event.getPlayer()).selector)){
                 if (!objects.get(event.getPlayer()).willBeUsed) objects.remove(event.getPlayer());
             }
