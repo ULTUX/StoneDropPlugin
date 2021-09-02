@@ -8,7 +8,6 @@ public class SoundUtils {
     public static void playSound(Player player, String sound){
         if (PluginMain.versionCompatible(14)) {
             player.playSound(player.getLocation(), Sound.valueOf(sound), (float)PluginMain.volume, 1);
-            System.out.println("Playing...");
         }
     }
 }
