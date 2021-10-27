@@ -1,7 +1,6 @@
 package me.apisek12.StoneDrop.Utils;
 
 import me.apisek12.StoneDrop.DataModels.DropChance;
-import me.apisek12.StoneDrop.EventListeners.BlockListener;
 import me.apisek12.StoneDrop.PluginMain;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -15,14 +14,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Dye;
+import org.bukkit.util.Vector;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ItemUtils {
+
+    private static final float SPREAD_RADIUS = 0.3F;
 
     public static ItemStack getItemStack(String itemName, int dropAmount)  {
             if(!PluginMain.versionCompatible(12)){
@@ -86,48 +86,24 @@ public class ItemUtils {
         if (PluginMain.dropIntoInventory) {
             HashMap<Integer, ItemStack> remainingItems = player.getInventory().addItem(itemStack);
             for (Map.Entry<Integer, ItemStack> entry : remainingItems.entrySet()) {
-                location.getWorld().dropItem(location, entry.getValue());
+                Objects.requireNonNull(location.getWorld()).dropItem(location, entry.getValue());
             }
         } else {
             if (PluginMain.realisticDrop) {
-                spawnDropChest(itemStack, player, location);
+                dropMultiDirection(itemStack,location);
             } else {
-                location.getWorld().dropItem(location, itemStack);
+                Objects.requireNonNull(location.getWorld()).dropItem(location, itemStack);
             }
         }
     }
 
-    private static void spawnDropChest(ItemStack itemToChest, Player player, Location location) {
-        boolean isTrpChstNeighbour = BlockUtils.hasTheSameNeighbour(location.getBlock(), Material.TRAPPED_CHEST);
 
-        if (isTrpChstNeighbour) {
-            location.getWorld().dropItemNaturally(location, itemToChest);
-        } else {
-            location.getBlock().setType(Material.TRAPPED_CHEST);
-            Chest chest = (Chest) location.getBlock().getState();
-            ItemMeta meta = itemToChest.getItemMeta();
-            int[] chestIndexesTable = new int[27];
-            int chestSlotAmount = (itemToChest.getAmount() / 27);
-            Arrays.fill(chestIndexesTable, chestSlotAmount);
-            //in this case it is not possible to drop more than 27*64 the same item
-            int extraSlotAmount = (chestSlotAmount < 64) ? itemToChest.getAmount() % 27 : 0;
-            for (int chestPlaceIndex = 0; chestPlaceIndex < extraSlotAmount; chestPlaceIndex++)
-                chestIndexesTable[chestPlaceIndex] += 1;
-            for (int chestPlaceIndex = 0; chestPlaceIndex < 27; chestPlaceIndex++) {
-                if (chestIndexesTable[chestPlaceIndex] <= 0) break;
-                ItemStack stack = new ItemStack(
-                        itemToChest.getType(),
-                        chestIndexesTable[chestPlaceIndex],
-                        itemToChest.getDurability()
-                );
-                stack.setItemMeta(meta);
-                chest.getInventory().setItem(chestPlaceIndex, stack);
-            }
+    private static void dropMultiDirection(ItemStack itemToDrop, Location location) {
+        Random r = ThreadLocalRandom.current();
+        for(int i=0; i<itemToDrop.getAmount();i++){
+            Vector velocity = new Vector(r.nextGaussian()*SPREAD_RADIUS,r.nextFloat() + 0.5F, r.nextGaussian()*SPREAD_RADIUS);
 
-            Bukkit.getServer().getPluginManager().callEvent(new BlockBreakEvent(location.getBlock(), player));
-            location.getBlock().setType(Material.AIR);
-
+            Objects.requireNonNull(location.getWorld()).dropItemNaturally(location.setDirection(velocity), new ItemStack(itemToDrop.getType(),1));
         }
-
     }
 }
