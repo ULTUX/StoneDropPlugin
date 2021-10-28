@@ -30,7 +30,7 @@ public class BlockListener implements Listener {
 
     static final Map<Player, Long> messageTimestamp = new HashMap<>();
     private static final long ORE_MESSAGE_DELAY = 10000;
-    public static String[] set; //Ore names
+    public static String[] oreNames; //Ore names
     private static LinkedHashMap<String, DropChance> dropChances;
 
     public static void initialize() {
@@ -148,69 +148,86 @@ public class BlockListener implements Listener {
                             }
                     });
 
-
-                    if (ItemUtils.getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.SILK_TOUCH) >= 1) {
-                        for (String s : set) {
-                            if (!s.equals("COBBLE") && !s.equals("STACK")) {
-
-                                DropChance oreSettings = dropChances.get(s);
-
-                                if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
-                                        && Arrays.stream(oreSettings.getAcceptedBiomes()).noneMatch(biome -> event.getBlock().getBiome().equals(biome)))
-                                    continue;
-
-                                if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
-                                    if (MathUtils.chance(dropChances.get(s).getST()) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(s).isOn()) {
-                                        try {
-                                            int dropAmount = MathUtils.randBetween(
-                                                    dropChances.get(s).getMinST(),
-                                                    dropChances.get(s).getMaxST()
-                                            );
-                                            ItemStack itemToDrop = ItemUtils.getItemStack(s, dropAmount);
-                                            ItemUtils.applyEnchants(oreSettings, itemToDrop);
-                                            ItemUtils.applyCustomName(oreSettings, itemToDrop);
-                                            ItemUtils.dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
-                                        } catch (NullPointerException e) {
-                                            PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + s + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
-                                        }
-
-                                    }
-                                }
-                            }
-                        }
+                    // realization for pickaxes with silk touch
+                    boolean isSilkNotBlockDrop = this.realizeDropForSilkTouch(event.getPlayer(), event.getBlock());
+                    // if pickaxe has silk and its restricted, we can't drop ones without S-T set
+                    if(isSilkNotBlockDrop){
+                        realizeDropForFortune(event.getPlayer(), event.getBlock());
                     }
-                    int pickaxeLootLevel = ItemUtils.getItemInHand(event.getPlayer()).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
-                    for (String s : set) {
-                        if (!s.equals("COBBLE")) {
-                            DropChance oreSettings = dropChances.get(s);
 
-                            if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
-                                    && Arrays.stream(oreSettings.getAcceptedBiomes()).noneMatch(biome -> event.getBlock().getBiome().equals(biome)))
-                                continue;
-
-                            if (event.getBlock().getLocation().getBlockY() >= oreSettings.getMinLevel() && event.getBlock().getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
-                                if (MathUtils.chance(dropChances.get(s).getFortuneChance(pickaxeLootLevel)) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get(s).isOn()) {
-                                    try {
-                                        int dropAmount = MathUtils.randBetween(
-                                                (int) dropChances.get(s).getFortuneItemsAmountMin(pickaxeLootLevel),
-                                                (int) dropChances.get(s).getFortuneItemsAmountMax(pickaxeLootLevel));
-                                        ItemStack itemToDrop = ItemUtils.getItemStack(s, dropAmount);
-                                        ItemUtils.applyEnchants(oreSettings, itemToDrop);
-                                        ItemUtils.applyCustomName(oreSettings, itemToDrop);
-                                        ItemUtils.dropItems(itemToDrop, event.getPlayer(), event.getBlock().getLocation());
-                                    } catch (NullPointerException e) {
-                                        PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + s + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
-                                    }
-                                }
-                            }
-                        }
-
-                    }
 
                     giveExp(event.getPlayer());
 
                 }
             }
+        }
+    }
+
+    private boolean realizeDropForSilkTouch(Player eventPlayer, Block eventBlock){
+        boolean canSilkGain = true;
+        if (ItemUtils.getItemInHand(eventPlayer).getEnchantmentLevel(Enchantment.SILK_TOUCH) >= 1) {
+            if(PluginMain.restrictedSilkTouch){
+                canSilkGain = false;
+            }
+            for (String s : oreNames) {
+                if (!s.equals("COBBLE") && !s.equals("STACK")) {
+
+                    DropChance oreSettings = dropChances.get(s);
+
+                    if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
+                            && Arrays.stream(oreSettings.getAcceptedBiomes()).noneMatch(biome -> eventBlock.getBiome().equals(biome)))
+                        continue;
+
+                    if (eventBlock.getLocation().getBlockY() >= oreSettings.getMinLevel() && eventBlock.getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
+                        if (MathUtils.chance(dropChances.get(s).getST()) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(eventPlayer.getUniqueId().toString()).get(s).isOn()) {
+                            try {
+                                int dropAmount = MathUtils.randBetween(
+                                        dropChances.get(s).getMinST(),
+                                        dropChances.get(s).getMaxST()
+                                );
+                                ItemStack itemToDrop = ItemUtils.getItemStack(s, dropAmount);
+                                ItemUtils.applyEnchants(oreSettings, itemToDrop);
+                                ItemUtils.applyCustomName(oreSettings, itemToDrop);
+                                ItemUtils.dropItems(itemToDrop, eventPlayer, eventBlock.getLocation());
+                            } catch (NullPointerException e) {
+                                PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + s + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+        return canSilkGain;
+    }
+
+    private void realizeDropForFortune(Player eventPlayer, Block eventBlock){
+        int pickaxeLootLevel = ItemUtils.getItemInHand(eventPlayer).getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
+        for (String s : oreNames) {
+            if (!s.equals("COBBLE")) {
+                DropChance oreSettings = dropChances.get(s);
+
+                if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
+                        && Arrays.stream(oreSettings.getAcceptedBiomes()).noneMatch(biome -> eventBlock.getBiome().equals(biome)))
+                    continue;
+
+                if (eventBlock.getLocation().getBlockY() >= oreSettings.getMinLevel() && eventBlock.getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
+                    if (MathUtils.chance(dropChances.get(s).getFortuneChance(pickaxeLootLevel)) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(eventPlayer.getUniqueId().toString()).get(s).isOn()) {
+                        try {
+                            int dropAmount = MathUtils.randBetween(
+                                    (int) dropChances.get(s).getFortuneItemsAmountMin(pickaxeLootLevel),
+                                    (int) dropChances.get(s).getFortuneItemsAmountMax(pickaxeLootLevel));
+                            ItemStack itemToDrop = ItemUtils.getItemStack(s, dropAmount);
+                            ItemUtils.applyEnchants(oreSettings, itemToDrop);
+                            ItemUtils.applyCustomName(oreSettings, itemToDrop);
+                            ItemUtils.dropItems(itemToDrop, eventPlayer, eventBlock.getLocation());
+                        } catch (NullPointerException e) {
+                            PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + s + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
+                        }
+                    }
+                }
+            }
+
         }
     }
 
