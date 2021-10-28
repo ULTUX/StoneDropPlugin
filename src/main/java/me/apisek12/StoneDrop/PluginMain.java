@@ -50,7 +50,8 @@ public class PluginMain extends JavaPlugin {
     public static double volume = 0.3d;
     public static ArrayList<ExecuteCommands> commands;
     public static boolean dropChestToInv = false;
-    public static boolean realisticDrop = true;
+    public static boolean realisticDrop = false;
+    public static boolean restrictedSilkTouch = false;
     public static String bukkitVersion;
     public static ArrayList<Inventory> openedChests = new ArrayList<>();
     public static ArrayList<Location> chestLocations = new ArrayList<>();

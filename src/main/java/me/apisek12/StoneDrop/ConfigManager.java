@@ -234,19 +234,19 @@ public class ConfigManager {
             }
             PluginMain.dropChances.put(oreObjectOptions.getName(), oreObjectOptions);
         }
-        BlockListener.set = new String[PluginMain.dropChances.keySet().toArray().length];
+        BlockListener.oreNames = new String[PluginMain.dropChances.keySet().toArray().length];
 
         for (int i = 0; i < PluginMain.dropChances.keySet().toArray().length; i++) {
-            BlockListener.set[i] = (String) PluginMain.dropChances.keySet().toArray()[i];
+            BlockListener.oreNames[i] = (String) PluginMain.dropChances.keySet().toArray()[i];
         }
     }
 
     private void fixPlayerData() {
         getServer().getOnlinePlayers().forEach(ConfigManager::generateNewPlayerData);
         PluginMain.playerSettings.forEach((name, settings) -> {
-            for (int i = 0; i < BlockListener.set.length; i++) {
-                if (!settings.containsKey(BlockListener.set[i])) {
-                    settings.put(BlockListener.set[i], new Setting(true, BlockListener.set[i]));
+            for (int i = 0; i < BlockListener.oreNames.length; i++) {
+                if (!settings.containsKey(BlockListener.oreNames[i])) {
+                    settings.put(BlockListener.oreNames[i], new Setting(true, BlockListener.oreNames[i]));
                 }
             }
         });
@@ -319,14 +319,15 @@ public class ConfigManager {
         PluginMain.disabledWorlds = new ArrayList<>(parentPlugin.getConfig().getStringList("disabled-worlds"));
         PluginMain.dropChestToInv = parentPlugin.getConfig().getBoolean("drop-chest-to-inventory-global");
         PluginMain.realisticDrop = parentPlugin.getConfig().getBoolean("realistic-drop");
+        PluginMain.restrictedSilkTouch = parentPlugin.getConfig().getBoolean("restricted-silk-touch");
     }
 
     public static void generateNewPlayerData(String uid){
         getServer().getConsoleSender().sendMessage("[StoneDrop] Creating new player data...");
         if (!PluginMain.playerSettings.containsKey(uid)) {
             LinkedHashMap<String, Setting> settings = new LinkedHashMap<>();
-            for (int i = 0; i < BlockListener.set.length; i++) {
-                settings.put(BlockListener.set[i], new Setting(true, BlockListener.set[i]));
+            for (int i = 0; i < BlockListener.oreNames.length; i++) {
+                settings.put(BlockListener.oreNames[i], new Setting(true, BlockListener.oreNames[i]));
             }
             settings.put("COBBLE", new Setting(false, "COBBLE"));
             PluginMain.playerSettings.put(uid, settings);

@@ -255,3 +255,7 @@ drop-chest-to-inventory-global: false
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Realistic multi direction drop spread
 realistic-drop: true
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Silk touch pickaxes can drop only if silk-touch chance is set and more than 0.0
+# for default drops in config only DIAMOND_ORE will be droppable by silk pickaxe with this option
+restricted-silk-touch: false
