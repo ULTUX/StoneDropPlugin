@@ -13,6 +13,7 @@ import me.apisek12.StoneDrop.EventListeners.InventoryListener;
 import me.apisek12.StoneDrop.InventorySelectors.AdminPanel;
 import me.apisek12.StoneDrop.InventorySelectors.InventorySelector;
 import me.apisek12.StoneDrop.InventorySelectors.InventorySelectorAdvanced;
+import me.apisek12.StoneDrop.Utils.McMMOUtils;
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -52,6 +53,7 @@ public class PluginMain extends JavaPlugin {
     public static boolean dropChestToInv = false;
     public static boolean realisticDrop = false;
     public static boolean restrictedSilkTouch = false;
+    public static boolean mcmmoSupport = false;
     public static String bukkitVersion;
     public static ArrayList<Inventory> openedChests = new ArrayList<>();
     public static ArrayList<Location> chestLocations = new ArrayList<>();
@@ -77,11 +79,9 @@ public class PluginMain extends JavaPlugin {
         bukkitVersion = Bukkit.getBukkitVersion();
         configManager = new ConfigManager(this);
 
-        //Check if version is < 1.8.9
+
         try {
-            if (versionCompatible(16)) {
-                isNetherite = true;
-            }
+            //Check if version is > 1.12
             if (versionCompatible(12)) {
                 golden = Material.getMaterial(Material.class.getField("GOLDEN_PICKAXE").getName());
                 wooden = Material.getMaterial(Material.class.getField("WOODEN_PICKAXE").getName());
@@ -94,8 +94,14 @@ public class PluginMain extends JavaPlugin {
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
+
+        if (versionCompatible(16)) {
+            isNetherite = true;
+        }
+
         registerEvents();
         configManager.loadConfig();
+
 
         new Updater(this, 339276, getFile(), Updater.UpdateType.DEFAULT, true);
         new Metrics(this);

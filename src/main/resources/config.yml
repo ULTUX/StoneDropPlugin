@@ -1,7 +1,49 @@
-# These are chances of drop from STONE
+# These are chances of drop from STONE (all materials in section: dropBlocks)
 # More info about config: https://github.com/ULTUX/StoneDropPlugin/wiki/Config-file
 # Permissions: https://github.com/ULTUX/StoneDropPlugin/wiki/Permissions
 chances:
+  DIAMOND_SWORD: #Item name to drop. Should be Unique
+    minLevel: 0   #Min Y level to drop this item
+    maxLevel: 120 #Max Y level to drop this item
+    customName: "&bMuad'Dib's Crysknife"
+    fortune-0: #Pickaxe enchants, which allow to drop.
+      chance: 0.002 #if restricted-silk-touch is false, that is also chance for silk touch
+      max-amount: 1 # max ind min amount to drop. The amount is choosing randomly between these boundaries
+      min-amount: 1 # this case, always will drop only 1 sword by no fortune pickaxe
+    fortune-1:
+      chance: 0.003
+      max-amount: 1
+      min-amount: 1
+    fortune-3: #wont drop on fortune-2, if fortune-n is not set then chance equal 0
+      chance: 0.005
+      max-amount: 1
+      min-amount: 1
+    enchant: #List of all enchantments that should be applied for dropped pickaxe
+      sharpness: 5
+    biomes:       #Drop only on following biomes. If you want all, delete this section like upon
+         - Desert, Badlands
+  LAPIS_LAZULI:
+    fortune-0:
+      chance: 0.02
+      max-amount: 1
+      min-amount: 1
+    fortune-1:
+      chance: 0.021
+      max-amount: 2
+      min-amount: 1
+    fortune-2:
+      chance: 0.022
+      max-amount: 3
+      min-amount: 2
+    fortune-3:
+      chance: 0.023
+      max-amount: 4
+      min-amount: 3
+  LAPIS_ORE:
+    silk_touch-1:
+      chance: 0.02
+      max-amount: 1
+      min-amount: 1
   COAL:
     fortune-0:
       chance: 0.02
@@ -22,7 +64,6 @@ chances:
   DIAMOND:
     minLevel: 0
     maxLevel: 25
-    customName: "&bCustom named diamond that is found on Y=<0, 25>!"
     fortune-0:
       chance: 0.0025
       max-amount: 1
@@ -36,15 +77,14 @@ chances:
       max-amount: 3
       min-amount: 2
     fortune-3:
-      chance: 0.00325
+      chance: 0.0031
       max-amount: 4
       min-amount: 3
   DIAMOND_ORE:
     minLevel: 0
     maxLevel: 25
-    customName: "&bCustom named diamond that is found on Y=<0, 25>!"
     silk_touch-1:
-      chance: 0.1
+      chance: 0.0025
       max-amount: 1
       min-amount: 1
   EMERALD:
@@ -115,29 +155,7 @@ chances:
       chance: 0.01
       max-amount: 6
       min-amount: 5
-  DIAMOND_PICKAXE:
-    minLevel: 0   #Min Y level to drop this item
-    maxLevel: 256 #Max Y level to drop this item
-    fortune-0:
-      chance: 0.002
-      max-amount: 1
-      min-amount: 1
-    fortune-1:
-      chance: 0.003
-      max-amount: 1
-      min-amount: 1
-    fortune-2:
-      chance: 0.004
-      max-amount: 1
-      min-amount: 1
-    fortune-3:
-      chance: 0.005
-      max-amount: 1
-      min-amount: 1
-    enchant:      #List of all enchantments that should be applied
-      silk_touch: 1
-    biomes:       #Drop only on following biomes
- #     - Mountains
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # This is chance of getting a chest spawned
@@ -222,6 +240,7 @@ disabled-worlds:
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Should ores drop items
+# if you have mcmmo, turn off Bonus items in blast mining. Its not supported
 ore-drop: true
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # If ore-drop is false, some specific ores can drop anyway. This is white list drop ores.
@@ -256,6 +275,12 @@ drop-chest-to-inventory-global: false
 # Realistic multi direction drop spread
 realistic-drop: true
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Silk touch pickaxes can drop only if silk-touch chance is set and more than 0.0
-# for default drops in config only DIAMOND_ORE will be droppable by silk pickaxe with this option
+# When true: Silk touch pickaxes can drop only if silk-touch chance IS SET and more than 0.0
+# When false: you can drop section fortune-0 with silk pickaxe
 restricted-silk-touch: false
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# support for famous rpg plugin mcMMO. McMmo plugin is required https://github.com/mcMMO-Dev/mcMMO
+# dont set true if you dont have mcmmo plugin on your server
+# with this option amount of dropped items can be increased according lvl of Mining skill
+#blast mining is not supported
+mcmmo-support: false

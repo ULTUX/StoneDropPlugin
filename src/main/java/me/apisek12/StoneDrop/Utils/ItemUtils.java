@@ -1,11 +1,18 @@
 package me.apisek12.StoneDrop.Utils;
 
+import com.gmail.nossr50.datatypes.player.McMMOPlayer;
+import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
+import com.gmail.nossr50.mcMMO;
+import com.gmail.nossr50.skills.mining.MiningManager;
+import com.gmail.nossr50.util.player.UserManager;
 import me.apisek12.StoneDrop.DataModels.DropChance;
 import me.apisek12.StoneDrop.PluginMain;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -37,7 +44,7 @@ public class ItemUtils {
                 }
             }
             if (Material.getMaterial(itemName) == null) return null;
-            return new ItemStack(Material.getMaterial(itemName),dropAmount);
+            return new ItemStack(Objects.requireNonNull(Material.getMaterial(itemName)),dropAmount);
     }
 
     public static void applyEnchants(DropChance oreSettings, ItemStack itemToDrop) {
@@ -82,19 +89,26 @@ public class ItemUtils {
         return tool;
     }
 
-    public static void dropItems(ItemStack itemStack, Player player, Location location) {
+
+    public static void dropItems(ItemStack itStckToDrop, Player player, Location location) {
+
+        if(PluginMain.mcmmoSupport){
+            int amountToDrop = itStckToDrop.getAmount();
+            amountToDrop += McMMOUtils.increasePlayerDrop(player,amountToDrop);
+            itStckToDrop.setAmount(amountToDrop);
+        }
+
         if (PluginMain.dropIntoInventory) {
-            HashMap<Integer, ItemStack> remainingItems = player.getInventory().addItem(itemStack);
+            HashMap<Integer, ItemStack> remainingItems = player.getInventory().addItem(itStckToDrop);
             for (Map.Entry<Integer, ItemStack> entry : remainingItems.entrySet()) {
                 Objects.requireNonNull(location.getWorld()).dropItem(location, entry.getValue());
             }
+        } else if (PluginMain.realisticDrop) {
+            dropMultiDirection(itStckToDrop,location);
         } else {
-            if (PluginMain.realisticDrop) {
-                dropMultiDirection(itemStack,location);
-            } else {
-                Objects.requireNonNull(location.getWorld()).dropItem(location, itemStack);
-            }
+            Objects.requireNonNull(location.getWorld()).dropItem(location, itStckToDrop);
         }
+
     }
 
 
