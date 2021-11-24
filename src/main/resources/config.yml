@@ -21,7 +21,8 @@ chances:
     enchant: #List of all enchantments that should be applied for dropped pickaxe
       sharpness: 5
     biomes:       #Drop only on following biomes. If you want all, delete this section like upon
-         - Desert, Badlands
+         - desert
+         - badlands
   LAPIS_LAZULI:
     fortune-0:
       chance: 0.02

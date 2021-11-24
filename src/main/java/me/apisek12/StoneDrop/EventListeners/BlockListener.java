@@ -214,6 +214,7 @@ public class BlockListener implements Listener {
             if (!s.equals("COBBLE")) {
                 DropChance oreSettings = dropChances.get(s);
 
+
                 if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
                         && Arrays.stream(oreSettings.getAcceptedBiomes()).noneMatch(biome -> eventBlock.getBiome().equals(biome)))
                     continue;
