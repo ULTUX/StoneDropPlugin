@@ -48,7 +48,7 @@ public class ItemUtils {
     public static void applyCustomName(DropChance oreSettings, ItemStack itemToDrop) {
         if (oreSettings.getCustomName() != null) {
             ItemMeta meta = itemToDrop.getItemMeta();
-            meta.setDisplayName(oreSettings.getCustomName());
+            Objects.requireNonNull(meta).setDisplayName(oreSettings.getCustomName());
             itemToDrop.setItemMeta(meta);
         }
     }
@@ -63,7 +63,7 @@ public class ItemUtils {
 
     public static ItemStack getItemInHand(Player player) {
         ItemStack tool = null;
-        if (PluginMain.plugin.versionCompatible(12)) {
+        if (PluginMain.versionCompatible(12)) {
             try {
                 tool = ((ItemStack) PlayerInventory.class.getMethod("getItemInMainHand").invoke(player.getInventory()));
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -104,10 +104,13 @@ public class ItemUtils {
 
     private static void dropMultiDirection(ItemStack itemToDrop, Location location) {
         Random r = ThreadLocalRandom.current();
-        for(int i=0; i<itemToDrop.getAmount();i++){
+        final int DROP_AMOUNT = itemToDrop.getAmount();
+        ItemStack isCopy = itemToDrop.clone();
+        isCopy.setAmount(1);
+        for(int i=0; i<DROP_AMOUNT;i++){
             Vector velocity = new Vector(r.nextGaussian()*SPREAD_RADIUS,r.nextFloat() + 0.5F, r.nextGaussian()*SPREAD_RADIUS);
 
-            Objects.requireNonNull(location.getWorld()).dropItemNaturally(location.setDirection(velocity), new ItemStack(itemToDrop.getType(),1));
+            Objects.requireNonNull(location.getWorld()).dropItemNaturally(location.setDirection(velocity), isCopy);
         }
     }
 }
