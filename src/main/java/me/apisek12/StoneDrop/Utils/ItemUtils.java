@@ -5,6 +5,7 @@ import me.apisek12.StoneDrop.PluginMain;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -34,7 +35,7 @@ public class ItemUtils {
                 }
             }
             if (Material.getMaterial(itemName) == null) return null;
-            return new ItemStack(Objects.requireNonNull(Material.getMaterial(itemName)),dropAmount);
+            return new ItemStack(Material.getMaterial(itemName),dropAmount);
     }
 
     public static void applyEnchants(DropChance oreSettings, ItemStack itemToDrop) {
@@ -48,7 +49,7 @@ public class ItemUtils {
     public static void applyCustomName(DropChance oreSettings, ItemStack itemToDrop) {
         if (oreSettings.getCustomName() != null) {
             ItemMeta meta = itemToDrop.getItemMeta();
-            Objects.requireNonNull(meta).setDisplayName(oreSettings.getCustomName());
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', oreSettings.getCustomName()));
             itemToDrop.setItemMeta(meta);
         }
     }
@@ -63,7 +64,7 @@ public class ItemUtils {
 
     public static ItemStack getItemInHand(Player player) {
         ItemStack tool = null;
-        if (PluginMain.versionCompatible(12)) {
+        if (PluginMain.plugin.versionCompatible(12)) {
             try {
                 tool = ((ItemStack) PlayerInventory.class.getMethod("getItemInMainHand").invoke(player.getInventory()));
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -104,13 +105,11 @@ public class ItemUtils {
 
     private static void dropMultiDirection(ItemStack itemToDrop, Location location) {
         Random r = ThreadLocalRandom.current();
-        final int DROP_AMOUNT = itemToDrop.getAmount();
-        ItemStack isCopy = itemToDrop.clone();
-        isCopy.setAmount(1);
-        for(int i=0; i<DROP_AMOUNT;i++){
+        for(int i=0; i<itemToDrop.getAmount();i++){
             Vector velocity = new Vector(r.nextGaussian()*SPREAD_RADIUS,r.nextFloat() + 0.5F, r.nextGaussian()*SPREAD_RADIUS);
-
-            Objects.requireNonNull(location.getWorld()).dropItemNaturally(location.setDirection(velocity), isCopy);
+            ItemStack toDrop = new ItemStack(itemToDrop.getType(),1);
+            toDrop.setItemMeta(itemToDrop.getItemMeta());
+            Objects.requireNonNull(location.getWorld()).dropItemNaturally(location.setDirection(velocity), toDrop);
         }
     }
 }
