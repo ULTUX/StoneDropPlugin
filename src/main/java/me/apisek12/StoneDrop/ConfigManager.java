@@ -6,6 +6,7 @@ import me.apisek12.StoneDrop.DataModels.ExecuteCommands;
 import me.apisek12.StoneDrop.DataModels.Setting;
 import me.apisek12.StoneDrop.Enums.Message;
 import me.apisek12.StoneDrop.EventListeners.BlockListener;
+import me.apisek12.StoneDrop.Utils.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -174,7 +175,7 @@ public class ConfigManager {
         for (String key : parentPlugin.getConfig().getConfigurationSection("chances").getKeys(false)) {
             ConfigurationSection oreObject = parentPlugin.getConfig().getConfigurationSection("chances." + key);
             DropChance oreObjectOptions = new DropChance();
-            if (Material.getMaterial(key) == null) {
+            if (ItemUtils.getItemStack(key,1) == null) {
                 getLogger().warning("Possible mistype of material "+key+" in config file. Please check config file for errors.");
                 continue;
             }
@@ -315,11 +316,14 @@ public class ConfigManager {
         PluginMain.treasureChestBroadcast = parentPlugin.getConfig().getBoolean("treasure-broadcast");
         PluginMain.oreDropChance = parentPlugin.getConfig().getDouble("ore-drop-chance");
         PluginMain.volume = parentPlugin.getConfig().getDouble("volume");
-        PluginMain.experienceToDrop = (float) ((double) parentPlugin.getConfig().get("experience"));
+        PluginMain.experienceToDrop = (float) (parentPlugin.getConfig().getDouble("experience"));
         PluginMain.disabledWorlds = new ArrayList<>(parentPlugin.getConfig().getStringList("disabled-worlds"));
         PluginMain.dropChestToInv = parentPlugin.getConfig().getBoolean("drop-chest-to-inventory-global");
         PluginMain.realisticDrop = parentPlugin.getConfig().getBoolean("realistic-drop");
         PluginMain.restrictedSilkTouch = parentPlugin.getConfig().getBoolean("restricted-silk-touch");
+        PluginMain.mcmmoSupport = parentPlugin.getConfig().getBoolean("mcmmo-support");
+
+
     }
 
     public static void generateNewPlayerData(String uid){

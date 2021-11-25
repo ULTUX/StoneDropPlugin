@@ -25,6 +25,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 import java.util.logging.Level;
 
+import static org.bukkit.Bukkit.getServer;
+
 
 public class BlockListener implements Listener {
 
@@ -35,7 +37,7 @@ public class BlockListener implements Listener {
 
     public static void initialize() {
         dropChances = PluginMain.dropChances;
-        Bukkit.getServer().getConsoleSender().sendMessage("[" + PluginMain.plugin.getName() + "] Starting internal scheduler...");
+        getServer().getConsoleSender().sendMessage("[" + PluginMain.plugin.getName() + "] Starting internal scheduler...");
         Bukkit.getScheduler().scheduleSyncRepeatingTask(PluginMain.plugin, () -> {
             synchronized (messageTimestamp) {
                 Iterator<Map.Entry<Player, Long>> iterator = messageTimestamp.entrySet().iterator();
@@ -105,35 +107,8 @@ public class BlockListener implements Listener {
                     if (PluginMain.playerSettings.get(event.getPlayer().getUniqueId().toString()).get("COBBLE").isOn()) {
                         event.setCancelled(true);
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> event.getBlock().setType(Material.AIR), 1L);
-                        Player player = event.getPlayer();
-                        if (PluginMain.versionCompatible(12)) {
-                            Damageable itemMeta = (Damageable) player.getInventory().getItemInMainHand().getItemMeta();
-                            if (itemMeta != null) {
-                                if (((ItemMeta) itemMeta).hasEnchant(Enchantment.DURABILITY)) {
-                                    if (MathUtils.chance(1f / (((ItemMeta) itemMeta).getEnchantLevel(Enchantment.DURABILITY) + 1))) {
-                                        itemMeta.setDamage(itemMeta.getDamage() + 1);
-                                    }
-                                } else {
-                                    itemMeta.setDamage(itemMeta.getDamage() + 1);
-                                }
-                            }
-                            if (itemMeta != null) {
-                                if (itemMeta.getDamage() > player.getInventory().getItemInMainHand().getType().getMaxDurability())
-                                    player.getInventory().setItemInMainHand(null);
-                                else player.getInventory().getItemInMainHand().setItemMeta((ItemMeta) itemMeta);
-                            }
-                        } else {
-                            if (player.getItemInHand().containsEnchantment(Enchantment.DURABILITY)) {
-                                if (MathUtils.chance(1f / (player.getItemInHand().getEnchantmentLevel(Enchantment.DURABILITY) + 1))) {
-                                    player.getItemInHand().setDurability((short) (player.getItemInHand().getDurability() + 1));
-                                }
-                            } else {
-                                player.getItemInHand().setDurability((short) (player.getItemInHand().getDurability() + 1));
-                            }
-                            if (player.getItemInHand().getDurability() > player.getItemInHand().getType().getMaxDurability())
-                                player.setItemInHand(null);
-                        }
-                        player.updateInventory();
+
+                        this.changePickaxeDurability(event.getPlayer());
                     }
                     if (MathUtils.chance(PluginMain.chestSpawnRate)) {
                         Bukkit.getScheduler().runTaskLater(PluginMain.plugin, () -> spawnChest(event.getBlock().getLocation(), event.getPlayer()), 4);
@@ -144,7 +119,7 @@ public class BlockListener implements Listener {
                         if (!executeCommands.isRequiredPermission() || event.getPlayer().hasPermission("stonedrop.exec-commands"))
                             if (MathUtils.chance(executeCommands.getChance())) {
                                 String[] commands = executeCommands.getCommands().toArray(new String[0]);
-                                Arrays.stream(commands).map(command -> command.replaceAll("@player", event.getPlayer().getName())).forEach(command -> Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), command));
+                                Arrays.stream(commands).map(command -> command.replaceAll("@player", event.getPlayer().getName())).forEach(command -> getServer().dispatchCommand(getServer().getConsoleSender(), command));
                             }
                     });
 
@@ -163,34 +138,66 @@ public class BlockListener implements Listener {
         }
     }
 
+    private void changePickaxeDurability(Player player){
+        if (PluginMain.versionCompatible(12)) {
+            Damageable itemMeta = (Damageable) player.getInventory().getItemInMainHand().getItemMeta();
+            if (itemMeta != null) {
+                if (((ItemMeta) itemMeta).hasEnchant(Enchantment.DURABILITY)) {
+                    if (MathUtils.chance(1f / (((ItemMeta) itemMeta).getEnchantLevel(Enchantment.DURABILITY) + 1))) {
+                        itemMeta.setDamage(itemMeta.getDamage() + 1);
+                    }
+                } else {
+                    itemMeta.setDamage(itemMeta.getDamage() + 1);
+                }
+            }
+            if (itemMeta != null) {
+                if (itemMeta.getDamage() > player.getInventory().getItemInMainHand().getType().getMaxDurability())
+                    player.getInventory().setItemInMainHand(null);
+                else player.getInventory().getItemInMainHand().setItemMeta((ItemMeta) itemMeta);
+            }
+        } else {
+            if (player.getItemInHand().containsEnchantment(Enchantment.DURABILITY)) {
+                if (MathUtils.chance(1f / (player.getItemInHand().getEnchantmentLevel(Enchantment.DURABILITY) + 1))) {
+                    player.getItemInHand().setDurability((short) (player.getItemInHand().getDurability() + 1));
+                }
+            } else {
+                player.getItemInHand().setDurability((short) (player.getItemInHand().getDurability() + 1));
+            }
+            if (player.getItemInHand().getDurability() > player.getItemInHand().getType().getMaxDurability())
+                player.setItemInHand(null);
+        }
+        player.updateInventory();
+    }
+
     private boolean realizeDropForSilkTouch(Player eventPlayer, Block eventBlock){
         boolean canSilkGain = true;
         if (ItemUtils.getItemInHand(eventPlayer).getEnchantmentLevel(Enchantment.SILK_TOUCH) >= 1) {
             if(PluginMain.restrictedSilkTouch){
                 canSilkGain = false;
             }
-            for (String s : oreNames) {
-                if (!s.equals("COBBLE") && !s.equals("STACK")) {
+            for (String oreName : oreNames) {
+                if (!oreName.equals("COBBLE") && !oreName.equals("STACK")) {
 
-                    DropChance oreSettings = dropChances.get(s);
+                    DropChance oreSettings = dropChances.get(oreName);
 
                     if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
                             && Arrays.stream(oreSettings.getAcceptedBiomes()).noneMatch(biome -> eventBlock.getBiome().equals(biome)))
                         continue;
 
                     if (eventBlock.getLocation().getBlockY() >= oreSettings.getMinLevel() && eventBlock.getLocation().getBlockY() <= oreSettings.getMaxLevel()) {
-                        if (MathUtils.chance(dropChances.get(s).getST()) && dropChances.get(s).isEnabled() && PluginMain.playerSettings.get(eventPlayer.getUniqueId().toString()).get(s).isOn()) {
+                        if (MathUtils.chance(dropChances.get(oreName).getST()) && dropChances.get(oreName).isEnabled() && PluginMain.playerSettings.get(eventPlayer.getUniqueId().toString()).get(oreName).isOn()) {
+
                             try {
                                 int dropAmount = MathUtils.randBetween(
-                                        dropChances.get(s).getMinST(),
-                                        dropChances.get(s).getMaxST()
+                                        dropChances.get(oreName).getMinST(),
+                                        dropChances.get(oreName).getMaxST()
                                 );
-                                ItemStack itemToDrop = ItemUtils.getItemStack(s, dropAmount);
+                                ItemStack itemToDrop = ItemUtils.getItemStack(oreName, dropAmount);
                                 ItemUtils.applyEnchants(oreSettings, itemToDrop);
                                 ItemUtils.applyCustomName(oreSettings, itemToDrop);
                                 ItemUtils.dropItems(itemToDrop, eventPlayer, eventBlock.getLocation());
                             } catch (NullPointerException e) {
-                                PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + s + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
+                                PluginMain.plugin.getLogger().log(Level.WARNING, "Material: " + oreName + " does not exist in this minecraft version, something is probably not properly set in config.yml file.");
                             }
 
                         }
@@ -206,6 +213,7 @@ public class BlockListener implements Listener {
         for (String s : oreNames) {
             if (!s.equals("COBBLE")) {
                 DropChance oreSettings = dropChances.get(s);
+
 
                 if (oreSettings.getAcceptedBiomes() != null && oreSettings.getAcceptedBiomes().length > 0
                         && Arrays.stream(oreSettings.getAcceptedBiomes()).noneMatch(biome -> eventBlock.getBiome().equals(biome)))
@@ -230,6 +238,8 @@ public class BlockListener implements Listener {
 
         }
     }
+
+
 
     public void spawnChest(Location location, Player player) {
         Block block = location.getBlock();

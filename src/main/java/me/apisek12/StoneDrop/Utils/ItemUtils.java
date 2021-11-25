@@ -2,7 +2,10 @@ package me.apisek12.StoneDrop.Utils;
 
 import me.apisek12.StoneDrop.DataModels.DropChance;
 import me.apisek12.StoneDrop.PluginMain;
-import org.bukkit.*;
+import org.bukkit.DyeColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -77,19 +80,26 @@ public class ItemUtils {
         return tool;
     }
 
-    public static void dropItems(ItemStack itemStack, Player player, Location location) {
+
+    public static void dropItems(ItemStack itStckToDrop, Player player, Location location) {
+
+        if(PluginMain.mcmmoSupport){
+            int amountToDrop = itStckToDrop.getAmount();
+            amountToDrop += McMMOUtils.increasePlayerDrop(player,amountToDrop);
+            itStckToDrop.setAmount(amountToDrop);
+        }
+
         if (PluginMain.dropIntoInventory) {
-            HashMap<Integer, ItemStack> remainingItems = player.getInventory().addItem(itemStack);
+            HashMap<Integer, ItemStack> remainingItems = player.getInventory().addItem(itStckToDrop);
             for (Map.Entry<Integer, ItemStack> entry : remainingItems.entrySet()) {
                 Objects.requireNonNull(location.getWorld()).dropItem(location, entry.getValue());
             }
+        } else if (PluginMain.realisticDrop) {
+            dropMultiDirection(itStckToDrop,location);
         } else {
-            if (PluginMain.realisticDrop) {
-                dropMultiDirection(itemStack,location);
-            } else {
-                Objects.requireNonNull(location.getWorld()).dropItem(location, itemStack);
-            }
+            Objects.requireNonNull(location.getWorld()).dropItem(location, itStckToDrop);
         }
+
     }
 
 

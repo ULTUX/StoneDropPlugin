@@ -16,20 +16,28 @@ import java.util.HashMap;
 
 public class DropChance {
     private String name;
-    private final int fortunesAmount = 4;
+
+    private final int FORTUNES_AMOUNT = 4;
+    private final double[] fortuneChances = new double[FORTUNES_AMOUNT];
+    private final double[] fortuneMins = new double[FORTUNES_AMOUNT];
+    private final double[] fortuneMaxs = new double[FORTUNES_AMOUNT];
+
     private double st;
-    private final double[] fortuneChances = new double[fortunesAmount];
-    private final double[] fortuneMins = new double[fortunesAmount];
-    private final double[] fortuneMaxs = new double[fortunesAmount];
     private int min_st, max_st;
+
     private int minLevel = 0, maxLevel = 256;
-    private String customName;
+
+    private String customName = null;
+
     private Biome[] acceptedBiomes = null;
+
     private HashMap<Enchantment, Integer> enchant = new HashMap<>();
+
+    private boolean isEnabled = true;
+
     public HashMap<Enchantment, Integer> getEnchant() {
         return enchant;
     }
-    private boolean isEnabled = true;
 
     public DropChance(String name, double nof, double f1, double f2, double f3, double st, int minnof, int maxnof, int minf1, int maxf1, int minf2, int maxf2, int minf3, int maxf3, int min_st, int max_st, HashMap<Enchantment, Integer> enchant) {
         this.name = name;
