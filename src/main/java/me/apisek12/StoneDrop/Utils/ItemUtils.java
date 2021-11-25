@@ -2,13 +2,8 @@ package me.apisek12.StoneDrop.Utils;
 
 import me.apisek12.StoneDrop.DataModels.DropChance;
 import me.apisek12.StoneDrop.PluginMain;
-import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Chest;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -51,7 +46,7 @@ public class ItemUtils {
     public static void applyCustomName(DropChance oreSettings, ItemStack itemToDrop) {
         if (oreSettings.getCustomName() != null) {
             ItemMeta meta = itemToDrop.getItemMeta();
-            meta.setDisplayName(oreSettings.getCustomName());
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', oreSettings.getCustomName()));
             itemToDrop.setItemMeta(meta);
         }
     }
@@ -102,8 +97,9 @@ public class ItemUtils {
         Random r = ThreadLocalRandom.current();
         for(int i=0; i<itemToDrop.getAmount();i++){
             Vector velocity = new Vector(r.nextGaussian()*SPREAD_RADIUS,r.nextFloat() + 0.5F, r.nextGaussian()*SPREAD_RADIUS);
-
-            Objects.requireNonNull(location.getWorld()).dropItemNaturally(location.setDirection(velocity), new ItemStack(itemToDrop.getType(),1));
+            ItemStack toDrop = new ItemStack(itemToDrop.getType(),1);
+            toDrop.setItemMeta(itemToDrop.getItemMeta());
+            Objects.requireNonNull(location.getWorld()).dropItemNaturally(location.setDirection(velocity), toDrop);
         }
     }
 }

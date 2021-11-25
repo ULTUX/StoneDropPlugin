@@ -119,10 +119,10 @@ public class PluginMain extends JavaPlugin {
                 HandlerList.unregisterAll(plugin);
                 sender.sendMessage(ChatColor.GRAY + "Registering new event listeners");
                 registerEvents();
-                BlockListener.initialize();
                 sender.sendMessage(ChatColor.GRAY + "Reloading config files...");
                 sender.sendMessage(ChatColor.GRAY + "Generating config files...");
                 configManager.reloadConfig();
+                BlockListener.initialize();
                 sender.sendMessage(ChatColor.GREEN + Message.RELOADED_SUCCESSFULLY.toString());
                 return true;
             } else sender.sendMessage(ChatColor.RED + Message.PERMISSION_MISSING.toString());
