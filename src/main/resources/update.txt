@@ -1,2 +1,5 @@
-&7StoneDrop plugin has been updated to &6v2.1.1. &7Changelog:
-    &7- Fixed bug that on older minecraft versions prevented players from using /drop command.
+&7StoneDrop plugin has been updated to &6v2.2.0. &7Changelog:
+    &7- Added mcMMO support, see config
+    &7- Fixed lapis drop in older versions
+    &7- Improved performance
+    &7- Fixed biomes support
