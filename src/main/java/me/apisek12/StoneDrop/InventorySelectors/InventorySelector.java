@@ -40,7 +40,7 @@ public class InventorySelector implements Listener {
     protected ArrayList<ItemStack> items = new ArrayList<>();
     protected static ItemStack glassFiller = null;
 
-    static {
+    public InventorySelector() {
         exit = new ItemStack(Material.BARRIER);
         ItemMeta exitMeta = exit.getItemMeta();
 
@@ -56,13 +56,10 @@ public class InventorySelector implements Listener {
         backMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         back.setItemMeta(backMeta);
-
-    }
-
-    public InventorySelector() {
     }
 
     public InventorySelector(Player player, LinkedHashMap<String, Setting> settings) {
+        this();
         if (PluginMain.versionCompatible(13)) {
             glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
             ItemMeta meta = glassFiller.getItemMeta();

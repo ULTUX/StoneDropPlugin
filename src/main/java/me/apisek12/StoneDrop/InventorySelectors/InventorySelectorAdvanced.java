@@ -28,6 +28,9 @@ public class InventorySelectorAdvanced extends InventorySelector{
     protected LinkedHashMap<ItemStack, ArrayList<ItemStack>> items = new LinkedHashMap<>();
 
     static{
+    }
+
+    private void initBackBtn() {
         back = new ItemStack(Material.ARROW);
         ItemMeta backMeta = back.getItemMeta();
 
@@ -38,12 +41,13 @@ public class InventorySelectorAdvanced extends InventorySelector{
 
     }
 
-
     public InventorySelectorAdvanced(){
         super();
+        initBackBtn();
     }
 
     public InventorySelectorAdvanced(Player player, LinkedHashMap<String, Setting> settings) {
+        initBackBtn();
         if (PluginMain.versionCompatible(13)) {
             glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
             ItemMeta meta = glassFiller.getItemMeta();
