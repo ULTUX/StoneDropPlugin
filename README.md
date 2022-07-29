@@ -81,3 +81,4 @@ Bellow are example images of GUI (layout may be different depending on Minecraft
 ## Looking for answers? Visit [StoneDrop Wiki](https://github.com/ULTUX/StoneDropPlugin/wiki/Config-file).
 
 ## Latest releases: [Releases](https://github.com/ULTUX/minecraft-stone-drop-plugin/releases/)
+
