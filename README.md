@@ -69,7 +69,7 @@ Everything can be configured and changed to meet server requirements.
 ### [Permissions](https://github.com/ULTUX/StoneDropPlugin/wiki/Permissions)
 
 ## Example Images:
-Bellow are example images of GUI (layout may be different depending on Minecraft version)
+Below are example images of GUI (layout may be different depending on Minecraft version)
 
 ### Item description
 ![](https://camo.githubusercontent.com/452558732644c4a2baf7381ddf88079d65e81cb8a41db19f3eb0dbfda65f4908/68747470733a2f2f692e696d6775722e636f6d2f5a4168646f456c2e706e67) \
